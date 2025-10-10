@@ -5,7 +5,6 @@ import { About } from "@/components/hotel/About";
 import { Amenities } from "@/components/hotel/Amenities";
 import { Nearby } from "@/components/hotel/Nearby";
 import { Gallery } from "@/components/hotel/Gallery";
-import { Contact } from "@/components/hotel/Contact";
 import { Footer } from "@/components/hotel/Footer";
 
 const Hotel = () => {
@@ -19,7 +18,6 @@ const Hotel = () => {
         <Amenities />
         <Nearby />
         <Gallery />
-        <Contact />
       </main>
       <Footer />
     </div>
