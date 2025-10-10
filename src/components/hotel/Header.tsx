@@ -26,7 +26,7 @@ export function Header() {
           <Logo isScrolled={isScrolled} />
         </a>
         <Nav isScrolled={isScrolled} />
-        <MobileNav />
+        <MobileNav isScrolled={isScrolled} />
       </div>
     </header>
   )

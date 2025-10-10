@@ -1,13 +1,7 @@
 "use client";
 
 import { Facebook, Instagram } from "lucide-react";
-
-const Logo = () => (
-    <div className="text-2xl font-bold">
-      <span className="text-blue-600">V</span>
-      <span className="text-gray-300">Home</span>
-    </div>
-  );
+import { Logo } from "./Logo";
 
 export function Footer() {
   return (
@@ -15,7 +9,7 @@ export function Footer() {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
-            <Logo />
+            <Logo isFooter={true} />
             <p className="mt-4 text-gray-400 max-w-md">
               Hotel 4 estrelas localizado na Av. Atlântica em Macaé, oferecendo conforto e sofisticação à beira-mar.
             </p>
