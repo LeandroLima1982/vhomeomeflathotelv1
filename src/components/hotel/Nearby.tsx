@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Waves, Utensils, Trees, Mountain, Plane, Landmark } from "lucide-react";
 
 const nearbyData = [
@@ -74,50 +74,52 @@ export function Nearby() {
           <p className="text-gray-600 mt-2 mb-12">Passe o mouse sobre um local para ver uma imagem</p>
         </div>
         
-        <Tabs defaultValue={nearbyData[0].category} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 mx-auto">
-            {nearbyData.map((category) => (
-              <TabsTrigger key={category.category} value={category.category}>
-                {category.category}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          
+        <Accordion type="multiple" defaultValue={[`item-${nearbyData[0].category}`]} className="w-full max-w-4xl mx-auto">
           {nearbyData.map((category) => (
-            <TabsContent key={category.category} value={category.category} className="mt-8">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                {category.places.map((place) => (
-                  <div key={place.name} className="group [perspective:1000px]" style={{ height: '250px' }}>
-                    <div className="relative h-full w-full rounded-xl shadow-lg transition-all duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
-                      {/* Front Side */}
-                      <div className="absolute inset-0 [backface-visibility:hidden]">
-                        <Card className="h-full w-full flex flex-col justify-center items-center text-center p-2">
-                          <CardHeader className="p-0">
-                            <div className="mx-auto bg-blue-100 p-3 rounded-full mb-3">
-                              <category.icon className="h-6 w-6 text-blue-800" />
-                            </div>
-                            <CardTitle className="text-sm font-bold leading-tight">{place.name}</CardTitle>
-                          </CardHeader>
-                          <CardContent className="p-0 mt-2">
-                            <p className="text-lg font-semibold text-blue-800">{place.distance}</p>
-                            <p className="text-xs text-gray-500 mt-1">{category.category}</p>
-                          </CardContent>
-                        </Card>
-                      </div>
-                      {/* Back Side */}
-                      <div className="absolute inset-0 h-full w-full rounded-xl [transform:rotateY(180deg)] [backface-visibility:hidden]">
-                        <img src={place.image} alt={place.name} className="h-full w-full object-cover rounded-xl" />
-                        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-3 rounded-xl">
-                          <h3 className="text-white text-base font-bold">{place.name}</h3>
+            <AccordionItem key={category.category} value={`item-${category.category}`}>
+              <AccordionTrigger className="text-xl font-semibold hover:no-underline">
+                <div className="flex items-center gap-4">
+                  <div className="bg-blue-100 p-3 rounded-full">
+                    <category.icon className="h-6 w-6 text-blue-800" />
+                  </div>
+                  {category.category}
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 pt-4">
+                  {category.places.map((place) => (
+                    <div key={place.name} className="group [perspective:1000px]" style={{ height: '250px' }}>
+                      <div className="relative h-full w-full rounded-xl shadow-lg transition-all duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
+                        {/* Front Side */}
+                        <div className="absolute inset-0 [backface-visibility:hidden]">
+                          <Card className="h-full w-full flex flex-col justify-center items-center text-center p-2">
+                            <CardHeader className="p-0">
+                              <div className="mx-auto bg-blue-100 p-3 rounded-full mb-3">
+                                <category.icon className="h-6 w-6 text-blue-800" />
+                              </div>
+                              <CardTitle className="text-sm font-bold leading-tight">{place.name}</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-0 mt-2">
+                              <p className="text-lg font-semibold text-blue-800">{place.distance}</p>
+                              <p className="text-xs text-gray-500 mt-1">{category.category}</p>
+                            </CardContent>
+                          </Card>
+                        </div>
+                        {/* Back Side */}
+                        <div className="absolute inset-0 h-full w-full rounded-xl [transform:rotateY(180deg)] [backface-visibility:hidden]">
+                          <img src={place.image} alt={place.name} className="h-full w-full object-cover rounded-xl" />
+                          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-3 rounded-xl">
+                            <h3 className="text-white text-base font-bold">{place.name}</h3>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
           ))}
-        </Tabs>
+        </Accordion>
       </div>
     </section>
   );
