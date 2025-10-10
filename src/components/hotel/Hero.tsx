@@ -40,7 +40,7 @@ export function Hero() {
       <div className="relative z-10 flex h-full flex-col items-center justify-center text-center text-white px-4 pb-24">
         <div className={`transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <h1 className="text-4xl font-extrabold tracking-tight md:text-6xl lg:text-7xl">
-            V-Home Flat Hotel
+            Seu Flat Hotel à Beira Mar
           </h1>
           <p className="mt-4 max-w-2xl text-lg md:text-xl">
             Conforto e Sofisticação à Beira-Mar
