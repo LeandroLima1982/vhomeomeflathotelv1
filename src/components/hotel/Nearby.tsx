@@ -1,126 +1,136 @@
-"use client";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Waves, Utensils, Trees, Mountain, Plane, Landmark } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Card, CardContent } from "@/components/ui/card"
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
+import { Separator } from "@/components/ui/separator"
+import { MountainIcon, StarIcon } from "lucide-react"
 
 const nearbyData = [
   {
-    category: "Praias",
-    icon: Waves,
+    category: "Pontos turísticos",
     places: [
-      { name: "Praia Campista", distance: "0 m", image: "https://images.unsplash.com/photo-1507525428034-b723a9ce6890?auto=format&fit=crop&w=400&q=80" },
-      { name: "Praia dos Cavaleiros", distance: "1,6 km", image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=400&q=80" },
-      { name: "Praia de Imbetiba", distance: "2,4 km", image: "https://images.unsplash.com/photo-1473187983305-f61531429437?auto=format&fit=crop&w=400&q=80" },
-      { name: "Praia da Pecado", distance: "3 km", image: "https://images.unsplash.com/photo-1509281373149-e957c6296406?auto=format&fit=crop&w=400&q=80" },
-      { name: "Mar do Norte", distance: "6,1 km", image: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=400&q=80" },
-    ],
+      {
+        name: "Parque do Ibirapuera",
+        distance: "5 km",
+        rating: 4.8,
+        image: "/placeholder.jpg",
+        description: "O parque mais famoso de São Paulo, com museus, jardins e lagos."
+      },
+      {
+        name: "Avenida Paulista",
+        distance: "3 km",
+        rating: 4.7,
+        image: "/placeholder.jpg",
+        description: "O coração cultural e financeiro da cidade, com lojas, restaurantes e museus."
+      },
+      {
+        name: "MASP",
+        distance: "3.2 km",
+        rating: 4.9,
+        image: "/placeholder.jpg",
+        description: "Um dos mais importantes museus de arte da América Latina."
+      },
+      {
+        name: "Beco do Batman",
+        distance: "7 km",
+        rating: 4.6,
+        image: "/placeholder.jpg",
+        description: "Uma galeria de arte a céu aberto com grafites coloridos."
+      }
+    ]
   },
   {
     category: "Restaurantes",
-    icon: Utensils,
     places: [
-      { name: "Ilhote Sul", distance: "10 m", image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=400&q=80" },
-      { name: "Durval", distance: "250 m", image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=400&q=80" },
-      { name: "Go Go Wok", distance: "2,3 km", image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=400&q=80" },
-    ],
+      {
+        name: "D.O.M.",
+        distance: "4 km",
+        rating: 4.9,
+        image: "/placeholder.jpg",
+        description: "Restaurante de alta gastronomia do chef Alex Atala."
+      },
+      {
+        name: "A Casa do Porco",
+        distance: "2.5 km",
+        rating: 4.8,
+        image: "/placeholder.jpg",
+        description: "Famoso por seus pratos criativos com carne de porco."
+      },
+      {
+        name: "Maní",
+        distance: "6 km",
+        rating: 4.7,
+        image: "/placeholder.jpg",
+        description: "Cozinha brasileira contemporânea em um ambiente charmoso."
+      }
+    ]
   },
   {
-    category: "Parques",
-    icon: Trees,
+    category: "Transporte",
     places: [
-      { name: "Parque da Cidade", distance: "1,4 km", image: "https://images.unsplash.com/photo-1543007168-5fa9b3c5edc9?auto=format&fit=crop&w=400&q=80" },
-      { name: "Parque Municipal", distance: "15 km", image: "https://images.unsplash.com/photo-1500332242573-35f30ayler?auto=format&fit=crop&w=400&q=80" },
-      { name: "Restinga de Jurubatiba", distance: "16 km", image: "https://images.unsplash.com/photo-1621848212134-785a7dfcf786?auto=format&fit=crop&w=400&q=80" },
-    ],
-  },
-  {
-    category: "Belezas Naturais",
-    icon: Mountain,
-    places: [
-      { name: "Lagoa de Imboássica", distance: "5 km", image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=400&q=80" },
-      { name: "Cachoeira das Sete Quedas", distance: "45 km", image: "https://images.unsplash.com/photo-1532347922424-271b53a9b592?auto=format&fit=crop&w=400&q=80" },
-      { name: "Cachoeira de Glicério", distance: "45 km", image: "https://images.unsplash.com/photo-1500373994218-398cc6937a85?auto=format&fit=crop&w=400&q=80" },
-      { name: "Pico do Frade", distance: "56 km", image: "https://images.unsplash.com/photo-1595342739333-311194f29b44?auto=format&fit=crop&w=400&q=80" },
-    ],
-  },
-  {
-    category: "Aeroportos",
-    icon: Plane,
-    places: [
-      { name: "Aeroporto de Macaé", distance: "6 km", image: "https://images.unsplash.com/photo-1530533718754-001d2668365a?auto=format&fit=crop&w=400&q=80" },
-      { name: "Aeroporto de Cabo Frio", distance: "77 km", image: "https://images.unsplash.com/photo-1558642073-4a1a36a03a73?auto=format&fit=crop&w=400&q=80" },
-      { name: "Aeroporto de Arraial do Cabo", distance: "84 km", image: "https://images.unsplash.com/photo-1628548391373-24206a5a7b3f?auto=format&fit=crop&w=400&q=80" },
-    ],
-  },
-  {
-    category: "Pontos de Interesse",
-    icon: Landmark,
-    places: [
-        { name: "Forte Marechal Hermes", distance: "4 km", image: "https://images.unsplash.com/photo-1586792099131-da013243d547?auto=format&fit=crop&w=400&q=80" },
-        { name: "Shopping Plaza", distance: "4,5 km", image: "https://images.unsplash.com/photo-1580828343064-fde4fc206bc6?auto=format&fit=crop&w=400&q=80" },
-        { name: "Hospital Unimed", distance: "3,5 km", image: "https://images.unsplash.com/photo-1631217872137-2732f08a77a1?auto=format&fit=crop&w=400&q=80" },
-        { name: "Parque Fazenda Atalaia", distance: "27 km", image: "https://images.unsplash.com/photo-1582239931097-0a4561591c61?auto=format&fit=crop&w=400&q=80" },
+      {
+        name: "Aeroporto de Congonhas",
+        distance: "8 km",
+        image: "/placeholder.jpg",
+        description: "Um dos principais aeroportos da cidade."
+      },
+      {
+        name: "Estação de Metrô Trianon-Masp",
+        distance: "3.1 km",
+        image: "/placeholder.jpg",
+        description: "Acesso fácil à linha verde do metrô."
+      }
     ]
   }
-];
+]
 
 export function Nearby() {
   return (
-    <section id="perto" className="py-20 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-800">O que há por perto?</h2>
-          <p className="text-gray-600 mt-2 mb-12">Passe o mouse sobre um local para ver uma imagem</p>
-        </div>
-        
-        <Accordion type="multiple" defaultValue={[`item-${nearbyData[0].category}`]} className="w-full max-w-4xl mx-auto">
-          {nearbyData.map((category) => (
-            <AccordionItem key={category.category} value={`item-${category.category}`}>
-              <AccordionTrigger className="text-xl font-semibold hover:no-underline">
-                <div className="flex items-center gap-4">
-                  <div className="bg-blue-100 p-3 rounded-full">
-                    <category.icon className="h-6 w-6 text-blue-800" />
-                  </div>
-                  {category.category}
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 pt-4">
-                  {category.places.map((place) => (
-                    <div key={place.name} className="group [perspective:1000px]" style={{ height: '250px' }}>
-                      <div className="relative h-full w-full rounded-xl shadow-lg transition-all duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
-                        {/* Front Side */}
-                        <div className="absolute inset-0 [backface-visibility:hidden]">
-                          <Card className="h-full w-full flex flex-col justify-center items-center text-center p-2">
-                            <CardHeader className="p-0">
-                              <div className="mx-auto bg-blue-100 p-3 rounded-full mb-3">
-                                <category.icon className="h-6 w-6 text-blue-800" />
-                              </div>
-                              <CardTitle className="text-sm font-bold leading-tight">{place.name}</CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-0 mt-2">
-                              <p className="text-lg font-semibold text-blue-800">{place.distance}</p>
-                              <p className="text-xs text-gray-500 mt-1">{category.category}</p>
-                            </CardContent>
-                          </Card>
+    <div className="w-full max-w-6xl mx-auto py-12 px-4 md:px-6">
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-3xl font-bold">O que há por perto?</h2>
+      </div>
+      <Accordion type="single" collapsible className="w-full" defaultValue="item-0">
+        {nearbyData.map((category, index) => (
+          <AccordionItem value={`item-${index}`} key={category.category}>
+            <AccordionTrigger className="text-2xl font-semibold">{category.category}</AccordionTrigger>
+            <AccordionContent>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 pt-4">
+                {category.places.map((place) => (
+                  <div key={place.name} className="group [perspective:1000px]" style={{ height: '250px' }}>
+                    <div className="relative h-full w-full rounded-xl shadow-lg transition-all duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
+                      <div className="absolute inset-0">
+                        <img
+                          src={place.image}
+                          alt={place.name}
+                          className="h-full w-full rounded-xl object-cover shadow-xl shadow-black/40"
+                        />
+                        <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/80 to-transparent rounded-b-xl">
+                          <h3 className="text-white text-lg font-bold">{place.name}</h3>
+                          <p className="text-white text-sm">{place.distance}</p>
                         </div>
-                        {/* Back Side */}
-                        <div className="absolute inset-0 h-full w-full rounded-xl [transform:rotateY(180deg)] [backface-visibility:hidden]">
-                          <img src={place.image} alt={place.name} className="h-full w-full object-cover rounded-xl" />
-                          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-3 rounded-xl">
-                            <h3 className="text-white text-base font-bold">{place.name}</h3>
-                          </div>
+                      </div>
+                      <div className="absolute inset-0 h-full w-full rounded-xl bg-black/80 px-6 py-4 text-center text-slate-200 [transform:rotateY(180deg)] [backface-visibility:hidden]">
+                        <div className="flex min-h-full flex-col items-center justify-center">
+                          <h3 className="text-xl font-bold">{place.name}</h3>
+                          <p className="text-sm mt-1 text-gray-400">{place.distance}</p>
+                          {place.rating && (
+                            <div className="flex items-center gap-1 mt-2">
+                              <StarIcon className="w-5 h-5 fill-primary text-primary" />
+                              <span className="font-semibold">{place.rating}</span>
+                            </div>
+                          )}
+                          <p className="text-base mt-2">{place.description}</p>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </div>
-    </section>
-  );
+                  </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
+    </div>
+  )
 }
