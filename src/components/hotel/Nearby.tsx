@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Waves, Utensils, Trees, Mountain, Plane, Landmark } from "lucide-react";
 
 const nearbyData = [
@@ -65,49 +66,58 @@ const nearbyData = [
 ];
 
 export function Nearby() {
-  const allPlaces = nearbyData.flatMap(category => 
-    category.places.map(place => ({
-      ...place,
-      category: category.category,
-      icon: category.icon,
-    }))
-  );
-
   return (
     <section id="perto" className="py-20 bg-gray-50">
-      <div className="container mx-auto px-4 text-center">
-        <h2 className="text-3xl font-bold text-gray-800">O que há por perto?</h2>
-        <p className="text-gray-600 mt-2 mb-12">Passe o mouse sobre um local para ver uma imagem</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-          {allPlaces.map((place) => (
-            <div key={place.name} className="group [perspective:1000px]" style={{ height: '250px' }}>
-              <div className="relative h-full w-full rounded-xl shadow-lg transition-all duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
-                {/* Front Side */}
-                <div className="absolute inset-0 [backface-visibility:hidden]">
-                  <Card className="h-full w-full flex flex-col justify-center items-center text-center p-2">
-                    <CardHeader className="p-0">
-                      <div className="mx-auto bg-blue-100 p-3 rounded-full mb-3">
-                        <place.icon className="h-6 w-6 text-blue-800" />
-                      </div>
-                      <CardTitle className="text-sm font-bold leading-tight">{place.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-0 mt-2">
-                      <p className="text-lg font-semibold text-blue-800">{place.distance}</p>
-                      <p className="text-xs text-gray-500 mt-1">{place.category}</p>
-                    </CardContent>
-                  </Card>
-                </div>
-                {/* Back Side */}
-                <div className="absolute inset-0 h-full w-full rounded-xl [transform:rotateY(180deg)] [backface-visibility:hidden]">
-                  <img src={place.image} alt={place.name} className="h-full w-full object-cover rounded-xl" />
-                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-3 rounded-xl">
-                    <h3 className="text-white text-base font-bold">{place.name}</h3>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+      <div className="container mx-auto px-4">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-gray-800">O que há por perto?</h2>
+          <p className="text-gray-600 mt-2 mb-12">Passe o mouse sobre um local para ver uma imagem</p>
         </div>
+        
+        <Tabs defaultValue={nearbyData[0].category} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 mx-auto">
+            {nearbyData.map((category) => (
+              <TabsTrigger key={category.category} value={category.category}>
+                {category.category}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          
+          {nearbyData.map((category) => (
+            <TabsContent key={category.category} value={category.category} className="mt-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                {category.places.map((place) => (
+                  <div key={place.name} className="group [perspective:1000px]" style={{ height: '250px' }}>
+                    <div className="relative h-full w-full rounded-xl shadow-lg transition-all duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
+                      {/* Front Side */}
+                      <div className="absolute inset-0 [backface-visibility:hidden]">
+                        <Card className="h-full w-full flex flex-col justify-center items-center text-center p-2">
+                          <CardHeader className="p-0">
+                            <div className="mx-auto bg-blue-100 p-3 rounded-full mb-3">
+                              <category.icon className="h-6 w-6 text-blue-800" />
+                            </div>
+                            <CardTitle className="text-sm font-bold leading-tight">{place.name}</CardTitle>
+                          </CardHeader>
+                          <CardContent className="p-0 mt-2">
+                            <p className="text-lg font-semibold text-blue-800">{place.distance}</p>
+                            <p className="text-xs text-gray-500 mt-1">{category.category}</p>
+                          </CardContent>
+                        </Card>
+                      </div>
+                      {/* Back Side */}
+                      <div className="absolute inset-0 h-full w-full rounded-xl [transform:rotateY(180deg)] [backface-visibility:hidden]">
+                        <img src={place.image} alt={place.name} className="h-full w-full object-cover rounded-xl" />
+                        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-3 rounded-xl">
+                          <h3 className="text-white text-base font-bold">{place.name}</h3>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
       </div>
     </section>
   );
