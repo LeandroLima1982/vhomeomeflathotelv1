@@ -1,5 +1,7 @@
 "use client";
 
+import { Star } from "lucide-react";
+
 export function About() {
   return (
     <section id="sobre" className="py-20 bg-white">
@@ -12,7 +14,15 @@ export function About() {
               className="rounded-lg shadow-2xl w-full h-auto object-cover"
             />
             <div className="absolute -bottom-4 -left-4 bg-blue-800 text-white px-4 py-2 rounded-md text-sm font-semibold shadow-lg">
-              Flat Hotel à beira-mar
+              <div className="flex flex-col items-center">
+                <div className="flex mb-1">
+                  <Star className="h-4 w-4 text-yellow-400" fill="currentColor" />
+                  <Star className="h-4 w-4 text-yellow-400" fill="currentColor" />
+                  <Star className="h-4 w-4 text-yellow-400" fill="currentColor" />
+                  <Star className="h-4 w-4 text-yellow-400" fill="currentColor" />
+                </div>
+                <span>Flat Hotel à beira-mar</span>
+              </div>
             </div>
           </div>
           <div>
