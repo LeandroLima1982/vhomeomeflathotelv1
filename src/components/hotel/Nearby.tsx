@@ -1,41 +1,37 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Card, CardContent } from "@/components/ui/card"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { Separator } from "@/components/ui/separator"
-import { MountainIcon, StarIcon } from "lucide-react"
+import { StarIcon } from "lucide-react"
 
 const nearbyData = [
   {
-    category: "Pontos turísticos",
+    category: "Praias e Lazer",
     places: [
       {
-        name: "Parque do Ibirapuera",
-        distance: "5 km",
-        rating: 4.8,
-        image: "/placeholder.jpg",
-        description: "O parque mais famoso de São Paulo, com museus, jardins e lagos."
-      },
-      {
-        name: "Avenida Paulista",
-        distance: "3 km",
+        name: "Praia dos Cavaleiros",
+        distance: "1.5 km",
         rating: 4.7,
-        image: "/placeholder.jpg",
-        description: "O coração cultural e financeiro da cidade, com lojas, restaurantes e museus."
+        image: "https://images.unsplash.com/photo-1562533114-2d5a354f3828?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Principal polo gastronômico e de lazer noturno da cidade."
       },
       {
-        name: "MASP",
-        distance: "3.2 km",
-        rating: 4.9,
-        image: "/placeholder.jpg",
-        description: "Um dos mais importantes museus de arte da América Latina."
-      },
-      {
-        name: "Beco do Batman",
-        distance: "7 km",
+        name: "Praia do Pecado",
+        distance: "3 km",
         rating: 4.6,
-        image: "/placeholder.jpg",
-        description: "Uma galeria de arte a céu aberto com grafites coloridos."
+        image: "https://images.unsplash.com/photo-1500930242389-fe02a90aae33?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Ideal para a prática de surf e kitesurf, com uma bela paisagem."
+      },
+      {
+        name: "Lagoa de Imboassica",
+        distance: "4 km",
+        rating: 4.5,
+        image: "https://images.unsplash.com/photo-1523825336839-3d88cb02771e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Ótima para esportes aquáticos, caminhadas e apreciar o pôr do sol."
+      },
+      {
+        name: "Parque da Restinga",
+        distance: "20 km",
+        rating: 4.8,
+        image: "https://images.unsplash.com/photo-1599667939302-47d5d7f7b2a1?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Belezas naturais, com 18 lagoas e ecossistema preservado."
       }
     ]
   },
@@ -43,25 +39,25 @@ const nearbyData = [
     category: "Restaurantes",
     places: [
       {
-        name: "D.O.M.",
-        distance: "4 km",
-        rating: 4.9,
-        image: "/placeholder.jpg",
-        description: "Restaurante de alta gastronomia do chef Alex Atala."
-      },
-      {
-        name: "A Casa do Porco",
-        distance: "2.5 km",
+        name: "Ilhote Sul Restaurante",
+        distance: "1.2 km",
         rating: 4.8,
-        image: "/placeholder.jpg",
-        description: "Famoso por seus pratos criativos com carne de porco."
+        image: "https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Especializado em frutos do mar, com vista para o mar."
       },
       {
-        name: "Maní",
-        distance: "6 km",
+        name: "Picanha do Zé",
+        distance: "2.5 km",
         rating: 4.7,
-        image: "/placeholder.jpg",
-        description: "Cozinha brasileira contemporânea em um ambiente charmoso."
+        image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Churrascaria tradicional e muito popular na cidade."
+      },
+      {
+        name: "Luigi Ristorante",
+        distance: "1.8 km",
+        rating: 4.6,
+        image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Culinária italiana autêntica em um ambiente acolhedor."
       }
     ]
   },
@@ -69,16 +65,16 @@ const nearbyData = [
     category: "Transporte",
     places: [
       {
-        name: "Aeroporto de Congonhas",
-        distance: "8 km",
-        image: "/placeholder.jpg",
-        description: "Um dos principais aeroportos da cidade."
+        name: "Aeroporto de Macaé (MEA)",
+        distance: "10 km",
+        image: "https://images.unsplash.com/photo-1530536924389-fad29a3a8359?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Principal aeroporto da cidade, com voos para destinos nacionais."
       },
       {
-        name: "Estação de Metrô Trianon-Masp",
-        distance: "3.1 km",
-        image: "/placeholder.jpg",
-        description: "Acesso fácil à linha verde do metrô."
+        name: "Rodoviária de Macaé",
+        distance: "6 km",
+        image: "https://images.unsplash.com/photo-1570125909239-74182456292e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Terminal de ônibus com linhas para o Rio de Janeiro e outras cidades."
       }
     ]
   }
