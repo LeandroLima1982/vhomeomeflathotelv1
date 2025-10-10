@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Waves, Utensils, Trees, Mountain, Plane } from "lucide-react";
+import { Waves, Utensils, Trees, Mountain, Plane, Landmark } from "lucide-react";
 
 const nearbyData = [
   {
@@ -49,6 +49,17 @@ const nearbyData = [
       { name: "Aeroporto de Cabo Frio", distance: "77 km" },
     ],
   },
+  {
+    category: "Pontos de Interesse",
+    icon: Landmark,
+    places: [
+        { name: "Shopping Plaza", distance: "4,5 km" },
+        { name: "Localizza", distance: "3,5 km" },
+        { name: "Movida", distance: "4,5 km" },
+        { name: "Hospital Unimed", distance: "3,5 km" },
+        { name: "Hospital Rede D'or", distance: "4,7 km" },
+    ]
+  }
 ];
 
 export function Nearby() {
