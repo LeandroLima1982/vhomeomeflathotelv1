@@ -21,7 +21,7 @@ export function About() {
                   <Star className="h-4 w-4 text-yellow-400" fill="currentColor" />
                   <Star className="h-4 w-4 text-yellow-400" fill="currentColor" />
                 </div>
-                <span>Flat Hotel à beira-mar</span>
+                <span>Flat Hotel À Beira-Mar</span>
               </div>
             </div>
           </div>
