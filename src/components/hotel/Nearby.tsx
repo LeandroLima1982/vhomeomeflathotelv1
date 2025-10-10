@@ -7,20 +7,20 @@ const nearbyData = [
       {
         name: "Parque da Cidade",
         distance: "1,4 km",
-        image: "https://images.unsplash.com/photo-1586348943529-beaae6c28db9?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        image: "https://macae.rj.gov.br/lib/images/noticia/1024x768/04072023163358.jpeg",
         description: "Ampla área verde para lazer e esportes."
       },
       {
-        name: "Parque Municipal",
+        name: "Parque Municipal Atalaia",
         distance: "15 km",
-        image: "https://images.unsplash.com/photo-1550026593-f369e81a0afb?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        description: "Contato com a natureza e trilhas."
+        image: "https://media-cdn.tripadvisor.com/media/photo-s/0f/3a/8a/3f/parque-municipal-atalaia.jpg",
+        description: "Contato com a natureza e trilhas com vista para o mar."
       },
       {
         name: "Restinga de Jurubatiba",
         distance: "16 km",
-        image: "https://images.unsplash.com/photo-1599667939302-47d5d7f7b2a1?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        description: "Parque nacional com ecossistema único."
+        image: "https://www.icmbio.gov.br/parnajurubatiba/images/stories/parna_jurubatiba_2.jpg",
+        description: "Parque nacional com ecossistema único de praias e lagoas."
       }
     ]
   },
@@ -30,19 +30,19 @@ const nearbyData = [
       {
         name: "Ilhote Sul",
         distance: "10 m",
-        image: "https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        image: "https://media-cdn.tripadvisor.com/media/photo-s/1d/3a/5a/5d/nosso-cartao-postal.jpg",
         description: "Especialidade em frutos do mar."
       },
       {
         name: "Durval",
         distance: "250 m",
-        image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        image: "https://vejario.abril.com.br/wp-content/uploads/2023/08/Durval-credito-Alex-Cunha-Divulgacao-2.jpg?quality=70&strip=info&w=1280&h=720&crop=1",
         description: "Culinária variada e ambiente agradável."
       },
       {
-        name: "Go Go Wok culinária japonesa",
+        name: "Go Go Wok",
         distance: "2,3 km",
-        image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        image: "https://media-cdn.tripadvisor.com/media/photo-s/1a/8a/9a/9a/nosso-delicioso-combinado.jpg",
         description: "Sabores autênticos da cozinha japonesa."
       }
     ]
@@ -51,15 +51,15 @@ const nearbyData = [
     category: "Belezas Naturais",
     places: [
       {
-        name: "Cachoeira do Escorrega Bicuda Pequena",
+        name: "Cachoeira do Escorrega",
         distance: "70 km",
-        image: "https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        description: "Queda d'água em meio à natureza."
+        image: "https://www.euviagens.com/wp-content/uploads/2021/01/Cachoeira-do-Escorrega-em-Sana-RJ.jpg",
+        description: "Queda d'água em meio à natureza na região de Sana."
       },
       {
-        name: "Lagoa de Imboássica",
+        name: "Lagoa de Imboassica",
         distance: "5 km",
-        image: "https://images.unsplash.com/photo-1523825336839-3d88cb02771e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        image: "https://macae.rj.gov.br/lib/images/noticia/1024x768/29012020111108.jpeg",
         description: "Ideal para esportes aquáticos e lazer."
       }
     ]
@@ -70,31 +70,31 @@ const nearbyData = [
       {
         name: "Praia Campista",
         distance: "0 m",
-        image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        image: "https://media-cdn.tripadvisor.com/media/photo-s/0d/9a/8a/8a/praia-campista.jpg",
         description: "A praia em frente ao hotel."
       },
       {
         name: "Praia dos Cavaleiros",
         distance: "1,6 km",
-        image: "https://images.unsplash.com/photo-1562533114-2d5a354f3828?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        image: "https://www.qualviagem.com.br/wp-content/uploads/2016/07/Praia_dos_Cavaleiros_Maca%C3%A9_Foto_Divulga%C3%A7%C3%A3o.jpg",
         description: "Polo gastronômico e vida noturna."
       },
       {
         name: "Praia de Imbetiba",
         distance: "2,4 km",
-        image: "https://images.unsplash.com/photo-1509281373149-e957c6296406?q=80&w=1928&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        image: "https://media-cdn.tripadvisor.com/media/photo-s/08/71/41/41/praia-de-imbetiba.jpg",
         description: "Praia urbana com águas calmas."
       },
       {
         name: "Praia do Pecado",
         distance: "3 km",
-        image: "https://images.unsplash.com/photo-1500930242389-fe02a90aae33?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        image: "https://media-cdn.tripadvisor.com/media/photo-s/08/71/41/4a/praia-do-pecado.jpg",
         description: "Preferida por surfistas."
       },
       {
         name: "Mar do Norte",
         distance: "6,1 km",
-        image: "https://images.unsplash.com/photo-1507525428034-b723a996f6ea?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        image: "https://media-cdn.tripadvisor.com/media/photo-s/08/71/41/5a/mar-do-norte.jpg",
         description: "Praia mais selvagem e tranquila."
       }
     ]
@@ -105,13 +105,13 @@ const nearbyData = [
       {
         name: "Aeroporto de Macaé",
         distance: "6 km",
-        image: "https://images.unsplash.com/photo-1530536924389-fad29a3a8359?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        image: "https://www.zurichairportbrasil.com.br/data/images/pages/6/macae-aeroporto-01.jpg",
         description: "Principal acesso aéreo à cidade."
       },
       {
         name: "Aeroporto de Cabo Frio",
         distance: "77 km",
-        image: "https://images.unsplash.com/photo-1570125909239-74182456292e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        image: "https://www.aeroportocabofrio.com.br/wp-content/uploads/2023/05/aeroporto-de-cabo-frio-scaled.jpg",
         description: "Alternativa para voos regionais."
       }
     ]
