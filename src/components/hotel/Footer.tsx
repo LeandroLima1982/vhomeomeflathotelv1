@@ -4,7 +4,7 @@ import { Facebook, Instagram } from "lucide-react";
 
 const Logo = () => (
     <div className="text-2xl font-bold">
-      <span className="text-blue-400">V</span>
+      <span className="text-blue-600">V</span>
       <span className="text-gray-300">Home</span>
     </div>
   );

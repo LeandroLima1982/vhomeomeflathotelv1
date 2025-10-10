@@ -6,7 +6,7 @@ import { Trees, Utensils, Waves, Plane } from "lucide-react";
 const nearbyPlaces = [
   {
     category: "Parques",
-    icon: <Trees className="h-6 w-6 text-blue-600" />,
+    icon: <Trees className="h-6 w-6 text-blue-700" />,
     places: [
       { name: "Parque da Cidade", distance: "1.4 km" },
       { name: "Parque Municipal", distance: "15 km" },
@@ -15,7 +15,7 @@ const nearbyPlaces = [
   },
   {
     category: "Restaurantes e Cafés",
-    icon: <Utensils className="h-6 w-6 text-blue-600" />,
+    icon: <Utensils className="h-6 w-6 text-blue-700" />,
     places: [
       { name: "Detroit Steakhouse", distance: "10 m" },
       { name: "Finalmente Creperia", distance: "250 m" },
@@ -24,7 +24,7 @@ const nearbyPlaces = [
   },
   {
     category: "Praias",
-    icon: <Waves className="h-6 w-6 text-blue-600" />,
+    icon: <Waves className="h-6 w-6 text-blue-700" />,
     places: [
       { name: "Praia Campista", distance: "0 m" },
       { name: "Praia dos Cavaleiros", distance: "1.6 km" },
@@ -33,7 +33,7 @@ const nearbyPlaces = [
   },
   {
     category: "Aeroportos",
-    icon: <Plane className="h-6 w-6 text-blue-600" />,
+    icon: <Plane className="h-6 w-6 text-blue-700" />,
     places: [
       { name: "Aeroporto de Macaé", distance: "6 km" },
       { name: "Aeroporto de Cabo Frio", distance: "77 km" },

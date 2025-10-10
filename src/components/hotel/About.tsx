@@ -3,12 +3,12 @@
 import { Star, MapPin, Waves, Wifi, Car, Coffee } from "lucide-react";
 
 const features = [
-  { icon: <Star className="h-6 w-6 text-blue-600" />, text: "Hotel 4 Estrelas" },
-  { icon: <MapPin className="h-6 w-6 text-blue-600" />, text: "Localização Privilegiada" },
-  { icon: <Waves className="h-6 w-6 text-blue-600" />, text: "Beira-Mar" },
-  { icon: <Wifi className="h-6 w-6 text-blue-600" />, text: "Wi-Fi Grátis" },
-  { icon: <Car className="h-6 w-6 text-blue-600" />, text: "Estacionamento Grátis" },
-  { icon: <Coffee className="h-6 w-6 text-blue-600" />, text: "Café da Manhã Incluso" },
+  { icon: <Star className="h-6 w-6 text-blue-700" />, text: "Hotel 4 Estrelas" },
+  { icon: <MapPin className="h-6 w-6 text-blue-700" />, text: "Localização Privilegiada" },
+  { icon: <Waves className="h-6 w-6 text-blue-700" />, text: "Beira-Mar" },
+  { icon: <Wifi className="h-6 w-6 text-blue-700" />, text: "Wi-Fi Grátis" },
+  { icon: <Car className="h-6 w-6 text-blue-700" />, text: "Estacionamento Grátis" },
+  { icon: <Coffee className="h-6 w-6 text-blue-700" />, text: "Café da Manhã Incluso" },
 ];
 
 export function About() {
@@ -22,7 +22,7 @@ export function About() {
               alt="Interior do VHome Flat Hotel"
               className="rounded-lg shadow-xl w-full h-auto object-cover"
             />
-            <div className="absolute -top-4 -right-4 bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-semibold shadow-lg">
+            <div className="absolute -top-4 -right-4 bg-blue-800 text-white px-4 py-2 rounded-md text-sm font-semibold shadow-lg">
               Flat Hotel à beira-mar
             </div>
           </div>

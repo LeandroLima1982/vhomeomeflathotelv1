@@ -46,7 +46,7 @@ export function Hero() {
             Conforto e Sofisticação à Beira-Mar
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Button size="lg" className="bg-blue-700 hover:bg-blue-800">Reservar Agora</Button>
+            <Button size="lg" className="bg-blue-800 hover:bg-blue-900">Reservar Agora</Button>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-800">
               Ver Galeria
             </Button>

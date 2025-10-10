@@ -70,7 +70,7 @@ export function BookingForm() {
                 </SelectContent>
               </Select>
             </div>
-            <Button size="lg" className="w-full h-10 bg-orange-500 hover:bg-orange-600 text-white">
+            <Button size="lg" className="w-full h-10 bg-blue-800 hover:bg-blue-900 text-white">
               <Search className="mr-2 h-4 w-4" /> Buscar
             </Button>
           </form>

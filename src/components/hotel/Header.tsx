@@ -8,7 +8,7 @@ import { Menu } from "lucide-react";
 const Logo = ({ isScrolled }: { isScrolled: boolean }) => (
   <div className="flex items-baseline gap-2">
     <div className="text-2xl font-bold">
-      <span className="text-blue-600">V</span>
+      <span className="text-blue-700">V</span>
       <span className={isScrolled ? "text-gray-800" : "text-white"}>Home</span>
     </div>
     <span className={`font-light ${isScrolled ? "text-gray-600" : "text-gray-200"}`}>Flat Hotel</span>
@@ -17,11 +17,11 @@ const Logo = ({ isScrolled }: { isScrolled: boolean }) => (
 
 const NavLinks = ({ className }: { className?: string }) => (
   <nav className={`items-center gap-6 ${className}`}>
-    <a href="#" className="hover:text-blue-600 transition-colors">Início</a>
-    <a href="#sobre" className="hover:text-blue-600 transition-colors">Sobre</a>
-    <a href="#galeria" className="hover:text-blue-600 transition-colors">Galeria</a>
-    <a href="#comodidades" className="hover:text-blue-600 transition-colors">Comodidades</a>
-    <a href="#contato" className="hover:text-blue-600 transition-colors">Contato</a>
+    <a href="#" className="hover:text-blue-700 transition-colors">Início</a>
+    <a href="#sobre" className="hover:text-blue-700 transition-colors">Sobre</a>
+    <a href="#galeria" className="hover:text-blue-700 transition-colors">Galeria</a>
+    <a href="#comodidades" className="hover:text-blue-700 transition-colors">Comodidades</a>
+    <a href="#contato" className="hover:text-blue-700 transition-colors">Contato</a>
   </nav>
 );
 
@@ -49,7 +49,7 @@ export function Header() {
         </a>
         <div className="hidden md:flex items-center gap-6">
           <NavLinks className="flex" />
-          <Button className="bg-blue-700 hover:bg-blue-800">
+          <Button className="bg-blue-800 hover:bg-blue-900">
             Reserve Agora
           </Button>
         </div>
@@ -67,7 +67,7 @@ export function Header() {
                   <Logo isScrolled={true} />
                 </a>
                 <NavLinks className="flex flex-col gap-4 text-lg" />
-                <Button className="mt-4 bg-blue-700 hover:bg-blue-800">Reserve Agora</Button>
+                <Button className="mt-4 bg-blue-800 hover:bg-blue-900">Reserve Agora</Button>
               </div>
             </SheetContent>
           </Sheet>
