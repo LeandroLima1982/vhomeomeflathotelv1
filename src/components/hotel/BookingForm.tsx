@@ -24,8 +24,8 @@ export function BookingForm() {
 
   return (
     <div className="relative z-10 -mt-12 md:-mt-20">
-      <div className="container mx-auto px-4">
-        <div className={`bg-white/30 backdrop-blur-lg border border-white/50 p-4 md:p-6 rounded-xl shadow-xl transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+      <div className="px-4">
+        <div className={`max-w-4xl mx-auto bg-white/30 backdrop-blur-lg border border-white/50 p-4 md:p-6 rounded-xl shadow-xl transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <form className="grid grid-cols-1 gap-2 md:gap-4 md:grid-cols-4 md:items-end">
             <div className="space-y-2 text-left">
               <label className="font-medium text-gray-800 flex items-center gap-2 text-sm pl-1">
