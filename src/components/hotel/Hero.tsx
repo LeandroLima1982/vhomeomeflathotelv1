@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import { BookingForm } from "./BookingForm";
 
 const images = [
   "https://images.unsplash.com/photo-1618773928121-c32242e63f39?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -38,7 +37,7 @@ export function Hero() {
         </CarouselContent>
       </Carousel>
       <div className="absolute inset-0 bg-black/50" />
-      <div className="relative z-10 flex h-full flex-col items-center justify-center text-center text-white px-4 pb-32">
+      <div className="relative z-10 flex h-full flex-col items-center justify-center text-center text-white px-4 pb-24">
         <div className={`transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <h1 className="text-4xl font-extrabold tracking-tight md:text-6xl lg:text-7xl">
             V-Home Flat Hotel
@@ -52,10 +51,6 @@ export function Hero() {
               Ver Galeria
             </Button>
           </div>
-        </div>
-        
-        <div className="absolute bottom-10 w-full max-w-5xl px-4">
-            <BookingForm />
         </div>
       </div>
     </section>

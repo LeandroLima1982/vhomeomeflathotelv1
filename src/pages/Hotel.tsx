@@ -1,5 +1,6 @@
 import { Header } from "@/components/hotel/Header";
 import { Hero } from "@/components/hotel/Hero";
+import { BookingForm } from "@/components/hotel/BookingForm";
 import { About } from "@/components/hotel/About";
 import { Amenities } from "@/components/hotel/Amenities";
 import { Nearby } from "@/components/hotel/Nearby";
@@ -12,6 +13,7 @@ const Hotel = () => {
       <Header />
       <main>
         <Hero />
+        <BookingForm />
         <About />
         <Amenities />
         <Nearby />
