@@ -5,19 +5,22 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 
-const Logo = () => (
-  <div className="text-2xl font-bold">
-    <span className="text-blue-600">V</span>
-    <span className="text-gray-500">Home</span>
+const Logo = ({ isScrolled }: { isScrolled: boolean }) => (
+  <div className="flex items-baseline gap-2">
+    <div className="text-2xl font-bold">
+      <span className="text-blue-600">V</span>
+      <span className={isScrolled ? "text-gray-800" : "text-white"}>Home</span>
+    </div>
+    <span className={`font-light ${isScrolled ? "text-gray-600" : "text-gray-200"}`}>Flat Hotel</span>
   </div>
 );
 
 const NavLinks = ({ className }: { className?: string }) => (
   <nav className={`items-center gap-6 ${className}`}>
+    <a href="#" className="hover:text-blue-600 transition-colors">Início</a>
     <a href="#sobre" className="hover:text-blue-600 transition-colors">Sobre</a>
-    <a href="#comodidades" className="hover:text-blue-600 transition-colors">Comodidades</a>
     <a href="#galeria" className="hover:text-blue-600 transition-colors">Galeria</a>
-    <a href="#depoimentos" className="hover:text-blue-600 transition-colors">Depoimentos</a>
+    <a href="#comodidades" className="hover:text-blue-600 transition-colors">Comodidades</a>
     <a href="#contato" className="hover:text-blue-600 transition-colors">Contato</a>
   </nav>
 );
@@ -42,11 +45,11 @@ export function Header() {
     <header className={headerClasses}>
       <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
         <a href="#" className="flex items-center gap-2">
-          <Logo />
+          <Logo isScrolled={isScrolled} />
         </a>
         <div className="hidden md:flex items-center gap-6">
           <NavLinks className="flex" />
-          <Button variant={isScrolled ? "default" : "outline"} className={!isScrolled ? "border-white text-white hover:bg-white hover:text-gray-800" : ""}>
+          <Button className="bg-blue-700 hover:bg-blue-800">
             Reserve Agora
           </Button>
         </div>
@@ -61,10 +64,10 @@ export function Header() {
             <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-white text-gray-800">
               <div className="flex flex-col gap-6 p-6">
                 <a href="#" className="flex items-center gap-2">
-                  <Logo />
+                  <Logo isScrolled={true} />
                 </a>
                 <NavLinks className="flex flex-col gap-4 text-lg" />
-                <Button className="mt-4">Reserve Agora</Button>
+                <Button className="mt-4 bg-blue-700 hover:bg-blue-800">Reserve Agora</Button>
               </div>
             </SheetContent>
           </Sheet>
