@@ -1,37 +1,26 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { StarIcon } from "lucide-react"
 
 const nearbyData = [
   {
-    category: "Praias e Lazer",
+    category: "Parques",
     places: [
       {
-        name: "Praia dos Cavaleiros",
-        distance: "1.5 km",
-        rating: 4.7,
-        image: "https://images.unsplash.com/photo-1562533114-2d5a354f3828?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        description: "Principal polo gastronômico e de lazer noturno da cidade."
+        name: "Parque da Cidade",
+        distance: "1,4 km",
+        image: "https://images.unsplash.com/photo-1586348943529-beaae6c28db9?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Ampla área verde para lazer e esportes."
       },
       {
-        name: "Praia do Pecado",
-        distance: "3 km",
-        rating: 4.6,
-        image: "https://images.unsplash.com/photo-1500930242389-fe02a90aae33?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        description: "Ideal para a prática de surf e kitesurf, com uma bela paisagem."
+        name: "Parque Municipal",
+        distance: "15 km",
+        image: "https://images.unsplash.com/photo-1550026593-f369e81a0afb?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Contato com a natureza e trilhas."
       },
       {
-        name: "Lagoa de Imboassica",
-        distance: "4 km",
-        rating: 4.5,
-        image: "https://images.unsplash.com/photo-1523825336839-3d88cb02771e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        description: "Ótima para esportes aquáticos, caminhadas e apreciar o pôr do sol."
-      },
-      {
-        name: "Parque da Restinga",
-        distance: "20 km",
-        rating: 4.8,
+        name: "Restinga de Jurubatiba",
+        distance: "16 km",
         image: "https://images.unsplash.com/photo-1599667939302-47d5d7f7b2a1?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        description: "Belezas naturais, com 18 lagoas e ecossistema preservado."
+        description: "Parque nacional com ecossistema único."
       }
     ]
   },
@@ -39,42 +28,91 @@ const nearbyData = [
     category: "Restaurantes",
     places: [
       {
-        name: "Ilhote Sul Restaurante",
-        distance: "1.2 km",
-        rating: 4.8,
+        name: "Ilhote Sul",
+        distance: "10 m",
         image: "https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        description: "Especializado em frutos do mar, com vista para o mar."
+        description: "Especialidade em frutos do mar."
       },
       {
-        name: "Picanha do Zé",
-        distance: "2.5 km",
-        rating: 4.7,
-        image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        description: "Churrascaria tradicional e muito popular na cidade."
-      },
-      {
-        name: "Luigi Ristorante",
-        distance: "1.8 km",
-        rating: 4.6,
+        name: "Durval",
+        distance: "250 m",
         image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        description: "Culinária italiana autêntica em um ambiente acolhedor."
+        description: "Culinária variada e ambiente agradável."
+      },
+      {
+        name: "Go Go Wok culinária japonesa",
+        distance: "2,3 km",
+        image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Sabores autênticos da cozinha japonesa."
       }
     ]
   },
   {
-    category: "Transporte",
+    category: "Belezas Naturais",
     places: [
       {
-        name: "Aeroporto de Macaé (MEA)",
-        distance: "10 km",
-        image: "https://images.unsplash.com/photo-1530536924389-fad29a3a8359?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        description: "Principal aeroporto da cidade, com voos para destinos nacionais."
+        name: "Cachoeira do Escorrega Bicuda Pequena",
+        distance: "70 km",
+        image: "https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Queda d'água em meio à natureza."
       },
       {
-        name: "Rodoviária de Macaé",
+        name: "Lagoa de Imboássica",
+        distance: "5 km",
+        image: "https://images.unsplash.com/photo-1523825336839-3d88cb02771e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Ideal para esportes aquáticos e lazer."
+      }
+    ]
+  },
+  {
+    category: "Praias",
+    places: [
+      {
+        name: "Praia Campista",
+        distance: "0 m",
+        image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "A praia em frente ao hotel."
+      },
+      {
+        name: "Praia dos Cavaleiros",
+        distance: "1,6 km",
+        image: "https://images.unsplash.com/photo-1562533114-2d5a354f3828?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Polo gastronômico e vida noturna."
+      },
+      {
+        name: "Praia de Imbetiba",
+        distance: "2,4 km",
+        image: "https://images.unsplash.com/photo-1509281373149-e957c6296406?q=80&w=1928&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Praia urbana com águas calmas."
+      },
+      {
+        name: "Praia do Pecado",
+        distance: "3 km",
+        image: "https://images.unsplash.com/photo-1500930242389-fe02a90aae33?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Preferida por surfistas."
+      },
+      {
+        name: "Mar do Norte",
+        distance: "6,1 km",
+        image: "https://images.unsplash.com/photo-1507525428034-b723a996f6ea?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Praia mais selvagem e tranquila."
+      }
+    ]
+  },
+  {
+    category: "Aeroportos",
+    places: [
+      {
+        name: "Aeroporto de Macaé",
         distance: "6 km",
+        image: "https://images.unsplash.com/photo-1530536924389-fad29a3a8359?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        description: "Principal acesso aéreo à cidade."
+      },
+      {
+        name: "Aeroporto de Cabo Frio",
+        distance: "77 km",
         image: "https://images.unsplash.com/photo-1570125909239-74182456292e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        description: "Terminal de ônibus com linhas para o Rio de Janeiro e outras cidades."
+        description: "Alternativa para voos regionais."
       }
     ]
   }
@@ -91,7 +129,7 @@ export function Nearby() {
           <AccordionItem value={`item-${index}`} key={category.category}>
             <AccordionTrigger className="text-2xl font-semibold">{category.category}</AccordionTrigger>
             <AccordionContent>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 pt-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 pt-4">
                 {category.places.map((place) => (
                   <div key={place.name} className="group [perspective:1000px]" style={{ height: '250px' }}>
                     <div className="relative h-full w-full rounded-xl shadow-lg transition-all duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
@@ -110,12 +148,6 @@ export function Nearby() {
                         <div className="flex min-h-full flex-col items-center justify-center">
                           <h3 className="text-xl font-bold">{place.name}</h3>
                           <p className="text-sm mt-1 text-gray-400">{place.distance}</p>
-                          {place.rating && (
-                            <div className="flex items-center gap-1 mt-2">
-                              <StarIcon className="w-5 h-5 fill-primary text-primary" />
-                              <span className="font-semibold">{place.rating}</span>
-                            </div>
-                          )}
                           <p className="text-base mt-2">{place.description}</p>
                         </div>
                       </div>
