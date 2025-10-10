@@ -1,16 +1,24 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import { Check } from "lucide-react";
+import { Star, MapPin, Waves, Wifi, Car, Coffee } from "lucide-react";
 import React from "react";
 
 const images = [
-  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=2070&auto=format&fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1568495248636-6432b97bd949?q=80&w=1974&auto=format&fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1925&auto=format&fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  "https://images.unsplash.com/photo-1568495248636-6432b97bd949?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  "https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1925&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+];
+
+const features = [
+    { icon: Star, text: "Hotel 4 Estrelas" },
+    { icon: MapPin, text: "Localização Privilegiada" },
+    { icon: Waves, text: "Beira-Mar" },
+    { icon: Wifi, text: "Wi-Fi Grátis" },
+    { icon: Car, text: "Estacionamento Grátis" },
+    { icon: Coffee, text: "Café da Manhã Incluso" },
 ];
 
 export function About() {
@@ -52,32 +60,22 @@ export function About() {
           </div>
           <div>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-              Sobre o Nosso Hotel
+              Bem-vindo ao V-Home
             </h2>
-            <p className="text-gray-600 mb-6">
-              Localizado no coração da cidade, nosso hotel oferece uma combinação perfeita de luxo, conforto e conveniência. Com instalações modernas e um serviço impecável, garantimos uma experiência memorável para todos os nossos hóspedes.
+            <p className="text-gray-600 mb-4">
+              O V-Home Flat Hotel oferece acomodações modernas e sofisticadas em Macaé, com localização privilegiada na Av. Atlântica. Nosso hotel 4 estrelas combina conforto, estilo e comodidade para proporcionar uma experiência inesquecível.
             </p>
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-center gap-3">
-                <Check className="h-5 w-5 text-blue-800" />
-                <span>Quartos espaçosos e elegantemente decorados</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Check className="h-5 w-5 text-blue-800" />
-                <span>Piscina com vista panorâmica e bar</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Check className="h-5 w-5 text-blue-800" />
-                <span>Restaurante com gastronomia local e internacional</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Check className="h-5 w-5 text-blue-800" />
-                <span>Wi-Fi de alta velocidade gratuito em todas as áreas</span>
-              </li>
-            </ul>
-            <Button size="lg" className="bg-blue-800 hover:bg-blue-900">
-              Explore Nossos Quartos
-            </Button>
+            <p className="text-gray-600 mb-8">
+              Cada apartamento conta com ar-condicionado, TV de tela plana, cozinha completa, e banheiro privativo. Desfrute de nossa piscina ao ar livre, terraço com vista, e serviço de concierge disponível 24 horas.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {features.map((feature, index) => (
+                <div key={index} className="bg-white p-4 rounded-lg shadow-sm flex items-center gap-3 border border-gray-100">
+                  <feature.icon className="h-6 w-6 text-blue-800" />
+                  <span className="text-gray-700 font-medium">{feature.text}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
