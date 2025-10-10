@@ -1,20 +1,20 @@
 "use client";
 
-import { Wifi, Car, UtensilsCrossed, Tv, Wind, Clock, ConciergeBell, Dumbbell, Sun, Waves, KeyRound, User } from "lucide-react";
+import { Wifi, Car, UtensilsCrossed, Tv, Wind, Clock, ConciergeBell, Waves, KeyRound, Coffee, BedDouble, Sparkles } from "lucide-react";
 
 const amenities = [
-  { icon: <Waves className="h-8 w-8 text-blue-700" />, name: "Piscina ao Ar Livre", description: "Piscina com vista panorâmica" },
-  { icon: <Car className="h-8 w-8 text-blue-700" />, name: "Estacionamento Grátis", description: "Estacionamento privativo no local" },
-  { icon: <UtensilsCrossed className="h-8 w-8 text-blue-700" />, name: "Cozinha Completa", description: "Totalmente equipada" },
+  { icon: <Waves className="h-8 w-8 text-blue-700" />, name: "Piscina Spa Aquecida", description: "Vista panorâmica do mar" },
+  { icon: <Car className="h-8 w-8 text-blue-700" />, name: "Estacionamento Seguro", description: "Privativo e monitorado" },
   { icon: <Wifi className="h-8 w-8 text-blue-700" />, name: "Wi-Fi Gratuito", description: "Internet de alta velocidade" },
+  { icon: <Coffee className="h-8 w-8 text-blue-700" />, name: "Café da Manhã", description: "Buffet e opções americanas" },
+  { icon: <UtensilsCrossed className="h-8 w-8 text-blue-700" />, name: "Cozinha Equipada", description: "Completa para suas necessidades" },
   { icon: <Wind className="h-8 w-8 text-blue-700" />, name: "Ar-Condicionado", description: "Climatização individual" },
   { icon: <Tv className="h-8 w-8 text-blue-700" />, name: "TV a Cabo", description: "Canais via satélite" },
-  { icon: <Sun className="h-8 w-8 text-blue-700" />, name: "Terraço", description: "Área para banhos de sol" },
-  { icon: <Dumbbell className="h-8 w-8 text-blue-700" />, name: "Academia", description: "Equipamentos modernos" },
+  { icon: <KeyRound className="h-8 w-8 text-blue-700" />, name: "Cofre nos Apartamentos", description: "Segurança para seus pertences" },
   { icon: <Clock className="h-8 w-8 text-blue-700" />, name: "Recepção 24h", description: "Atendimento a qualquer hora" },
   { icon: <ConciergeBell className="h-8 w-8 text-blue-700" />, name: "Serviço de Concierge", description: "Assistência personalizada" },
-  { icon: <KeyRound className="h-8 w-8 text-blue-700" />, name: "Cofre", description: "Segurança para seus pertences" },
-  { icon: <User className="h-8 w-8 text-blue-700" />, name: "Serviço de Quarto", description: "Conforto no seu apartamento" },
+  { icon: <BedDouble className="h-8 w-8 text-blue-700" />, name: "Enxoval Completo", description: "Cama, mesa e banho" },
+  { icon: <Sparkles className="h-8 w-8 text-blue-700" />, name: "Serviço de Camareira", description: "Limpeza e organização diária" },
 ];
 
 export function Amenities() {
