@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
-export default function Hero() {
+export function Hero() {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
