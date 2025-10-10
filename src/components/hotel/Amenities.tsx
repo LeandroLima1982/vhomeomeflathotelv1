@@ -1,29 +1,44 @@
-"use client";
-
-import { Wifi, Car, UtensilsCrossed, Tv, Wind, Clock, ConciergeBell, Waves, KeyRound, Coffee, BedDouble, Sparkles } from "lucide-react";
+import { Wifi, ParkingCircle, Tv, Wind, Dumbbell, CookingPot } from 'lucide-react';
 
 const amenities = [
-  { icon: <Waves className="h-8 w-8 text-blue-700" />, name: "Piscina Spa Aquecida ao Ar Livre", description: "Piscina com vista panorâmica do mar" },
-  { icon: <Car className="h-8 w-8 text-blue-700" />, name: "Estacionamento Seguro", description: "Estacionamento privativo e monitorado. Consulte disponibilidade." },
-  { icon: <Wifi className="h-8 w-8 text-blue-700" />, name: "Wi-Fi Gratuito", description: "Trabalhe de forma eficiente com Internet de alta velocidade" },
-  { icon: <Coffee className="h-8 w-8 text-blue-700" />, name: "Café da Manhã", description: "Buffet e opções americanas" },
-  { icon: <UtensilsCrossed className="h-8 w-8 text-blue-700" />, name: "Cozinha Equipada", description: "Geladeira, micro-ondas, forno e cooktop para suas necessidades culinárias" },
-  { icon: <Wind className="h-8 w-8 text-blue-700" />, name: "Ar-Condicionado", description: "Climatização individual" },
-  { icon: <Tv className="h-8 w-8 text-blue-700" />, name: "TV a Cabo", description: "Canais via satélite" },
-  { icon: <KeyRound className="h-8 w-8 text-blue-700" />, name: "Cofre nos Apartamentos", description: "Segurança para seus pertences" },
-  { icon: <Clock className="h-8 w-8 text-blue-700" />, name: "Recepção 24h", description: "Atendimento a qualquer hora" },
-  { icon: <ConciergeBell className="h-8 w-8 text-blue-700" />, name: "Serviço de Concierge", description: "Assistência personalizada" },
-  { icon: <BedDouble className="h-8 w-8 text-blue-700" />, name: "Enxoval Completo", description: "Cama, mesa e banho. Conforto em cada detalhe" },
-  { icon: <Sparkles className="h-8 w-8 text-blue-700" />, name: "Serviço de Camareira", description: "Você não precisa se preocupar com tarefas domésticas" },
+  {
+    icon: <Wifi size={48} className="text-blue-500" />,
+    name: 'Wi-Fi Gratuito',
+    description: 'Conexão de alta velocidade em todas as áreas do hotel.',
+  },
+  {
+    icon: <CookingPot size={48} className="text-green-500" />,
+    name: 'Restaurante',
+    description: 'Sabores locais e internacionais em um ambiente aconchegante.',
+  },
+  {
+    icon: <ParkingCircle size={48} className="text-gray-500" />,
+    name: 'Estacionamento',
+    description: 'Estacionamento seguro e conveniente para os hóspedes.',
+  },
+  {
+    icon: <Tv size={48} className="text-purple-500" />,
+    name: 'TV de Tela Plana',
+    description: 'Canais a cabo e streaming para seu entretenimento.',
+  },
+  {
+    icon: <Wind size={48} className="text-teal-500" />,
+    name: 'Ar Condicionado',
+    description: 'Controle de temperatura individual em todos os quartos.',
+  },
+  {
+    icon: <Dumbbell size={48} className="text-red-500" />,
+    name: 'Academia',
+    description: 'Equipamentos modernos para manter sua rotina de exercícios.',
+  },
 ];
 
-export function Amenities() {
+const Amenities = () => {
   return (
-    <section id="comodidades" className="py-20 bg-gray-50">
-      <div className="container mx-auto px-4 text-center">
-        <h2 className="text-3xl font-bold text-gray-800">Comodidades</h2>
-        <p className="text-gray-600 mt-2 mb-12">Tudo para o seu conforto</p>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+    <section id="amenities" className="py-16 bg-gray-50">
+      <div className="container mx-auto px-4">
+        <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">Comodidades</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {amenities.map((amenity, index) => (
             <div key={index} className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow text-center">
               <div className="flex justify-center mb-4">{amenity.icon}</div>
@@ -35,4 +50,6 @@ export function Amenities() {
       </div>
     </section>
   );
-}
+};
+
+export default Amenities;
