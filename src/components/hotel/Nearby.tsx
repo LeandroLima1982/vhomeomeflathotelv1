@@ -38,6 +38,9 @@ const nearbyData = [
     icon: Mountain,
     places: [
       { name: "Lagoa de Imboássica", distance: "5 km" },
+      { name: "Cachoeira das Sete Quedas (Sana)", distance: "45 km" },
+      { name: "Cachoeira de Glicério", distance: "45 km" },
+      { name: "Pico do Frade", distance: "56 km" },
       { name: "Cachoeira do Escorrega Bicuda Pequena", distance: "70 km" },
     ],
   },
@@ -56,11 +59,13 @@ const nearbyData = [
     category: "Pontos de Interesse",
     icon: Landmark,
     places: [
+        { name: "Forte Marechal Hermes", distance: "4 km" },
         { name: "Shopping Plaza", distance: "4,5 km" },
         { name: "Localizza", distance: "3,5 km" },
         { name: "Movida", distance: "4,5 km" },
         { name: "Hospital Unimed", distance: "3,5 km" },
         { name: "Hospital Rede D'or", distance: "4,7 km" },
+        { name: "Parque Natural Fazenda Atalaia", distance: "27 km" },
     ]
   }
 ];
