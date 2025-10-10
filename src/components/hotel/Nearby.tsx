@@ -47,6 +47,9 @@ const nearbyData = [
     places: [
       { name: "Aeroporto de Macaé", distance: "6 km" },
       { name: "Aeroporto de Cabo Frio", distance: "77 km" },
+      { name: "Aeroporto de Arraial do Cabo", distance: "84 km" },
+      { name: "Aeroporto de Campos dos Goytacazes", distance: "106 km" },
+      { name: "Heliporto Farol de São Thomé", distance: "133 km" },
     ],
   },
   {
