@@ -1,15 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
-
-const images = [
-  "https://images.unsplash.com/photo-1618773928121-c32242e63f39?q=80&w=2070&auto=format&fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1925&auto=format&fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-];
+import { useEffect, useState } from "react";
 
 export function Hero() {
   const [isMounted, setIsMounted] = useState(false);
@@ -19,36 +11,31 @@ export function Hero() {
   }, []);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
-      <Carousel
-        className="absolute inset-0 h-full w-full"
-        plugins={[Autoplay({ delay: 5000, stopOnInteraction: false })]}
-        opts={{ loop: true }}
+    <section className="relative h-screen flex items-center justify-center text-center text-white">
+      <div className="absolute inset-0 bg-black/50 z-10" />
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+        poster="https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
       >
-        <CarouselContent>
-          {images.map((src, index) => (
-            <CarouselItem key={index}>
-              <div
-                className="h-screen w-full bg-cover bg-center"
-                style={{ backgroundImage: `url(${src})` }}
-              />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
-      <div className="absolute inset-0 bg-black/50" />
-      <div className="relative z-10 flex h-full flex-col items-center justify-center text-center text-white px-4 pb-24">
+        <source src="/hotel-video.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <div className="relative z-20 container mx-auto px-4">
         <div className={`transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-          <h1 className="text-4xl font-extrabold tracking-tight md:text-6xl lg:text-7xl">
-            Seu Flat Hotel à Beira Mar
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight">
+            Conforto e Sofisticação à Beira-Mar
           </h1>
-          <p className="mt-4 max-w-2xl text-lg md:text-xl">
-            Onde Conforto, Sofisticação e Natureza se Entrelaçam
+          <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8">
+            Sua estadia perfeita começa aqui. Desfrute de momentos inesquecíveis com uma vista espetacular.
           </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-blue-800 hover:bg-blue-900">Reservar Agora</Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-800">
-              Ver Galeria
+            <Button size="lg" variant="outline" className="border-white text-white bg-white/10 backdrop-blur-sm hover:bg-white hover:text-blue-800">
+              Ver Mais
             </Button>
           </div>
         </div>
