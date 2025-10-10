@@ -28,14 +28,12 @@ export function Hero() {
         plugins={[plugin.current]}
         className="absolute inset-0 w-full h-full"
         opts={{ loop: true }}
-        onMouseEnter={plugin.current.stop}
-        onMouseLeave={plugin.current.reset}
       >
         <CarouselContent className="-ml-0">
           {heroImages.map((src, index) => (
             <CarouselItem key={index} className="pl-0">
               <div
-                className="h-[80vh] min-h-[500px] w-full bg-cover bg-center transition-transform duration-500 ease-in-out"
+                className="h-[80vh] min-h-[500px] w-full bg-cover bg-center"
                 style={{ backgroundImage: `url(${src})` }}
               />
             </CarouselItem>
