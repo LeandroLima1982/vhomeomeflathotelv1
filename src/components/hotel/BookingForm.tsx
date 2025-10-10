@@ -6,17 +6,21 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarIcon, User, Users } from "lucide-react";
+import { CalendarIcon, User, Users, Minus, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export function BookingForm() {
   const [date, setDate] = useState<Date>();
   const [dateOut, setDateOut] = useState<Date>();
+  const [adults, setAdults] = useState(2);
+  const [children, setChildren] = useState(1);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  const guestText = `${adults} adulto${adults > 1 ? 's' : ''}${children > 0 ? `, ${children} criança${children > 1 ? 's' : ''}` : ''}`;
 
   return (
     <div className="relative z-10 -mt-12 md:-mt-20">
@@ -90,12 +94,41 @@ export function BookingForm() {
                     )}
                   >
                     <User className="mr-2 h-4 w-4" />
-                    <span>2 adultos, 1 criança</span>
+                    <span>{guestText}</span>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-4">
-                  <div>
-                    <p>Selecione os hóspedes</p>
+                <PopoverContent className="w-72 p-4">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">Adultos</p>
+                        <p className="text-sm text-gray-500">A partir de 13 anos</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={() => setAdults(prev => Math.max(1, prev - 1))} disabled={adults <= 1}>
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="w-4 text-center">{adults}</span>
+                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={() => setAdults(prev => prev + 1)}>
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">Crianças</p>
+                        <p className="text-sm text-gray-500">De 2 a 12 anos</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={() => setChildren(prev => Math.max(0, prev - 1))} disabled={children <= 0}>
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="w-4 text-center">{children}</span>
+                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={() => setChildren(prev => prev + 1)}>
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </PopoverContent>
               </Popover>
