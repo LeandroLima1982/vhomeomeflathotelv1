@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Utensils, Plane, ShoppingBag, FerrisWheel, Landmark, Trees } from "lucide-react";
+import { Landmark, ShoppingBag, Trees, Ship, Camera, Waves } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
@@ -9,57 +9,59 @@ import {
 } from "@/components/ui/carousel"
 
 const iconMap = {
-  Restaurantes: <Utensils className="w-6 h-6 text-primary" />,
-  Aeroportos: <Plane className="w-6 h-6 text-primary" />,
-  "Pontos Turísticos": <Landmark className="w-6 h-6 text-primary" />,
-  Compras: <ShoppingBag className="w-6 h-6 text-primary" />,
-  "Parques e Lazer": <Trees className="w-6 h-6 text-primary" />,
-  "Atrações Populares": <FerrisWheel className="w-6 h-6 text-primary" />,
+  "Praia Dourada": <Waves className="w-6 h-6 text-primary" />,
+  "Centro Histórico": <Landmark className="w-6 h-6 text-primary" />,
+  "Parque das Cascatas": <Trees className="w-6 h-6 text-primary" />,
+  "Shopping Atlântico": <ShoppingBag className="w-6 h-6 text-primary" />,
+  "Mirante do Sol": <Camera className="w-6 h-6 text-primary" />,
+  "Marina dos Pescadores": <Ship className="w-6 h-6 text-primary" />,
 };
 
 const nearbyData = [
   {
-    category: "Restaurantes",
+    category: "Praia Dourada",
     items: [
-      { name: "Restaurante Sabor Divino", distance: "500m" },
-      { name: "Cantina Italiana", distance: "800m" },
-      { name: "Sushi House", distance: "1.2km" },
+      { name: "Acesso principal à praia", distance: "200m" },
+      { name: "Bar da Praia", distance: "300m" },
+      { name: "Escola de Surf", distance: "400m" },
     ],
   },
   {
-    category: "Aeroportos",
+    category: "Centro Histórico",
     items: [
-      { name: "Aeroporto Internacional", distance: "15km" },
-      { name: "Aeroporto Doméstico", distance: "25km" },
+      { name: "Igreja Matriz", distance: "1.5km" },
+      { name: "Mercado de Artesanato", distance: "1.7km" },
+      { name: "Museu da Cidade", distance: "2km" },
     ],
   },
   {
-    category: "Pontos Turísticos",
+    category: "Parque das Cascatas",
     items: [
-      { name: "Centro Histórico", distance: "2km" },
-      { name: "Museu de Arte", distance: "3.5km" },
-      { name: "Catedral da Cidade", distance: "2.5km" },
+      { name: "Trilha da Cachoeira", distance: "3km" },
+      { name: "Área de Piquenique", distance: "3.2km" },
+      { name: "Ponte Pênsil", distance: "3.5km" },
     ],
   },
   {
-    category: "Compras",
+    category: "Shopping Atlântico",
     items: [
-        { name: "Shopping Central", distance: "5km" },
-        { name: "Rua do Comércio", distance: "1.5km" },
+        { name: "Lojas de Grife", distance: "5km" },
+        { name: "Praça de Alimentação", distance: "5km" },
+        { name: "Cinema", distance: "5km" },
     ],
     },
     {
-        category: "Parques e Lazer",
+        category: "Mirante do Sol",
         items: [
-            { name: "Parque da Cidade", distance: "4km" },
-            { name: "Jardim Botânico", distance: "6km" },
+            { name: "Plataforma de Observação", distance: "4.5km" },
+            { name: "Café com Vista", distance: "4.5km" },
         ],
     },
     {
-        category: "Atrações Populares",
+        category: "Marina dos Pescadores",
         items: [
-            { name: "Roda Gigante Vista Alta", distance: "7km" },
-            { name: "Aquário Marinho", distance: "8.5km" },
+            { name: "Passeios de Barco", distance: "2.5km" },
+            { name: "Restaurante de Frutos do Mar", distance: "2.6km" },
         ],
     }
 ];
