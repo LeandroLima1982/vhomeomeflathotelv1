@@ -41,10 +41,11 @@ export function Gallery() {
                 className="overflow-hidden rounded-lg shadow-lg aspect-square cursor-pointer"
                 onClick={() => openLightbox(index)}
               >
-                <img
-                  src={src}
-                  alt={`Galeria ${index + 1}`}
-                  className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-300"
+                <div
+                  className="w-full h-full bg-cover bg-center transform hover:scale-110 transition-transform duration-300"
+                  style={{ backgroundImage: `url(${src})` }}
+                  role="img"
+                  aria-label={`Galeria ${index + 1}`}
                 />
               </div>
             ))}

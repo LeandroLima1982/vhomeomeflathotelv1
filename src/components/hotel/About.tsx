@@ -5,12 +5,11 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import Autoplay from "embla-carousel-autoplay";
 import { Star, MapPin, Waves, Wifi, Car, Coffee } from "lucide-react";
 import React from "react";
+import about1 from "@/assets/images/about-1.jpg";
+import about2 from "@/assets/images/about-2.jpg";
+import about3 from "@/assets/images/about-3.jpg";
 
-const images = [
-    new URL("../../assets/images/about-1.jpg", import.meta.url).href,
-    new URL("../../assets/images/about-2.jpg", import.meta.url).href,
-    new URL("../../assets/images/about-3.jpg", import.meta.url).href
-];
+const images = [about1, about2, about3];
 
 const features = [
     { icon: Star, text: "Hotel 4 Estrelas" },
@@ -43,10 +42,11 @@ export function About() {
                     <div className="p-1">
                       <Card className="overflow-hidden rounded-lg shadow-2xl">
                         <CardContent className="flex aspect-[4/3] items-center justify-center p-0">
-                          <img
-                            src={src}
-                            alt={`Imagem do hotel ${index + 1}`}
-                            className="w-full h-full object-cover"
+                          <div
+                            className="w-full h-full bg-cover bg-center"
+                            style={{ backgroundImage: `url(${src})` }}
+                            role="img"
+                            aria-label={`Imagem do hotel ${index + 1}`}
                           />
                         </CardContent>
                       </Card>

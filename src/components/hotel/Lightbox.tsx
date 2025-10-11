@@ -84,15 +84,15 @@ export function Lightbox({ images, currentIndex, onClose, onNext, onPrev }: Ligh
         onTouchEnd={handleDragEnd}
         onMouseLeave={handleDragEnd}
       >
-        <img
-          src={images[currentIndex]}
-          alt={`Galeria ${currentIndex + 1}`}
-          className="w-full h-full object-contain select-none"
+        <div
+          className="w-full h-full bg-contain bg-no-repeat bg-center select-none"
           style={{
+            backgroundImage: `url(${images[currentIndex]})`,
             transform: `translateX(${draggedX}px)`,
             transition: isDragging ? 'none' : 'transform 0.3s ease-out',
           }}
-          draggable="false"
+          role="img"
+          aria-label={`Galeria ${currentIndex + 1}`}
         />
       </div>
 

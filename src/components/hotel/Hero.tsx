@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import hero1 from "@/assets/images/hero-1.jpg";
+import hero2 from "@/assets/images/hero-2.jpg";
+import hero3 from "@/assets/images/hero-3.jpg";
 
 const images = [
-  { src: new URL("../../assets/images/hero-1.jpg", import.meta.url).href, alt: "Vista do hotel de frente para o mar" },
-  { src: new URL("../../assets/images/hero-2.jpg", import.meta.url).href, alt: "Piscina do hotel com vista para o mar" },
-  { src: new URL("../../assets/images/hero-3.jpg", import.meta.url).href, alt: "Quarto de hotel com cama de casal e vista" },
+  { src: hero1, alt: "Vista do hotel de frente para o mar" },
+  { src: hero2, alt: "Piscina do hotel com vista para o mar" },
+  { src: hero3, alt: "Quarto de hotel com cama de casal e vista" },
 ];
 
 export const Hero = () => {
@@ -23,13 +26,14 @@ export const Hero = () => {
   return (
     <div className="relative h-screen w-full overflow-hidden">
       {images.map((image, index) => (
-        <img
+        <div
           key={index}
-          src={image.src}
-          alt={image.alt}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
+          className={`absolute inset-0 h-full w-full bg-cover bg-center transition-opacity duration-1000 ${
             index === currentIndex ? "opacity-100" : "opacity-0"
           }`}
+          style={{ backgroundImage: `url(${image.src})` }}
+          role="img"
+          aria-label={image.alt}
         />
       ))}
       <div className="absolute inset-0 bg-black bg-opacity-50" />
