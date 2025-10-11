@@ -1,14 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import hero1 from "@/assets/images/hero-1.jpg";
-import hero2 from "@/assets/images/hero-2.jpg";
-import hero3 from "@/assets/images/hero-3.jpg";
 
 const images = [
-  { src: hero1, alt: "Vista do hotel de frente para o mar" },
-  { src: hero2, alt: "Piscina do hotel com vista para o mar" },
-  { src: hero3, alt: "Quarto de hotel com cama de casal e vista" },
+  { src: "/images/hero-1.jpg", alt: "Vista do hotel de frente para o mar" },
+  { src: "/images/hero-2.jpg", alt: "Piscina do hotel com vista para o mar" },
+  { src: "/images/hero-3.jpg", alt: "Quarto de hotel com cama de casal e vista" },
 ];
 
 export const Hero = () => {
