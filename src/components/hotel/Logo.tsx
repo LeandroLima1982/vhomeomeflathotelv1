@@ -41,8 +41,8 @@ export function Logo({ isScrolled, isFooter }: LogoProps) {
     const primaryColor = isFooter ? "text-blue-600" : isScrolled ? "text-blue-800" : "text-white";
     const secondaryColor = isFooter ? "text-gray-300" : isScrolled ? "text-gray-800" : "text-gray-200";
     const textClasses = clsx("font-bold transition-all duration-300", {
-      "text-2xl": isScrolled,
-      "text-4xl": !isScrolled,
+      "text-3xl": isScrolled,
+      "text-5xl": !isScrolled,
     });
 
     return (
@@ -59,8 +59,8 @@ export function Logo({ isScrolled, isFooter }: LogoProps) {
 
   if (logoUrl) {
     const logoClasses = clsx("w-auto transition-all duration-300", {
-      "h-10": isScrolled,
-      "h-16": !isScrolled,
+      "h-14": isScrolled,
+      "h-24": !isScrolled,
     });
     return (
       <img src={logoUrl} alt="V-Home Logo" className={logoClasses} />
