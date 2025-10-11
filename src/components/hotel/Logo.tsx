@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Skeleton } from '@/components/ui/skeleton';
+import clsx from 'clsx';
 
 type LogoProps = {
   isScrolled?: boolean;
@@ -39,9 +40,13 @@ export function Logo({ isScrolled, isFooter }: LogoProps) {
   const TextLogo = () => {
     const primaryColor = isFooter ? "text-blue-600" : isScrolled ? "text-blue-800" : "text-white";
     const secondaryColor = isFooter ? "text-gray-300" : isScrolled ? "text-gray-800" : "text-gray-200";
+    const textClasses = clsx("font-bold transition-all duration-300", {
+      "text-2xl": isScrolled,
+      "text-4xl": !isScrolled,
+    });
 
     return (
-      <div className="text-2xl font-bold">
+      <div className={textClasses}>
         <span className={primaryColor}>V</span>
         <span className={secondaryColor}>Home</span>
       </div>
@@ -49,12 +54,16 @@ export function Logo({ isScrolled, isFooter }: LogoProps) {
   };
 
   if (loading) {
-    return <Skeleton className="h-8 w-24" />;
+    return <Skeleton className="h-10 w-28" />;
   }
 
   if (logoUrl) {
+    const logoClasses = clsx("w-auto transition-all duration-300", {
+      "h-10": isScrolled,
+      "h-16": !isScrolled,
+    });
     return (
-      <img src={logoUrl} alt="V-Home Logo" className="h-10 w-auto" />
+      <img src={logoUrl} alt="V-Home Logo" className={logoClasses} />
     );
   }
 

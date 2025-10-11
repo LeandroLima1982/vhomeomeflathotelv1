@@ -46,16 +46,24 @@ export function Header() {
     }
   );
 
+  const containerClasses = clsx(
+    "container mx-auto flex items-center justify-between px-4 md:px-6 transition-all duration-300",
+    {
+      "h-20": isScrolled,
+      "h-28": !isScrolled,
+    }
+  );
+
   return (
     <header className={headerClasses}>
-      <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
+      <div className={containerClasses}>
         <a href="#" className="flex items-center gap-2">
           <Logo isScrolled={isScrolled} />
         </a>
         <Nav isScrolled={isScrolled} />
         <div className="flex items-center gap-4">
           <Button variant={isScrolled ? "default" : "outline"}>Reservar agora</Button>
-          <MobileNav />
+          <MobileNav isScrolled={isScrolled} />
         </div>
       </div>
     </header>
