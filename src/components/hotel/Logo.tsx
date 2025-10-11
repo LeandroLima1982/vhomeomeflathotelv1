@@ -53,34 +53,19 @@ export function Logo({ isScrolled, isFooter }: LogoProps) {
     );
   };
 
-  const subtextClasses = clsx(
-    "text-xs font-medium tracking-wider uppercase -mt-1",
-    {
-      "text-gray-300": isFooter,
-      "text-gray-600": isScrolled && !isFooter,
-      "text-gray-200": !isScrolled && !isFooter,
-    }
-  );
-
   if (loading) {
     return <Skeleton className="h-10 w-28" />;
   }
 
-  const logoClasses = clsx("w-auto transition-all duration-300", {
-    "h-14": isScrolled,
-    "h-24": !isScrolled,
-  });
+  if (logoUrl) {
+    const logoClasses = clsx("w-auto transition-all duration-300", {
+      "h-14": isScrolled,
+      "h-24": !isScrolled,
+    });
+    return (
+      <img src={logoUrl} alt="V-Home Logo" className={logoClasses} />
+    );
+  }
 
-  return (
-    <div className="flex flex-col items-end">
-      {logoUrl ? (
-        <img src={logoUrl} alt="V-Home Logo" className={logoClasses} />
-      ) : (
-        <TextLogo />
-      )}
-      <span className={subtextClasses}>
-        Flat Hotel
-      </span>
-    </div>
-  );
+  return <TextLogo />;
 }
