@@ -8,7 +8,7 @@ export function Gallery() {
         <p className="text-gray-600 mt-2 mb-12">Conheça nossos ambientes</p>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {galleryImages.map((src, index) => (
-            <div key={index} className="overflow-hidden rounded-lg shadow-lg">
+            <div key={index} className="overflow-hidden rounded-lg shadow-lg aspect-square">
               <img src={src} alt={`Galeria ${index + 1}`} className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-300" />
             </div>
           ))}
