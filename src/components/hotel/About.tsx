@@ -5,11 +5,12 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import Autoplay from "embla-carousel-autoplay";
 import { Star, MapPin, Waves, Wifi, Car, Coffee } from "lucide-react";
 import React from "react";
-import about1 from "@/assets/images/about-1.jpg?url";
-import about2 from "@/assets/images/about-2.jpg?url";
-import about3 from "@/assets/images/about-3.jpg?url";
 
-const images = [about1, about2, about3];
+const images = [
+    new URL("../../assets/images/about-1.jpg", import.meta.url).href,
+    new URL("../../assets/images/about-2.jpg", import.meta.url).href,
+    new URL("../../assets/images/about-3.jpg", import.meta.url).href
+];
 
 const features = [
     { icon: Star, text: "Hotel 4 Estrelas" },
