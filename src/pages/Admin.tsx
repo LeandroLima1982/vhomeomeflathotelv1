@@ -1,4 +1,5 @@
 import ImageManager from "@/components/admin/ImageManager";
+import LogoManager from "@/components/admin/LogoManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Admin = () => {
@@ -11,10 +12,11 @@ const Admin = () => {
         </p>
         
         <Tabs defaultValue="gallery" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="gallery">Galeria Principal</TabsTrigger>
             <TabsTrigger value="hero">Banner Principal (Hero)</TabsTrigger>
             <TabsTrigger value="about">Seção "Sobre"</TabsTrigger>
+            <TabsTrigger value="logo">Logo</TabsTrigger>
           </TabsList>
           <TabsContent value="gallery" className="mt-6">
             <ImageManager 
@@ -36,6 +38,9 @@ const Admin = () => {
               title="Seção Sobre"
               description="Imagens para o carrossel da seção 'Bem-vindo ao V-Home'. Adicione 2 ou 3 imagens que mostrem o hotel."
             />
+          </TabsContent>
+          <TabsContent value="logo" className="mt-6">
+            <LogoManager />
           </TabsContent>
         </Tabs>
       </div>
