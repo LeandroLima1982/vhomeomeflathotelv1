@@ -4,7 +4,7 @@ import { useState, useEffect, ChangeEvent } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Trash2, Upload, Loader2 } from 'lucide-react';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 
@@ -31,7 +31,7 @@ export default function ImageManager() {
     });
 
     if (error) {
-      showError('Erro ao carregar imagens.');
+      showError(`Erro ao carregar imagens: ${error.message}`);
       console.error('Error fetching images:', error);
       setLoading(false);
       return;
@@ -77,11 +77,13 @@ export default function ImageManager() {
     setUploading(false);
 
     if (error) {
-      showError('Falha no upload da imagem.');
+      showError(`Falha no upload: ${error.message}`);
       console.error('Error uploading image:', error);
     } else {
       showSuccess('Imagem enviada com sucesso!');
       setSelectedFile(null);
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
       fetchImages(); // Refresh the gallery
     }
   };
@@ -93,7 +95,7 @@ export default function ImageManager() {
     dismissToast(toastId);
 
     if (error) {
-      showError('Falha ao excluir a imagem.');
+      showError(`Falha ao excluir: ${error.message}`);
       console.error('Error deleting image:', error);
     } else {
       showSuccess('Imagem excluída com sucesso!');
