@@ -37,9 +37,9 @@ export function Nearby() {
       <div className="container mx-auto px-4 md:px-6 text-center">
         <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">O que há por perto</h2>
         <p className="text-gray-600 mt-2 mb-12">Explore as atrações e comodidades próximas ao hotel</p>
-        <div className="flex overflow-x-auto space-x-8 pb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {nearbyData.map((categoryItem) => (
-            <Card key={categoryItem.category} className="text-left shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col flex-shrink-0 w-80">
+            <Card key={categoryItem.category} className="text-left shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col">
               <CardHeader className="flex flex-row items-center gap-4 pb-4">
                 {categoryItem.icon}
                 <CardTitle className="text-xl font-semibold">{categoryItem.category}</CardTitle>
