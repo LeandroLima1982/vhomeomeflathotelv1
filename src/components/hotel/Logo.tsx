@@ -72,7 +72,7 @@ export function Logo({ isScrolled, isFooter }: LogoProps) {
   });
 
   return (
-    <div className="flex flex-col items-start">
+    <div className="flex flex-col items-end">
       {logoUrl ? (
         <img src={logoUrl} alt="V-Home Logo" className={logoClasses} />
       ) : (
