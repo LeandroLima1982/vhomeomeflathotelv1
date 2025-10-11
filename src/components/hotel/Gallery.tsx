@@ -6,6 +6,7 @@ import { Lightbox } from "./Lightbox";
 
 export function Gallery() {
   const [currentImage, setCurrentImage] = useState<number | null>(null);
+  const displayImages = galleryImages.slice(0, 9);
 
   const openLightbox = (index: number) => {
     setCurrentImage(index);
@@ -17,13 +18,13 @@ export function Gallery() {
 
   const nextImage = () => {
     if (currentImage !== null) {
-      setCurrentImage((currentImage + 1) % galleryImages.length);
+      setCurrentImage((currentImage + 1) % displayImages.length);
     }
   };
 
   const prevImage = () => {
     if (currentImage !== null) {
-      setCurrentImage((currentImage - 1 + galleryImages.length) % galleryImages.length);
+      setCurrentImage((currentImage - 1 + displayImages.length) % displayImages.length);
     }
   };
 
@@ -33,8 +34,8 @@ export function Gallery() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-gray-800">Conheça Nosso Flat Hotel</h2>
           <p className="text-gray-600 mt-2 mb-12">Conheça nossos ambientes</p>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {galleryImages.map((src, index) => (
+          <div className="grid grid-cols-3 gap-4">
+            {displayImages.map((src, index) => (
               <div
                 key={index}
                 className="overflow-hidden rounded-lg shadow-lg aspect-square cursor-pointer"
@@ -53,7 +54,7 @@ export function Gallery() {
 
       {currentImage !== null && (
         <Lightbox
-          images={galleryImages}
+          images={displayImages}
           currentIndex={currentImage}
           onClose={closeLightbox}
           onNext={nextImage}
