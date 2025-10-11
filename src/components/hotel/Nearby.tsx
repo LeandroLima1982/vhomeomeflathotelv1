@@ -73,12 +73,14 @@ const nearbyData = [
 export function Nearby() {
   return (
     <section id="perto" className="py-20 bg-gray-50">
-      <div className="container mx-auto px-4 text-center">
-        <h2 className="text-3xl font-bold text-gray-800">O que há por perto?</h2>
-        <p className="text-gray-600 mt-2 mb-12">Explore as atrações e comodidades próximas ao hotel</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="container mx-auto px-4">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-gray-800">O que há por perto?</h2>
+          <p className="text-gray-600 mt-2 mb-12">Explore as atrações e comodidades próximas ao hotel</p>
+        </div>
+        <div className="flex overflow-x-auto space-x-8 pb-4 -mx-4 px-4">
           {nearbyData.map((categoryItem) => (
-            <Card key={categoryItem.category} className="text-left shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col">
+            <Card key={categoryItem.category} className="text-left shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col flex-shrink-0 w-96">
               <CardHeader className="flex flex-row items-center gap-4 pb-4">
                 <div className="bg-blue-100 p-3 rounded-full">
                   <categoryItem.icon className="h-6 w-6 text-blue-800" />
