@@ -13,7 +13,7 @@ export function Gallery() {
   useEffect(() => {
     const fetchImages = async () => {
       setLoading(true);
-      const { data, error } = await supabase.storage.from('gallery').list('', {
+      const { data, error } = await supabase.storage.from('gallery').list('main', {
         limit: 9,
         offset: 0,
         sortBy: { column: 'created_at', order: 'desc' },
@@ -29,7 +29,7 @@ export function Gallery() {
         const imageUrls = data
           .filter(file => file.name !== '.emptyFolderPlaceholder')
           .map(file => {
-            return supabase.storage.from('gallery').getPublicUrl(file.name).data.publicUrl;
+            return supabase.storage.from('gallery').getPublicUrl(`main/${file.name}`).data.publicUrl;
           });
         setImages(imageUrls);
       }

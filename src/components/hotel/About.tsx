@@ -4,13 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { Star, MapPin, Waves, Wifi, Car, Coffee } from "lucide-react";
-import React from "react";
-
-const images = [
-    "/images/about-1.jpg",
-    "/images/about-2.jpg",
-    "/images/about-3.jpg"
-];
+import React, { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const features = [
     { icon: Star, text: "Hotel 4 Estrelas" },
@@ -25,6 +21,35 @@ export function About() {
   const plugin = React.useRef(
     Autoplay({ delay: 4000, stopOnInteraction: true })
   );
+  const [images, setImages] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      setLoading(true);
+      const { data, error } = await supabase.storage.from('gallery').list('about', {
+        limit: 5,
+        offset: 0,
+        sortBy: { column: 'created_at', order: 'desc' },
+      });
+
+      if (error) {
+        console.error("Error fetching about images:", error);
+        setLoading(false);
+        return;
+      }
+
+      if (data) {
+        const imageUrls = data
+          .filter(file => file.name !== '.emptyFolderPlaceholder')
+          .map(file => supabase.storage.from('gallery').getPublicUrl(`about/${file.name}`).data.publicUrl);
+        setImages(imageUrls);
+      }
+      setLoading(false);
+    };
+
+    fetchImages();
+  }, []);
 
   return (
     <section id="about" className="py-16 md:py-24 bg-gray-50">
@@ -38,22 +63,32 @@ export function About() {
               onMouseLeave={plugin.current.reset}
             >
               <CarouselContent>
-                {images.map((src, index) => (
-                  <CarouselItem key={index}>
-                    <div className="p-1">
-                      <Card className="overflow-hidden rounded-lg shadow-2xl">
-                        <CardContent className="flex aspect-[4/3] items-center justify-center p-0">
-                          <div
-                            className="w-full h-full bg-cover bg-center"
-                            style={{ backgroundImage: `url(${src})` }}
-                            role="img"
-                            aria-label={`Imagem do hotel ${index + 1}`}
-                          />
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </CarouselItem>
-                ))}
+                {loading ? (
+                  Array.from({ length: 3 }).map((_, index) => (
+                    <CarouselItem key={index}>
+                      <div className="p-1">
+                        <Skeleton className="aspect-[4/3] w-full rounded-lg" />
+                      </div>
+                    </CarouselItem>
+                  ))
+                ) : (
+                  images.map((src, index) => (
+                    <CarouselItem key={index}>
+                      <div className="p-1">
+                        <Card className="overflow-hidden rounded-lg shadow-2xl">
+                          <CardContent className="flex aspect-[4/3] items-center justify-center p-0">
+                            <div
+                              className="w-full h-full bg-cover bg-center"
+                              style={{ backgroundImage: `url(${src})` }}
+                              role="img"
+                              aria-label={`Imagem do hotel ${index + 1}`}
+                            />
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </CarouselItem>
+                  ))
+                )}
               </CarouselContent>
               <CarouselPrevious className="absolute left-4" />
               <CarouselNext className="absolute right-4" />

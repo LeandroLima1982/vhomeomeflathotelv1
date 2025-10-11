@@ -4,7 +4,7 @@ import { useState, useEffect, ChangeEvent } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Trash2, Upload, Loader2 } from 'lucide-react';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 
@@ -13,10 +13,17 @@ const BUCKET_NAME = 'gallery';
 interface ImageFile {
   id: string;
   name: string;
+  path: string;
   publicURL: string;
 }
 
-export default function ImageManager() {
+interface ImageManagerProps {
+  folder: string;
+  title: string;
+  description: string;
+}
+
+export default function ImageManager({ folder, title, description }: ImageManagerProps) {
   const [images, setImages] = useState<ImageFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -24,7 +31,7 @@ export default function ImageManager() {
 
   const fetchImages = async () => {
     setLoading(true);
-    const { data, error } = await supabase.storage.from(BUCKET_NAME).list('', {
+    const { data, error } = await supabase.storage.from(BUCKET_NAME).list(folder, {
       limit: 100,
       offset: 0,
       sortBy: { column: 'created_at', order: 'desc' },
@@ -41,8 +48,9 @@ export default function ImageManager() {
       const imageFiles = data
         .filter(file => file.name !== '.emptyFolderPlaceholder')
         .map(file => {
-          const { data: { publicUrl } } = supabase.storage.from(BUCKET_NAME).getPublicUrl(file.name);
-          return { id: file.id, name: file.name, publicURL: publicUrl };
+          const imagePath = `${folder}/${file.name}`;
+          const { data: { publicUrl } } = supabase.storage.from(BUCKET_NAME).getPublicUrl(imagePath);
+          return { id: file.id, name: file.name, path: imagePath, publicURL: publicUrl };
         });
       setImages(imageFiles);
     }
@@ -51,7 +59,7 @@ export default function ImageManager() {
 
   useEffect(() => {
     fetchImages();
-  }, []);
+  }, [folder]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -68,10 +76,11 @@ export default function ImageManager() {
     setUploading(true);
     const toastId = showLoading('Enviando imagem...');
     const fileName = `${Date.now()}-${selectedFile.name}`;
+    const filePath = `${folder}/${fileName}`;
 
     const { error } = await supabase.storage
       .from(BUCKET_NAME)
-      .upload(fileName, selectedFile);
+      .upload(filePath, selectedFile);
 
     dismissToast(toastId);
     setUploading(false);
@@ -84,13 +93,13 @@ export default function ImageManager() {
       setSelectedFile(null);
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
-      fetchImages(); // Refresh the gallery
+      fetchImages();
     }
   };
 
-  const handleDelete = async (imageName: string) => {
+  const handleDelete = async (imagePath: string) => {
     const toastId = showLoading('Excluindo imagem...');
-    const { error } = await supabase.storage.from(BUCKET_NAME).remove([imageName]);
+    const { error } = await supabase.storage.from(BUCKET_NAME).remove([imagePath]);
     
     dismissToast(toastId);
 
@@ -99,13 +108,17 @@ export default function ImageManager() {
       console.error('Error deleting image:', error);
     } else {
       showSuccess('Imagem excluída com sucesso!');
-      fetchImages(); // Refresh the gallery
+      fetchImages();
     }
   };
 
   return (
     <Card>
-      <CardContent className="p-6">
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>
         <div className="flex flex-col sm:flex-row gap-4 mb-8 border-b pb-6">
           <Input type="file" accept="image/*" onChange={handleFileChange} className="flex-grow" />
           <Button onClick={handleUpload} disabled={uploading || !selectedFile}>
@@ -125,7 +138,7 @@ export default function ImageManager() {
                   <Button
                     variant="destructive"
                     size="icon"
-                    onClick={() => handleDelete(image.name)}
+                    onClick={() => handleDelete(image.path)}
                     className="opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -138,7 +151,7 @@ export default function ImageManager() {
         {!loading && images.length === 0 && (
             <div className="text-center py-12 text-gray-500">
                 <p>Nenhuma imagem encontrada.</p>
-                <p className="text-sm">Comece enviando uma imagem para a galeria.</p>
+                <p className="text-sm">Comece enviando uma imagem para esta seção.</p>
             </div>
         )}
       </CardContent>
