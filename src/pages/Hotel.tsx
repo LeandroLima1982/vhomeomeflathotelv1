@@ -6,6 +6,7 @@ import { Amenities } from "@/components/hotel/Amenities";
 import { Nearby } from "@/components/hotel/Nearby";
 import { Gallery } from "@/components/hotel/Gallery";
 import { Footer } from "@/components/hotel/Footer";
+import Contact from "@/components/hotel/Contact";
 
 const Hotel = () => {
   return (
@@ -18,6 +19,7 @@ const Hotel = () => {
         <Amenities />
         <Nearby />
         <Gallery />
+        <Contact />
       </main>
       <Footer />
     </div>
