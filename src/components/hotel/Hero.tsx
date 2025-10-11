@@ -1,13 +1,14 @@
 "use client";
 
-import hero3 from "../../assets/images/hero-3.jpg";
+// Usando uma imagem externa para fins de depuração
+const debugImageUrl = "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop";
 
 export const Hero = () => {
   return (
     <div className="relative h-screen w-full overflow-hidden">
       <img
-        src={hero3}
-        alt="Quarto de hotel com cama de casal e vista"
+        src={debugImageUrl}
+        alt="Imagem de teste de um hotel"
         className="absolute inset-0 h-full w-full object-cover"
       />
       <div className="absolute inset-0 bg-black bg-opacity-50" />
