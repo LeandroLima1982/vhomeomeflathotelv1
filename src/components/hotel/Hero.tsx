@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 
 const images = [
-  { src: "/images/hero-1.jpg", alt: "Vista do hotel de frente para o mar" },
-  { src: "/images/hero-2.jpg", alt: "Piscina do hotel com vista para o mar" },
-  { src: "/images/hero-3.jpg", alt: "Quarto de hotel com cama de casal e vista" },
+  { src: "/images/752555575.jpg", alt: "Quarto de hotel com duas camas e vista para o mar" },
+  { src: "/images/752559546.jpg", alt: "Vista do quarto de hotel com cama, sofá e cozinha compacta" },
+  { src: "/images/752559642.jpg", alt: "Cozinha compacta moderna no quarto de hotel" },
 ];
 
 export const Hero = () => {
