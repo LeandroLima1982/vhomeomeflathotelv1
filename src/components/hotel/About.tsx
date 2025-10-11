@@ -5,9 +5,9 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import Autoplay from "embla-carousel-autoplay";
 import { Star, MapPin, Waves, Wifi, Car, Coffee } from "lucide-react";
 import React from "react";
-import about1 from "@/assets/images/about-1.jpg";
-import about2 from "@/assets/images/about-2.jpg";
-import about3 from "@/assets/images/about-3.jpg";
+import about1 from "@/assets/images/about-1.jpg?url";
+import about2 from "@/assets/images/about-2.jpg?url";
+import about3 from "@/assets/images/about-3.jpg?url";
 
 const images = [about1, about2, about3];
 
