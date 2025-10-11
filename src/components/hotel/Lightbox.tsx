@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface LightboxProps {
   images: string[];
@@ -13,6 +13,49 @@ interface LightboxProps {
 
 export function Lightbox({ images, currentIndex, onClose, onNext, onPrev }: LightboxProps) {
   if (currentIndex === null) return null;
+
+  const [dragStartX, setDragStartX] = useState<number | null>(null);
+  const [draggedX, setDraggedX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragStart = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    setDragStartX(clientX);
+  };
+
+  const handleDragMove = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+    if (!isDragging || dragStartX === null) return;
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const diff = clientX - dragStartX;
+    setDraggedX(diff);
+  };
+
+  const handleDragEnd = () => {
+    if (!isDragging || dragStartX === null) return;
+
+    const threshold = 50; // Distância mínima para acionar a navegação
+    if (draggedX < -threshold) {
+      onNext();
+    } else if (draggedX > threshold) {
+      onPrev();
+    }
+
+    setIsDragging(false);
+    setDragStartX(null);
+    setDraggedX(0);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') onNext();
+      if (e.key === 'ArrowLeft') onPrev();
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onNext, onPrev, onClose]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50" onClick={onClose}>
@@ -30,11 +73,26 @@ export function Lightbox({ images, currentIndex, onClose, onNext, onPrev }: Ligh
         <ChevronLeft size={48} />
       </button>
 
-      <div className="relative max-w-4xl max-h-[90vh] w-full" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="relative max-w-4xl max-h-[90vh] w-full cursor-grab active:cursor-grabbing"
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={handleDragStart}
+        onTouchStart={handleDragStart}
+        onMouseMove={handleDragMove}
+        onTouchMove={handleDragMove}
+        onMouseUp={handleDragEnd}
+        onTouchEnd={handleDragEnd}
+        onMouseLeave={handleDragEnd}
+      >
         <img
           src={images[currentIndex]}
           alt={`Galeria ${currentIndex + 1}`}
-          className="w-full h-full object-contain"
+          className="w-full h-full object-contain select-none"
+          style={{
+            transform: `translateX(${draggedX}px)`,
+            transition: isDragging ? 'none' : 'transform 0.3s ease-out',
+          }}
+          draggable="false"
         />
       </div>
 
