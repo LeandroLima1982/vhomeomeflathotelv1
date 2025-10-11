@@ -5,7 +5,11 @@ import hero1 from "../../assets/images/hero-1.jpg";
 import hero2 from "../../assets/images/hero-2.jpg";
 import hero3 from "../../assets/images/hero-3.jpg";
 
-const images = [hero1, hero2, hero3];
+const images = [
+  { src: hero1, alt: "Vista do hotel de frente para o mar" },
+  { src: hero2, alt: "Piscina do hotel com vista para o mar" },
+  { src: hero3, alt: "Quarto de hotel com cama de casal e vista" },
+];
 
 export const Hero = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -22,12 +26,13 @@ export const Hero = () => {
   return (
     <div className="relative h-screen w-full overflow-hidden">
       {images.map((image, index) => (
-        <div
+        <img
           key={index}
-          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
+          src={image.src}
+          alt={image.alt}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
             index === currentIndex ? "opacity-100" : "opacity-0"
           }`}
-          style={{ backgroundImage: `url(${image})` }}
         />
       ))}
       <div className="absolute inset-0 bg-black bg-opacity-50" />
