@@ -1,106 +1,102 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Landmark, ShoppingBag, Trees, Ship, Camera, Waves } from "lucide-react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
+"use client";
 
-const iconMap = {
-  "Praia Dourada": <Waves className="w-6 h-6 text-primary" />,
-  "Centro Histórico": <Landmark className="w-6 h-6 text-primary" />,
-  "Parque das Cascatas": <Trees className="w-6 h-6 text-primary" />,
-  "Shopping Atlântico": <ShoppingBag className="w-6 h-6 text-primary" />,
-  "Mirante do Sol": <Camera className="w-6 h-6 text-primary" />,
-  "Marina dos Pescadores": <Ship className="w-6 h-6 text-primary" />,
-};
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Waves, Utensils, Trees, Mountain, Plane, Landmark } from "lucide-react";
 
 const nearbyData = [
   {
-    category: "Praia Dourada",
-    items: [
-      { name: "Acesso principal à praia", distance: "200m" },
-      { name: "Bar da Praia", distance: "300m" },
-      { name: "Escola de Surf", distance: "400m" },
+    category: "Praias",
+    icon: Waves,
+    places: [
+      { name: "Praia Campista", distance: "0 m" },
+      { name: "Praia dos Cavaleiros", distance: "1,6 km" },
+      { name: "Praia de Imbetiba", distance: "2,4 km" },
+      { name: "Praia da Pecado", distance: "3 km" },
+      { name: "Mar do Norte", distance: "6,1 km" },
     ],
   },
   {
-    category: "Centro Histórico",
-    items: [
-      { name: "Igreja Matriz", distance: "1.5km" },
-      { name: "Mercado de Artesanato", distance: "1.7km" },
-      { name: "Museu da Cidade", distance: "2km" },
+    category: "Restaurantes",
+    icon: Utensils,
+    places: [
+      { name: "Ilhote Sul", distance: "10 m" },
+      { name: "Durval", distance: "250 m" },
+      { name: "Go Go Wok culinária japonesa", distance: "2,3 km" },
     ],
   },
   {
-    category: "Parque das Cascatas",
-    items: [
-      { name: "Trilha da Cachoeira", distance: "3km" },
-      { name: "Área de Piquenique", distance: "3.2km" },
-      { name: "Ponte Pênsil", distance: "3.5km" },
+    category: "Parques",
+    icon: Trees,
+    places: [
+      { name: "Parque da Cidade", distance: "1,4 km" },
+      { name: "Parque Municipal", distance: "15 km" },
+      { name: "Restinga de Jurubatiba", distance: "16 km" },
     ],
   },
   {
-    category: "Shopping Atlântico",
-    items: [
-        { name: "Lojas de Grife", distance: "5km" },
-        { name: "Praça de Alimentação", distance: "5km" },
-        { name: "Cinema", distance: "5km" },
+    category: "Belezas Naturais",
+    icon: Mountain,
+    places: [
+      { name: "Lagoa de Imboássica", distance: "5 km" },
+      { name: "Cachoeira das Sete Quedas (Sana)", distance: "45 km" },
+      { name: "Cachoeira de Glicério", distance: "45 km" },
+      { name: "Pico do Frade", distance: "56 km" },
+      { name: "Cachoeira do Escorrega Bicuda Pequena", distance: "70 km" },
     ],
-    },
-    {
-        category: "Mirante do Sol",
-        items: [
-            { name: "Plataforma de Observação", distance: "4.5km" },
-            { name: "Café com Vista", distance: "4.5km" },
-        ],
-    },
-    {
-        category: "Marina dos Pescadores",
-        items: [
-            { name: "Passeios de Barco", distance: "2.5km" },
-            { name: "Restaurante de Frutos do Mar", distance: "2.6km" },
-        ],
-    }
+  },
+  {
+    category: "Aeroportos",
+    icon: Plane,
+    places: [
+      { name: "Aeroporto de Macaé", distance: "6 km" },
+      { name: "Aeroporto de Cabo Frio", distance: "77 km" },
+      { name: "Aeroporto de Arraial do Cabo", distance: "84 km" },
+      { name: "Aeroporto de Campos dos Goytacazes", distance: "106 km" },
+      { name: "Heliporto Farol de São Thomé", distance: "133 km" },
+    ],
+  },
+  {
+    category: "Pontos de Interesse",
+    icon: Landmark,
+    places: [
+        { name: "Forte Marechal Hermes", distance: "4 km" },
+        { name: "Shopping Plaza", distance: "4,5 km" },
+        { name: "Localizza", distance: "3,5 km" },
+        { name: "Movida", distance: "4,5 km" },
+        { name: "Hospital Unimed", distance: "3,5 km" },
+        { name: "Hospital Rede D'or", distance: "4,7 km" },
+        { name: "Parque Natural Fazenda Atalaia", distance: "27 km" },
+    ]
+  }
 ];
 
 export function Nearby() {
   return (
-    <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-50">
-      <div className="container mx-auto px-4 md:px-6 text-center">
-        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">O que há por perto?</h2>
+    <section id="perto" className="py-20 bg-gray-50">
+      <div className="container mx-auto px-4 text-center">
+        <h2 className="text-3xl font-bold text-gray-800">O que há por perto?</h2>
         <p className="text-gray-600 mt-2 mb-12">Explore as atrações e comodidades próximas ao hotel</p>
-        <div className="flex justify-center">
-          <Carousel className="w-full max-w-xs sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl">
-            <CarouselContent>
-              {nearbyData.map((categoryItem) => (
-                <CarouselItem key={categoryItem.category} className="sm:basis-1/2 lg:basis-1/3">
-                  <div className="p-1">
-                    <Card className="text-left shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
-                      <CardHeader className="flex flex-row items-center gap-4 pb-4">
-                        {iconMap[categoryItem.category]}
-                        <CardTitle className="text-xl font-semibold">{categoryItem.category}</CardTitle>
-                      </CardHeader>
-                      <CardContent className="flex-grow">
-                        <ul className="space-y-2">
-                          {categoryItem.items.map((item) => (
-                            <li key={item.name} className="flex justify-between items-center">
-                              <span className="text-gray-700">{item.name}</span>
-                              <span className="text-sm font-medium text-gray-500">{item.distance}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden sm:flex" />
-            <CarouselNext className="hidden sm:flex" />
-          </Carousel>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {nearbyData.map((categoryItem) => (
+            <Card key={categoryItem.category} className="text-left shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col">
+              <CardHeader className="flex flex-row items-center gap-4 pb-4">
+                <div className="bg-blue-100 p-3 rounded-full">
+                  <categoryItem.icon className="h-6 w-6 text-blue-800" />
+                </div>
+                <CardTitle className="text-xl font-semibold text-gray-800">{categoryItem.category}</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <ul className="space-y-3">
+                  {categoryItem.places.map((place) => (
+                    <li key={place.name} className="flex justify-between items-center text-gray-600 border-b border-gray-100 pb-2 last:border-b-0 last:pb-0">
+                      <span>{place.name}</span>
+                      <span className="font-medium text-gray-800 whitespace-nowrap pl-2">{place.distance}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     </section>
