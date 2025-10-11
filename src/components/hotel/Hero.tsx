@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import hero1 from "@/assets/images/hero-1.jpg";
-import hero2 from "@/assets/images/hero-2.jpg";
-import hero3 from "@/assets/images/hero-3.jpg";
+import hero1 from "../../assets/images/hero-1.jpg";
+import hero2 from "../../assets/images/hero-2.jpg";
+import hero3 from "../../assets/images/hero-3.jpg";
 
 const images = [hero1, hero2, hero3];
 
