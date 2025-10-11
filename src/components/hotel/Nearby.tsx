@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Waves, Utensils, Trees, Mountain, Plane, Landmark } from "lucide-react";
+import { useRef, useState } from "react";
 
 const nearbyData = [
   {
@@ -71,6 +72,44 @@ const nearbyData = [
 ];
 
 export function Nearby() {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!scrollContainerRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
+    setScrollLeft(scrollContainerRef.current.scrollLeft);
+  };
+
+  const handleMouseLeaveOrUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging || !scrollContainerRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollContainerRef.current.offsetLeft;
+    const walk = (x - startX);
+    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!scrollContainerRef.current) return;
+    setIsDragging(true);
+    setStartX(e.touches[0].pageX - scrollContainerRef.current.offsetLeft);
+    setScrollLeft(scrollContainerRef.current.scrollLeft);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isDragging || !scrollContainerRef.current) return;
+    const x = e.touches[0].pageX - scrollContainerRef.current.offsetLeft;
+    const walk = x - startX;
+    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+  };
+
   return (
     <section id="perto" className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -78,7 +117,17 @@ export function Nearby() {
           <h2 className="text-3xl font-bold text-gray-800">O que há por perto?</h2>
           <p className="text-gray-600 mt-2 mb-12">Explore as atrações e comodidades próximas ao hotel</p>
         </div>
-        <div className="flex overflow-x-auto space-x-8 pb-4 -mx-4 px-4">
+        <div 
+          ref={scrollContainerRef}
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeaveOrUp}
+          onMouseUp={handleMouseLeaveOrUp}
+          onMouseMove={handleMouseMove}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleMouseLeaveOrUp}
+          onTouchMove={handleTouchMove}
+          className="flex overflow-x-auto space-x-8 pb-4 -mx-4 px-4 cursor-grab active:cursor-grabbing select-none"
+        >
           {nearbyData.map((categoryItem) => (
             <Card key={categoryItem.category} className="text-left shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col flex-shrink-0 w-96">
               <CardHeader className="flex flex-row items-center gap-4 pb-4">
