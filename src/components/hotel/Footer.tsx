@@ -1,43 +1,50 @@
-"use client";
-
-import { Facebook, Instagram } from "lucide-react";
 import { Logo } from "./Logo";
+import { Mail, Phone, Facebook, Instagram } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer id="contato" className="bg-gray-800 text-white">
+    <footer id="contato" className="bg-blue-900 text-white">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
             <Logo isFooter={true} />
-            <p className="mt-4 text-gray-400 max-w-md">
+            <p className="mt-4 text-gray-300 max-w-md">
               Hotel 4 estrelas localizado na Av. Atlântica em Macaé, oferecendo conforto e sofisticação à beira-mar.
             </p>
-          </div>
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Links Rápidos</h3>
-            <ul className="space-y-2">
-              <li><a href="#sobre" className="text-gray-400 hover:text-white">Sobre</a></li>
-              <li><a href="#comodidades" className="text-gray-400 hover:text-white">Comodidades</a></li>
-              <li><a href="#galeria" className="text-gray-400 hover:text-white">Galeria</a></li>
-              <li><a href="#depoimentos" className="text-gray-400 hover:text-white">Depoimentos</a></li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Contato</h3>
-            <ul className="space-y-2 text-gray-400">
-              <li>Av. Atlântica, 433, Macaé - RJ</li>
-              <li>contato@vhomeflathotel.com.br</li>
-              <li>(22) 1234-5678</li>
-            </ul>
-            <div className="flex gap-4 mt-4">
-              <a href="#" className="text-gray-400 hover:text-white"><Facebook /></a>
-              <a href="#" className="text-gray-400 hover:text-white"><Instagram /></a>
+            <div className="flex space-x-4 mt-4">
+              <a href="#" className="text-white hover:text-gray-300 p-2 bg-blue-800 rounded-md">
+                <Facebook size={20} />
+              </a>
+              <a href="#" className="text-white hover:text-gray-300 p-2 bg-blue-800 rounded-md">
+                <Instagram size={20} />
+              </a>
             </div>
           </div>
+          <div>
+            <h3 className="font-bold text-lg text-white">Links Rápidos</h3>
+            <ul className="mt-4 space-y-2">
+              <li><a href="#sobre" className="text-gray-300 hover:text-white">Sobre</a></li>
+              <li><a href="#galeria" className="text-gray-300 hover:text-white">Galeria</a></li>
+              <li><a href="#comodidades" className="text-gray-300 hover:text-white">Comodidades</a></li>
+              <li><a href="#reservas" className="text-gray-300 hover:text-white">Reservas</a></li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-bold text-lg text-white">Contato</h3>
+            <ul className="mt-4 space-y-2">
+              <li className="flex items-center text-gray-300">
+                <Mail className="w-4 h-4 mr-2" />
+                contato@vhomeflathotel.com.br
+              </li>
+              <li className="flex items-center text-gray-300">
+                <Phone className="w-4 h-4 mr-2" />
+                (22) 1234-5678
+              </li>
+            </ul>
+          </div>
         </div>
-        <div className="mt-8 border-t border-gray-700 pt-6 text-center text-gray-500 text-sm">
-          <p>&copy; {new Date().getFullYear()} V-Home Flat Hotel. Todos os direitos reservados.</p>
+        <div className="border-t border-blue-800 mt-8 pt-8 text-center text-gray-300">
+          <p>&copy; 2025 V-Home Flat Hotel. Todos os direitos reservados.</p>
         </div>
       </div>
     </footer>
