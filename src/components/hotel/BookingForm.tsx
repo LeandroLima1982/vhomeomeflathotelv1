@@ -58,8 +58,9 @@ export function BookingForm({ loading, onResults, setLoading, setError }: Bookin
         ano: format(dateOut, "yyyy"),
       },
       numeroAdultos: adults,
-      numeroCriancas1: children,
-      numeroCriancas2: 0,
+      // Removido temporariamente para corresponder à documentação
+      // numeroCriancas1: children,
+      // numeroCriancas2: 0,
     };
 
     try {
