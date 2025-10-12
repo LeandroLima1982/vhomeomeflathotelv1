@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { roomsData } from "@/data/rooms";
 import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Ruler, UtensilsCrossed, Bath, Eye, Wind, Tv, Wifi, Image as ImageIcon } from "lucide-react";
+import { Square, CookingPot, Bath, View, AirVent, Tv, Wifi, Image as ImageIcon } from "lucide-react";
 
 const BUCKET_NAME = 'gallery';
 const FOLDER = 'rooms';
@@ -15,11 +15,11 @@ type Room = (typeof roomsData)[number] & {
 };
 
 const detailIcons = {
-  size: <Ruler className="h-4 w-4 text-blue-700" />,
-  kitchen: <UtensilsCrossed className="h-4 w-4 text-blue-700" />,
+  size: <Square className="h-4 w-4 text-blue-700" />,
+  kitchen: <CookingPot className="h-4 w-4 text-blue-700" />,
   bathroom: <Bath className="h-4 w-4 text-blue-700" />,
-  view: <Eye className="h-4 w-4 text-blue-700" />,
-  ac: <Wind className="h-4 w-4 text-blue-700" />,
+  view: <View className="h-4 w-4 text-blue-700" />,
+  ac: <AirVent className="h-4 w-4 text-blue-700" />,
   tv: <Tv className="h-4 w-4 text-blue-700" />,
   wifi: <Wifi className="h-4 w-4 text-blue-700" />,
 };
@@ -107,20 +107,20 @@ export function Rooms() {
                     {room.specialName || room.name}
                   </CardTitle>
                   <p className="text-muted-foreground mb-4 flex-grow">{room.name}</p>
-                  <ul className="space-y-2 text-sm text-gray-600">
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-600">
                     {Object.entries(room.details).map(([key, value]) => {
                       if (!value) return null;
                       const icon = detailIcons[key as keyof typeof detailIcons];
                       return (
-                        <li key={key} className="flex items-center gap-3">
+                        <div key={key} className="flex items-center gap-2">
                           {icon}
                           <span>{value}</span>
-                        </li>
+                        </div>
                       );
                     })}
-                  </ul>
+                  </div>
                 </CardContent>
-                <CardFooter className="p-6 pt-0">
+                <CardFooter className="p-6 pt-0 mt-4">
                   <Button asChild className="w-full bg-gradient-to-r from-blue-950 to-blue-700 text-white hover:from-blue-900 hover:to-blue-600 transition-all duration-300">
                     <a href={room.url} target="_blank" rel="noopener noreferrer">Reservar Agora</a>
                   </Button>
