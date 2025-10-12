@@ -1,109 +1,83 @@
-"use client";
-
-import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from '@/components/ui/skeleton';
-import { roomsData } from '@/data/rooms';
-import { Ruler, CookingPot, Bath, Waves, AirVent, Tv2, Wifi, View } from 'lucide-react';
 
-const BUCKET_NAME = 'gallery';
-const FOLDER = 'rooms';
-
-type Room = (typeof roomsData)[number] & {
-  imageUrl: string | null;
-};
-
-const iconMap = {
-  size: <Ruler className="w-4 h-4 mr-2 flex-shrink-0" />,
-  kitchen: <CookingPot className="w-4 h-4 mr-2 flex-shrink-0" />,
-  bathroom: <Bath className="w-4 h-4 mr-2 flex-shrink-0" />,
-  view: (text: string | null) => text?.toLowerCase().includes('varanda') 
-    ? <View className="w-4 h-4 mr-2 flex-shrink-0" /> 
-    : <Waves className="w-4 h-4 mr-2 flex-shrink-0" />,
-  ac: <AirVent className="w-4 h-4 mr-2 flex-shrink-0" />,
-  tv: <Tv2 className="w-4 h-4 mr-2 flex-shrink-0" />,
-  wifi: <Wifi className="w-4 h-4 mr-2 flex-shrink-0" />,
-};
+const roomsData = [
+  {
+    name: "VGARDEN URBAN",
+    description: "Quarto Quadruplo com Varanda",
+    imageUrl: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=2070&auto=format&fit=crop",
+  },
+  {
+    name: "VURBAN",
+    description: "Quarto Queen Executivo com 2 camas Queen Size",
+    imageUrl: "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?q=80&w=2070&auto=format&fit=crop",
+  },
+  {
+    name: "VOCEAN",
+    description: "Quarto Queen Deluxe com 2 Camas Queen Size",
+    imageUrl: "https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1925&auto=format&fit=crop",
+  },
+  {
+    name: "VCOMFORT",
+    description: "Quarto Standard com Cama Queen Size",
+    imageUrl: "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=2070&auto=format&fit=crop",
+  },
+  {
+    name: "VURBAN",
+    description: "Quarto com uma Cama de Casal ou 2 de Solteiro",
+    imageUrl: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=2070&auto=format&fit=crop",
+  },
+  {
+    name: "VURBAN",
+    description: "Quarto com Cama Queen Size",
+    imageUrl: "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1974&auto=format&fit=crop",
+  },
+  {
+    name: "VOCEAN",
+    description: "Quarto Deluxe com Cama de Casal ou 2 de Solteiro",
+    imageUrl: "https://images.unsplash.com/photo-1568495248636-6432b97bd949?q=80&w=1974&auto=format&fit=crop",
+  },
+  {
+    name: "VOCEAN",
+    description: "Quarto com Cama Queen Size e Vista do Mar",
+    imageUrl: "https://images.unsplash.com/photo-1549294413-26f195200c16?q=80&w=1964&auto=format&fit=crop",
+  },
+  {
+    name: "VGARDEN OCEAN",
+    description: "Quarto Duplo Deluxe com Varanda",
+    imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop",
+  },
+];
 
 export function Rooms() {
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchRoomImages = async () => {
-      setLoading(true);
-      const { data: files } = await supabase.storage.from(BUCKET_NAME).list(FOLDER);
-      const imageMap = new Map(files?.map(file => [file.name.split('.')[0], file.name]));
-
-      const roomsWithImages = roomsData.map(room => {
-        const imageName = imageMap.get(String(room.id));
-        const imageUrl = imageName ? supabase.storage.from(BUCKET_NAME).getPublicUrl(`${FOLDER}/${imageName}`).data.publicUrl : null;
-        return { ...room, imageUrl };
-      });
-
-      setRooms(roomsWithImages);
-      setLoading(false);
-    };
-
-    fetchRoomImages();
-  }, []);
-
   return (
-    <section id="rooms" className="py-20 bg-gray-100">
+    <section className="py-12 md:py-20 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-800">Nossas Acomodações</h2>
-          <p className="text-gray-600 mt-2">Escolha o quarto perfeito para a sua estadia</p>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Nossos Quartos</h2>
+          <p className="mt-4 text-lg text-muted-foreground">
+            Escolha o quarto perfeito para a sua estadia.
+          </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {loading ? (
-            Array.from({ length: 9 }).map((_, index) => (
-              <Card key={index} className="flex flex-col">
-                <Skeleton className="h-56 w-full" />
-                <CardHeader>
-                  <Skeleton className="h-6 w-3/4" />
-                </CardHeader>
-                <CardFooter>
-                  <Skeleton className="h-10 w-full" />
-                </CardFooter>
-              </Card>
-            ))
-          ) : (
-            rooms.map((room) => (
-              <Card key={room.id} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
-                <div className="h-56 bg-gray-200 flex items-center justify-center">
-                  {room.imageUrl ? (
-                    <img src={room.imageUrl} alt={room.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-gray-500">Imagem indisponível</span>
-                  )}
-                </div>
-                <div className="flex flex-col flex-grow p-6">
-                  <CardHeader className="p-0">
-                    <CardTitle className="text-lg font-semibold">{room.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0 pt-4 flex-grow">
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700">
-                      {room.details.size && <div className="flex items-center">{iconMap.size}<span>{room.details.size}</span></div>}
-                      {room.details.kitchen && <div className="flex items-center">{iconMap.kitchen}<span>{room.details.kitchen}</span></div>}
-                      {room.details.bathroom && <div className="flex items-center">{iconMap.bathroom}<span>{room.details.bathroom}</span></div>}
-                      {room.details.view && <div className="flex items-center">{iconMap.view(room.details.view)}<span>{room.details.view}</span></div>}
-                      {room.details.ac && <div className="flex items-center">{iconMap.ac}<span>{room.details.ac}</span></div>}
-                      {room.details.tv && <div className="flex items-center">{iconMap.tv}<span>{room.details.tv}</span></div>}
-                      {room.details.wifi && <div className="flex items-center">{iconMap.wifi}<span>{room.details.wifi}</span></div>}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="p-0 pt-6">
-                    <a href={room.url} target="_blank" rel="noopener noreferrer" className="w-full">
-                      <Button className="w-full bg-blue-800 hover:bg-blue-900">Reservar Agora</Button>
-                    </a>
-                  </CardFooter>
-                </div>
-              </Card>
-            ))
-          )}
+          {roomsData.map((room, index) => (
+            <Card key={index} className="flex flex-col overflow-hidden group shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardHeader className="p-0 overflow-hidden">
+                <img 
+                  src={room.imageUrl} 
+                  alt={room.name} 
+                  className="w-full h-56 object-cover transition-transform duration-300 ease-in-out group-hover:scale-105" 
+                />
+              </CardHeader>
+              <CardContent className="p-6 flex-grow">
+                <CardTitle className="mb-2 text-xl font-bold text-primary">{room.name}</CardTitle>
+                <p className="text-muted-foreground">{room.description}</p>
+              </CardContent>
+              <CardFooter className="p-6 pt-0">
+                <Button className="w-full">Reservar Agora</Button>
+              </CardFooter>
+            </Card>
+          ))}
         </div>
       </div>
     </section>
