@@ -121,19 +121,38 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
     });
 
     try {
+      // First, let's try to update only the details column to isolate the issue
+      console.log('Attempting to update details column only...');
+      const { data: detailsUpdate, error: detailsError } = await supabase
+        .from('rooms')
+        .update({ details: formData.details })
+        .eq('id', room.id)
+        .select();
+
+      console.log('Details update response:', { detailsUpdate, detailsError });
+
+      if (detailsError) {
+        console.error('Error updating details:', detailsError);
+        showError(`Erro ao salvar detalhes: ${detailsError.message}`);
+        dismissToast(toastId);
+        setIsSaving(false);
+        return;
+      }
+
+      // If details update worked, update the rest
+      console.log('Details updated successfully, now updating other fields...');
       const { data, error } = await supabase
         .from('rooms')
         .update({
           name: formData.name,
           special_name: formData.special_name,
           booking_url: formData.booking_url,
-          details: formData.details,
           description: formData.description,
         })
         .eq('id', room.id)
         .select();
 
-      console.log('Supabase update response:', { data, error });
+      console.log('Full update response:', { data, error });
 
       if (error) {
         console.error('Erro ao salvar acomodação:', error);
