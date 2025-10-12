@@ -98,6 +98,45 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
             </TabsList>
             <TabsContent value="details" className="p-6 pt-4">
               <div className="space-y-6">
+                {/* Carrossel de Imagens */}
+                {loadingImages ? (
+                  <div className="flex justify-center items-center h-64 bg-gray-100 rounded-lg">
+                    <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+                    <p className="ml-4">Carregando imagens...</p>
+                  </div>
+                ) : roomImages.length > 0 ? (
+                  <div className="space-y-4">
+                    <Carousel className="w-full max-w-full mx-auto">
+                      <CarouselContent>
+                        {roomImages.map((image, index) => (
+                          <CarouselItem key={index}>
+                            <div className="p-1">
+                              <div className="flex aspect-video items-center justify-center p-6">
+                                <img
+                                  src={image}
+                                  alt={`Imagem do quarto ${index + 1}`}
+                                  className="rounded-lg w-full h-full object-cover shadow-lg"
+                                />
+                              </div>
+                            </div>
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <CarouselPrevious className="left-4" />
+                      <CarouselNext className="right-4" />
+                    </Carousel>
+                    <p className="text-center text-gray-500 text-sm">
+                      {roomImages.length} imagem{roomImages.length !== 1 ? 's' : ''} disponível{roomImages.length !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-center py-12 bg-gray-100 rounded-lg">
+                    <ImageIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500">Nenhuma imagem disponível para esta acomodação.</p>
+                    <p className="text-sm text-gray-400 mt-2">Imagens serão adicionadas em breve.</p>
+                  </div>
+                )}
+
                 <div>
                   <h3 className="text-xl font-bold mb-4 text-gray-800">Sobre o Quarto</h3>
                   <p className="text-gray-700 mb-6 leading-relaxed">{room.description}</p>
@@ -151,44 +190,11 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
               </div>
             </TabsContent>
             <TabsContent value="gallery" className="p-6 pt-4">
-              {loadingImages ? (
-                <div className="flex justify-center items-center h-full">
-                  <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
-                  <p className="ml-4">Carregando imagens...</p>
-                </div>
-              ) : roomImages.length > 0 ? (
-                <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-gray-800">Galeria de Imagens</h3>
-                  <Carousel className="w-full max-w-full mx-auto">
-                    <CarouselContent>
-                      {roomImages.map((image, index) => (
-                        <CarouselItem key={index}>
-                          <div className="p-1">
-                            <div className="flex aspect-video items-center justify-center p-6">
-                              <img
-                                src={image}
-                                alt={`Imagem do quarto ${index + 1}`}
-                                className="rounded-lg w-full h-full object-cover shadow-lg"
-                              />
-                            </div>
-                          </div>
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    <CarouselPrevious className="left-4" />
-                    <CarouselNext className="right-4" />
-                  </Carousel>
-                  <p className="text-center text-gray-500 text-sm">
-                    {roomImages.length} imagem{roomImages.length !== 1 ? 's' : ''} disponível{roomImages.length !== 1 ? 's' : ''}
-                  </p>
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <ImageIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">Nenhuma imagem disponível para esta acomodação.</p>
-                  <p className="text-sm text-gray-400 mt-2">Imagens serão adicionadas em breve.</p>
-                </div>
-              )}
+              <div className="text-center py-12">
+                <ImageIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">A galeria completa está disponível na aba Detalhes.</p>
+                <p className="text-sm text-gray-400 mt-2">Navegue para a aba Detalhes para ver todas as imagens.</p>
+              </div>
             </TabsContent>
             <TabsContent value="book" className="p-6 pt-4">
               <div className="space-y-4">
