@@ -105,9 +105,10 @@ export function Rooms() {
                             <BedDouble className="h-16 w-16 text-gray-400" />
                           </div>
                         )}
-                        <CardFooter className="absolute bottom-0 left-0 right-0 p-6 bg-gray-50/90 backdrop-blur-sm flex justify-between items-center transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out">
+                        <CardFooter className="absolute bottom-0 left-0 right-0 p-6 bg-black/20 backdrop-blur-lg flex justify-between items-center transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out">
                           <Button 
-                            variant="outline" 
+                            variant="outline"
+                            className="text-white border-white/50 hover:bg-white/20 hover:text-white"
                             onClick={() => setSelectedRoom(room)}
                           >
                             Ver Detalhes
