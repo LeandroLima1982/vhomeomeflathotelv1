@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import FeatureListDisplay, { FeatureCategory } from './FeatureListDisplay';
 import { Logo } from './Logo';
 import { supabase } from '@/lib/supabaseClient';
-import { Loader2, Calendar, Info, Star } from 'lucide-react';
+import { Loader2, Calendar, Info } from 'lucide-react';
 import { RoomBookingForm } from './RoomBookingForm';
 
 interface Room {
@@ -82,8 +82,7 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
             </div>
             <div className="h-12 w-px bg-slate-300 hidden sm:block"></div>
             <div className="flex-1">
-              <DialogTitle className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 sm:gap-3">
-                <Star className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500" />
+              <DialogTitle className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800">
                 {room.name}
               </DialogTitle>
               <DialogDescription className="text-slate-600 text-sm sm:text-base md:text-lg mt-1 sm:mt-2">
