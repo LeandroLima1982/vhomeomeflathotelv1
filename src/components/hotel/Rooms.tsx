@@ -1,93 +1,143 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardTitle } from '@/components/ui/card';
-import { supabase } from '@/lib/supabaseClient';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/lib/supabaseClient";
+import RoomDetailsModal from "./RoomDetailsModal";
+import { RoomBookingForm } from "./RoomBookingForm";
+import { BedDouble } from 'lucide-react';
 
 interface Room {
   id: number;
   name: string;
   special_name: string | null;
-  description: string | null;
+  booking_url: string | null;
   details: Record<string, string | null>;
+  imageUrl: string | null;
 }
 
-const Rooms = () => {
+const BUCKET_NAME = 'gallery';
+const FOLDER = 'rooms';
+
+export function Rooms() {
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [flippedCardId, setFlippedCardId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchRooms = async () => {
-      setLoading(true);
-      const { data, error } = await supabase.from('rooms').select('*').order('id');
+      setIsLoading(true);
+      const { data, error } = await supabase.from("rooms").select("*").order('id');
+
       if (error) {
-        console.error('Erro ao carregar acomodações:', error);
+        console.error("Erro ao carregar os quartos.", error);
+        setRooms([]);
       } else {
-        setRooms(data as Room[]);
+        const { data: files, error: fileError } = await supabase.storage.from(BUCKET_NAME).list(FOLDER);
+
+        if (fileError) {
+            console.error("Erro ao carregar imagens das acomodações.", fileError);
+        }
+
+        const imageMap = new Map(files?.map(file => {
+            const fileNameWithoutExt = file.name.split('.')[0];
+            const publicUrl = supabase.storage.from(BUCKET_NAME).getPublicUrl(`${FOLDER}/${file.name}`).data.publicUrl;
+            return [fileNameWithoutExt, publicUrl];
+        }));
+
+        const roomsWithImages = data.map(room => ({
+          ...room,
+          imageUrl: imageMap.get(String(room.id)) || null,
+        }));
+        
+        setRooms(roomsWithImages);
       }
-      setLoading(false);
+      setIsLoading(false);
     };
 
     fetchRooms();
   }, []);
 
   const renderDetails = (details: Record<string, string | null>) => {
-    if (!details || typeof details !== 'object' || Array.isArray(details)) {
-      return null;
-    }
     return Object.entries(details)
-      .filter(([key, value]) => value !== null && value !== undefined && key !== 'description')
+      .filter(([key, value]) => value && key !== 'description')
       .map(([key, value]) => (
-        <span key={key} className="text-xs bg-gray-100 px-2 py-1 rounded mr-1 mb-1">
-          {String(value)}
-        </span>
+        <Badge key={key} variant="secondary" className="font-normal">
+          {value}
+        </Badge>
       ));
   };
 
   return (
-    <section id="rooms" className="py-20 bg-gray-50">
+    <section id="rooms" className="py-12 md:py-20 bg-gray-50">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-800">Nossas Acomodações</h2>
-          <p className="text-gray-600 mt-2">Escolha a acomodação perfeita para sua estadia</p>
-        </div>
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-10">
+          Nossas Acomodações
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {loading ? (
-            Array.from({ length: 6 }).map((_, index) => (
-              <Card key={index} className="shadow-lg overflow-hidden">
-                <CardContent className="p-6">
-                  <Skeleton className="h-6 w-3/4 mb-2" />
-                  <Skeleton className="h-4 w-full mb-4" />
-                  <div className="flex flex-wrap gap-2">
-                    <Skeleton className="h-4 w-16" />
-                    <Skeleton className="h-4 w-20" />
-                    <Skeleton className="h-4 w-14" />
+          {isLoading
+            ? Array.from({ length: 6 }).map((_, index) => (
+                <Skeleton key={index} className="h-96 w-full" />
+              ))
+            : rooms.map((room) => (
+                <Card
+                  key={room.id}
+                  className="group flex flex-col overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl"
+                >
+                  <div className="relative h-96 [transform-style:preserve-3d] transition-transform duration-500" style={{ transform: flippedCardId === room.id ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
+                    {/* Front of the card */}
+                    <div className="absolute w-full h-full [backface-visibility:hidden] flex flex-col">
+                      <CardHeader className="relative p-0 h-56 overflow-hidden">
+                        {room.imageUrl ? (
+                          <img src={room.imageUrl} alt={room.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <BedDouble className="h-16 w-16 text-gray-400" />
+                          </div>
+                        )}
+                        <CardFooter className="absolute bottom-0 left-0 right-0 p-6 bg-black/[.08] backdrop-blur-xl flex justify-between items-center transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out">
+                          <Button
+                            className="bg-white/[.08] border border-white/30 text-white hover:bg-white/20 backdrop-blur-sm"
+                            onClick={() => setSelectedRoom(room)}
+                          >
+                            Ver Detalhes
+                          </Button>
+                          <Button 
+                            className="bg-blue-800 hover:bg-blue-900"
+                            onClick={() => setFlippedCardId(room.id)}
+                          >
+                            Reservar Agora
+                          </Button>
+                        </CardFooter>
+                      </CardHeader>
+                      <CardContent className="p-6 flex-grow flex flex-col">
+                        <CardTitle className="text-xl font-semibold text-gray-800 mb-2">{room.name}</CardTitle>
+                        <p className="text-sm text-blue-800 font-medium mb-4">{room.special_name}</p>
+                        <div className="flex flex-wrap gap-2 mt-auto">
+                          {renderDetails(room.details)}
+                        </div>
+                      </CardContent>
+                    </div>
+                    {/* Back of the card */}
+                    <div className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                      <RoomBookingForm roomId={room.id} onCancel={() => setFlippedCardId(null)} />
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            rooms.map((room) => (
-              <Card key={room.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                <CardContent className="p-6">
-                  <CardTitle className="text-xl font-semibold text-gray-800 mb-2">
-                    {room.special_name} {room.name}
-                  </CardTitle>
-                  {room.description && (
-                    <p className="text-gray-600 mb-4 text-sm">{room.description}</p>
-                  )}
-                  <div className="flex flex-wrap gap-2 mt-auto">
-                    {renderDetails(room.details)}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
+                </Card>
+              ))}
         </div>
       </div>
+      <RoomDetailsModal room={selectedRoom} onClose={() => setSelectedRoom(null)} />
     </section>
   );
-};
-
-export default Rooms;
+}
