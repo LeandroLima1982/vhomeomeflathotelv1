@@ -149,7 +149,7 @@ export function Rooms() {
                       <CardContent className="p-6 flex-grow flex flex-col">
                         <CardTitle className="text-xl font-semibold text-gray-800 mb-2">{room.name}</CardTitle>
                         <p className="text-sm text-blue-800 font-medium mb-4">{room.special_name}</p>
-                        <div className="flex flex-wrap gap-2 mt-auto">
+                        <div className="flex flex-wrap gap-2 mb-4">
                           {renderDetails(room.details)}
                         </div>
                       </CardContent>
