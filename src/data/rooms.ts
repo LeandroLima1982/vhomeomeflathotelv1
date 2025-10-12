@@ -1,6 +1,7 @@
 export const roomsData = [
   { 
     id: 1, 
+    specialName: "VOCEAN",
     name: "Quarto Queen Deluxe com 2 camas Queen Size", 
     url: "https://vhomeflathotel.motordereservas.com.br/novareserva?idquartoCategoria=1",
     details: {
@@ -15,6 +16,7 @@ export const roomsData = [
   },
   { 
     id: 2, 
+    specialName: "VURBAN",
     name: "Quarto Queen Executivo com 2 camas Queen Size", 
     url: "https://vhomeflathotel.motordereservas.com.br/novareserva?idquartoCategoria=2",
     details: {
@@ -29,6 +31,7 @@ export const roomsData = [
   },
   { 
     id: 3, 
+    specialName: "VURBAN",
     name: "Quarto com cama de casal ou 2 de solteiro", 
     url: "https://vhomeflathotel.motordereservas.com.br/novareserva?idquartoCategoria=3",
     details: {
@@ -43,6 +46,7 @@ export const roomsData = [
   },
   { 
     id: 4, 
+    specialName: "VOCEAN",
     name: "Quarto Deluxe com cama de casal ou 2 de solteiro", 
     url: "https://vhomeflathotel.motordereservas.com.br/novareserva?idquartoCategoria=4",
     details: {
@@ -57,6 +61,7 @@ export const roomsData = [
   },
   { 
     id: 5, 
+    specialName: "VOCEAN",
     name: "Quarto com cama Queen size e vista mar", 
     url: "https://vhomeflathotel.motordereservas.com.br/novareserva?idquartoCategoria=5",
     details: {
@@ -71,6 +76,7 @@ export const roomsData = [
   },
   { 
     id: 6, 
+    specialName: "VURBAN",
     name: "Quarto com Cama Queen size", 
     url: "https://vhomeflathotel.motordereservas.com.br/novareserva?idquartoCategoria=6",
     details: {
@@ -85,6 +91,7 @@ export const roomsData = [
   },
   { 
     id: 7, 
+    specialName: "VCOMFORT",
     name: "Quarto Standard com cama Queen size", 
     url: "https://vhomeflathotel.motordereservas.com.br/novareserva?idquartoCategoria=7",
     details: {
@@ -99,6 +106,7 @@ export const roomsData = [
   },
   { 
     id: 8, 
+    specialName: "VGARDEN URBAN",
     name: "Quarto Quádruplo com varanda", 
     url: "https://vhomeflathotel.motordereservas.com.br/novareserva?idquartoCategoria=8",
     details: {
@@ -113,6 +121,7 @@ export const roomsData = [
   },
   { 
     id: 9, 
+    specialName: "VGARDEN OCEAN",
     name: "Quarto duplo deluxe c/varanda", 
     url: "https://vhomeflathotel.motordereservas.com.br/novareserva?idquartoCategoria=9",
     details: {
