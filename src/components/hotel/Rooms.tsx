@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabaseClient";
 import RoomDetailsModal from "./RoomDetailsModal";
 import { RoomBookingForm } from "./RoomBookingForm";
-import { BedDouble } from 'lucide-react';
+import { BedDouble, RefreshCw } from 'lucide-react';
 
 interface Room {
   id: number;
@@ -30,9 +30,10 @@ export function Rooms() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [flippedCardId, setFlippedCardId] = useState<number | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchRooms = async () => {
-    setIsLoading(true);
+    setRefreshing(true);
     const { data, error } = await supabase.from("rooms").select("*").order('id');
 
     if (error) {
@@ -57,31 +58,58 @@ export function Rooms() {
       }));
       
       setRooms(roomsWithImages);
+      console.log('Acomodações carregadas:', roomsWithImages);
     }
     setIsLoading(false);
+    setRefreshing(false);
   };
 
   useEffect(() => {
     fetchRooms();
+    
+    // Refresh data every 30 seconds to reflect admin changes
+    const interval = setInterval(fetchRooms, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const renderDetails = (details: Record<string, string | null>) => {
-    console.log('Detalhes da acomodação:', details); // Debug log
-    return Object.entries(details)
+    console.log('Renderizando detalhes da acomodação:', details);
+    const tagEntries = Object.entries(details)
       .filter(([key, value]) => value && key !== 'description' && key.startsWith('tag_'))
-      .map(([key, value]) => (
-        <Badge key={key} variant="secondary" className="font-normal">
-          {value}
-        </Badge>
-      ));
+      .map(([key, value]) => {
+        console.log(`Tag encontrada: ${key} = ${value}`);
+        return (
+          <Badge key={key} variant="secondary" className="font-normal">
+            {value}
+          </Badge>
+        );
+      });
+    
+    console.log('Tags renderizadas:', tagEntries.length);
+    return tagEntries;
+  };
+
+  const handleRefresh = () => {
+    fetchRooms();
   };
 
   return (
     <section id="rooms" className="py-12 md:py-20 bg-gray-50">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-10">
-          Nossas Acomodações
-        </h2>
+        <div className="flex justify-between items-center mb-10">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800">
+            Nossas Acomodações
+          </h2>
+          <Button 
+            onClick={handleRefresh} 
+            disabled={refreshing}
+            variant="outline"
+            size="sm"
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            Atualizar
+          </Button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {isLoading
             ? Array.from({ length: 6 }).map((_, index) => (

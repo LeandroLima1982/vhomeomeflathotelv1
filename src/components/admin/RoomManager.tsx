@@ -79,6 +79,7 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
     updatedTags.forEach((tag, index) => {
       newDetails[`tag_${index + 1}`] = tag;
     });
+    console.log('Atualizando detalhes das tags:', newDetails);
     setFormData(prev => ({ ...prev, details: newDetails }));
   };
 
