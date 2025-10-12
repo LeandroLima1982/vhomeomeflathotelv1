@@ -21,27 +21,14 @@ serve(async (req) => {
     // O corpo da requisição vem do nosso frontend
     const body = await req.json();
 
-    // Construímos os parâmetros para a URL da API externa
-    const params = new URLSearchParams({
-      diaInicio: body.inicio.dia,
-      mesInicio: body.inicio.mes,
-      anoInicio: body.inicio.ano,
-      diaFim: body.fim.dia,
-      mesFim: body.fim.mes,
-      anoFim: body.fim.ano,
-      numeroAdultos: body.numeroAdultos.toString(),
-      numeroCriancas1: body.numeroCriancas1.toString(),
-      numeroCriancas2: body.numeroCriancas2.toString(),
-    });
-
-    const urlWithParams = `${FACILITY_API_URL}?${params.toString()}`;
-
-    // Faz a chamada para a API do FacilityHotel usando GET
-    const response = await fetch(urlWithParams, {
-      method: 'GET',
+    // Faz a chamada para a API do FacilityHotel usando POST
+    const response = await fetch(FACILITY_API_URL, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         'Authorization': `Bearer ${FACILITY_API_TOKEN}`,
       },
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
