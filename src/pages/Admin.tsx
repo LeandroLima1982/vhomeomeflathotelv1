@@ -14,7 +14,7 @@ const Admin = () => {
         <Tabs defaultValue="gallery" className="w-full">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="gallery">Galeria Principal</TabsTrigger>
-            <TabsTrigger value="hero">Banner Principal (Hero)</TabsTrigger>
+            <TabsTrigger value="hero">Banner Principal</TabsTrigger>
             <TabsTrigger value="about">Seção "Sobre"</TabsTrigger>
             <TabsTrigger value="logo">Logo</TabsTrigger>
           </TabsList>
@@ -27,8 +27,8 @@ const Admin = () => {
           </TabsContent>
           <TabsContent value="hero" className="mt-6">
             <ImageManager 
-              folder="hero"
-              title="Banner Principal (Hero)"
+              folder="banner"
+              title="Banner Principal"
               description="Estas imagens aparecem no carrossel da página inicial. Adicione 2 ou 3 imagens de alta qualidade."
             />
           </TabsContent>

@@ -12,7 +12,7 @@ export default function Hero() {
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const plugin = React.useRef(
+  const plugin = React. useRef(
     Autoplay({ delay: 5000, stopOnInteraction: false })
   );
 
@@ -21,8 +21,8 @@ export default function Hero() {
 
     const fetchImages = async () => {
       setLoading(true);
-      console.log("Buscando imagens do banner (hero)...");
-      const { data, error } = await supabase.storage.from('gallery').list('hero', {
+      console.log("Buscando imagens do banner (banner)...");
+      const { data, error } = await supabase.storage.from('gallery').list('banner', {
         limit: 5,
         offset: 0,
         sortBy: { column: 'created_at', order: 'desc' },
@@ -41,7 +41,7 @@ export default function Hero() {
         const imageUrls = data
           .filter(file => file.name !== '.emptyFolderPlaceholder')
           .map(file => {
-            const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(`hero/${file.name}`);
+            const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(`banner/${file.name}`);
             return `${publicUrl}?t=${new Date().getTime()}`;
           });
         
