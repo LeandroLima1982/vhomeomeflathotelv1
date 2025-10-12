@@ -1,65 +1,69 @@
-import { useState } from "react";
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { Logo } from "./Logo";
+import { Nav } from "./Nav";
+import { MobileNav } from "./MobileNav";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function Header() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
 
-  const navLinks = [
-    { href: "#", label: "Início" },
-    { href: "#", label: "Sobre" },
-    { href: "#acomodacoes", label: "Acomodações" },
-    { href: "#", label: "Contato" },
-  ];
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      setIsScrolled(currentScrollY > 50);
+
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        // Rolando para baixo
+        setIsVisible(false);
+      } else {
+        // Rolando para cima
+        setIsVisible(true);
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const headerClasses = cn(
+    "fixed top-0 left-0 right-0 z-50 transition-transform duration-300",
+    {
+      "bg-white/80 backdrop-blur-sm shadow-md py-2": isScrolled,
+      "bg-transparent py-4": !isScrolled,
+      "-translate-y-full": !isVisible,
+    }
+  );
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <div className="text-2xl font-bold text-gray-800">
-          <a href="#">Hotel Paraíso</a>
-        </div>
-        <nav className="hidden md:flex space-x-6">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="text-gray-600 hover:text-orange-500 transition-colors font-medium"
-            >
-              {link.label}
-            </a>
-          ))}
-        </nav>
-        <div className="hidden md:block">
-          <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+    <header className={headerClasses}>
+      <div className="container mx-auto px-4 flex justify-between items-center">
+        <a href="#">
+          <Logo isScrolled={isScrolled} />
+        </a>
+        <div className="flex items-center gap-4">
+          <Nav isScrolled={isScrolled} />
+          <Button
+            className={cn(
+              "hidden md:inline-flex transition-colors",
+              isScrolled
+                ? "bg-blue-800 hover:bg-blue-900 text-white"
+                : "bg-white hover:bg-gray-200 text-gray-800"
+            )}
+          >
             Reservar Agora
           </Button>
-        </div>
-        <div className="md:hidden">
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Menu className="h-6 w-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right">
-              <div className="flex flex-col space-y-4 mt-8">
-                {navLinks.map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    onClick={() => setIsOpen(false)}
-                    className="text-lg text-gray-700 hover:text-orange-500"
-                  >
-                    {link.label}
-                  </a>
-                ))}
-                <Button className="bg-orange-500 hover:bg-orange-600 text-white mt-4">
-                  Reservar Agora
-                </Button>
-              </div>
-            </SheetContent>
-          </Sheet>
+          <MobileNav isScrolled={isScrolled} />
         </div>
       </div>
     </header>
