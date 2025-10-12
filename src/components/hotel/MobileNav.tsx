@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import { Logo } from "./Logo";
+import Logo from "./Logo"; // Corrigido para default import
 
 const navLinks = [
   { name: "Sobre", href: "#about" },

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Logo } from "./Logo";
+import Logo from "./Logo"; // Corrigido para default import
 import { Nav } from "./Nav";
 import { MobileNav } from "./MobileNav";
 import { Button } from "@/components/ui/button";

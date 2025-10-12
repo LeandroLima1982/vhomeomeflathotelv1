@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import FeatureListDisplay, { FeatureCategory } from './FeatureListDisplay';
-import { Logo } from './Logo';
+import Logo from './Logo'; // Corrigido para default import
 import { supabase } from '@/lib/supabaseClient';
 import { Loader2, Calendar, Info } from 'lucide-react';
 import { RoomBookingForm } from './RoomBookingForm';

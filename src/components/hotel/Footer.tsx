@@ -1,4 +1,4 @@
-import { Logo } from "./Logo";
+import Logo from "./Logo"; // Corrigido para default import
 import { Mail, Phone, Facebook, Instagram } from "lucide-react";
 
 export function Footer() {
