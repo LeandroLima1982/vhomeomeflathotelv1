@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchRooms } from "@/actions/fetchRooms";
-import Image from "next/image";
 
 interface Room {
   id: number;
@@ -49,7 +48,7 @@ export default function Rooms() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {loading ? (
-            Array.from({ length: 9 }).map((_, index) => (
+            Array.from({ length: 3 }).map((_, index) => (
               <Card key={index} className="flex flex-col">
                 <CardHeader>
                   <Skeleton className="h-48 w-full" />
@@ -72,11 +71,9 @@ export default function Rooms() {
                 className="group flex flex-col overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300"
               >
                 <CardHeader className="p-0 relative">
-                  <Image
+                  <img
                     src={room.image}
                     alt={room.name}
-                    width={400}
-                    height={250}
                     className="w-full h-48 object-cover"
                   />
                 </CardHeader>
