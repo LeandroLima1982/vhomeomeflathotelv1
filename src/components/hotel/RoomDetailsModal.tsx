@@ -50,6 +50,11 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
   }, [room]);
 
   const renderDetails = (details: Record<string, string | null>) => {
+    console.log('DEBUG (RoomDetailsModal.tsx): Renderizando detalhes para o modal:', details);
+    if (typeof details !== 'object' || details === null) {
+      console.error('DEBUG (RoomDetailsModal.tsx): O objeto details não é válido:', details);
+      return null;
+    }
     return Object.entries(details)
       .filter(([key, value]) => value && key !== 'description')
       .map(([key, value]) => (

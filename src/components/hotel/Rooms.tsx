@@ -36,7 +36,7 @@ export function Rooms() {
     setRefreshing(true);
     const { data, error } = await supabase.from("rooms").select("*").order('id');
 
-    console.log('Dados brutos do banco:', data);
+    console.log('DEBUG (Rooms.tsx): Dados brutos do banco:', data);
 
     if (error) {
       console.error("Erro ao carregar os quartos.", error);
@@ -60,7 +60,7 @@ export function Rooms() {
       }));
       
       setRooms(roomsWithImages);
-      console.log('Acomodações carregadas:', roomsWithImages);
+      console.log('DEBUG (Rooms.tsx): Acomodações carregadas:', roomsWithImages);
     }
     setIsLoading(false);
     setRefreshing(false);
@@ -75,12 +75,17 @@ export function Rooms() {
   }, []);
 
   const renderDetails = (details: Record<string, string | null>) => {
-    console.log('Renderizando detalhes da acomodação:', details);
+    console.log('DEBUG (Rooms.tsx): Renderizando detalhes da acomodação:', details);
+    if (typeof details !== 'object' || details === null) {
+      console.error('DEBUG (Rooms.tsx): O objeto details não é válido:', details);
+      return null;
+    }
+
     const tagEntries = Object.entries(details)
       .filter(([key, value]) => key.startsWith('tag_') && value && value.trim() !== '')
       .map(([key, value]) => value as string);
     
-    console.log('Tags encontradas:', tagEntries);
+    console.log('DEBUG (Rooms.tsx): Tags encontradas para renderização:', tagEntries);
     
     return tagEntries.map((tag, index) => (
       <Badge key={index} variant="secondary" className="font-normal">
