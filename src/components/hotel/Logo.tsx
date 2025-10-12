@@ -38,12 +38,12 @@ export const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false
         className={logoClasses}
       />
       <div className="flex flex-col items-center">
-        <h1 className={`font-light ${isFooter ? 'text-lg' : isScrolled ? 'text-xl' : 'text-2xl'} ${isScrolled ? 'text-gray-800' : 'text-white'}`}>
+        <h1 className={`font-light ${isFooter ? 'text-base' : isScrolled ? 'text-lg' : 'text-xl'} ${isScrolled ? 'text-gray-800' : 'text-white'}`}>
           Flat Hotel
         </h1>
         <div className="flex items-center space-x-1">
           {Array.from({ length: 4 }).map((_, index) => (
-            <Star key={index} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+            <Star key={index} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
           ))}
         </div>
       </div>
