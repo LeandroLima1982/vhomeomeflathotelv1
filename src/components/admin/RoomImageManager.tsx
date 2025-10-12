@@ -2,7 +2,6 @@
 
 import { useState, useEffect, ChangeEvent } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { roomsData } from '@/data/rooms';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -12,7 +11,12 @@ import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast
 const BUCKET_NAME = 'gallery';
 const FOLDER = 'rooms';
 
-type RoomWithImage = (typeof roomsData)[number] & {
+interface Room {
+  id: number;
+  name: string;
+}
+
+type RoomWithImage = Room & {
   imageUrl: string | null;
 };
 
@@ -139,13 +143,21 @@ export default function RoomImageManager() {
 
   const fetchRoomImages = async () => {
     setLoading(true);
-    const { data: files, error } = await supabase.storage.from(BUCKET_NAME).list(FOLDER);
 
-    if (error) {
-        showError("Erro ao carregar as imagens das acomodações.");
-        console.error(error);
+    const { data: roomData, error: roomError } = await supabase.from('rooms').select('id, name').order('id');
+
+    if (roomError) {
+        showError("Erro ao carregar as acomodações.");
+        console.error(roomError);
         setLoading(false);
         return;
+    }
+
+    const { data: files, error: fileError } = await supabase.storage.from(BUCKET_NAME).list(FOLDER);
+
+    if (fileError) {
+        showError("Erro ao carregar as imagens das acomodações.");
+        console.error(fileError);
     }
 
     const imageMap = new Map(files?.map(file => {
@@ -154,7 +166,7 @@ export default function RoomImageManager() {
         return [fileNameWithoutExt, `${publicUrl}?t=${new Date().getTime()}`];
     }));
 
-    const roomsWithImages = roomsData.map(room => ({
+    const roomsWithImages = roomData.map(room => ({
       ...room,
       imageUrl: imageMap.get(String(room.id)) || null,
     }));
