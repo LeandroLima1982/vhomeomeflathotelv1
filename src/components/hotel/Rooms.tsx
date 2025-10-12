@@ -28,7 +28,7 @@ interface Room {
 const BUCKET_NAME = 'gallery';
 const FOLDER = 'rooms';
 
-export function Rooms() {
+export default function Rooms() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
