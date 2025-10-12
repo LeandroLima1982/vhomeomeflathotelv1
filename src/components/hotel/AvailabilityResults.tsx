@@ -40,6 +40,8 @@ export function AvailabilityResults({ loading, error, results }: AvailabilityRes
     return null;
   }
 
+  const bookingBaseUrl = "https://vhomeflathotel.motordereservas.com.br/novareserva";
+
   return (
     <section id="availability" className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -58,7 +60,18 @@ export function AvailabilityResults({ loading, error, results }: AvailabilityRes
                 </p>
               </CardContent>
               <div className="p-6 pt-0">
-                <Button className="w-full bg-green-600 hover:bg-green-700">Reservar Agora</Button>
+                {room.idquartoCategoria ? (
+                  <a
+                    href={`${bookingBaseUrl}?idquartoCategoria=${room.idquartoCategoria}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full"
+                  >
+                    <Button className="w-full bg-green-600 hover:bg-green-700">Reservar Agora</Button>
+                  </a>
+                ) : (
+                  <Button className="w-full" disabled>Reserva Indisponível</Button>
+                )}
               </div>
             </Card>
           ))}
