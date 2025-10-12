@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "../ui/skeleton";
-import { supabase } from "@/integrations/supabase";
+import { supabase } from "@/lib/supabaseClient";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 
 const fetchRooms = async () => {
+  if (!supabase) throw new Error("Supabase client not initialized");
   const { data, error } = await supabase.from("rooms").select("*");
   if (error) {
     throw new Error(error.message);
