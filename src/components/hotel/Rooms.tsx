@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabaseClient";
-import RoomDetailsModal from "./RoomDetailsModal";
+import { RoomDetailsModal } from "./RoomDetailsModal";
 import { RoomBookingForm } from "./RoomBookingForm";
 import { BedDouble } from 'lucide-react';
 
@@ -23,7 +23,6 @@ interface Room {
   booking_url: string | null;
   details: Record<string, string | null>;
   imageUrl: string | null;
-  description: string | null;
 }
 
 const BUCKET_NAME = 'gallery';
