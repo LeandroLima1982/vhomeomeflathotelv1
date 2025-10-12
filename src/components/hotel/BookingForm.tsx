@@ -68,6 +68,7 @@ export function BookingForm({ loading, onResults, setLoading, setError }: Bookin
       });
 
       if (functionError) {
+        // Lança o erro para ser pego pelo bloco catch, que agora pode extrair mais detalhes
         throw functionError;
       }
       
@@ -80,7 +81,17 @@ export function BookingForm({ loading, onResults, setLoading, setError }: Bookin
 
     } catch (err: any) {
       console.error("Error checking availability:", err);
-      setError("Ocorreu um erro ao verificar a disponibilidade. Por favor, tente novamente.");
+      // Tenta extrair a mensagem de erro detalhada da Edge Function
+      const errorDetails = err.context?.details;
+      let errorMessage = "Ocorreu um erro ao verificar a disponibilidade. Por favor, tente novamente.";
+      
+      if (errorDetails) {
+        errorMessage = `Erro da API: ${errorDetails}`;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -4,7 +4,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts"
 const FACILITY_API_URL = 'https://vhomeflathotel.facilityhotel.com.br/integracao/vhomeflathotel/retornadisponibilidade';
 
 // Token de autorização
-const FACILITY_API_TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbnRlZ3Jhw6fDo28iLCJyb2xlcyI6WyJJTlRFR1JBVElPTiJdLCJpc3MiOiJodHRwczovL3d3dy5hcGkubW90b3JkZXJlc2VydmFzLmNvbS5iciIsImNyZWF0ZSI6MTc1OTgzOTMxN30.3K_d_-hFLBPs0jrOluAN0axwC62CBoZB8XLsZSXt8DU';
+const FACILITY_API_TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbnRlZ3Jhw6fDo28iLCJyb2xlcyI6WyJJTlRFR1JBVElPTiJdLCJpc3MiOiJodHRwczovL3d3dy5hcGkubW9otb3JkZXJlc2VydmFzLmNvbS5iciIsImNyZWF0ZSI6MTc1OTgzOTMxN30.3K_d_-hFLBPs0jrOluAN0axwC62CBoZB8XLsZSXt8DU';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,20 +12,13 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  // Lida com a requisição CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    // O corpo da requisição vem do nosso frontend
     const payload = await req.json();
 
-    // A documentação especifica que os campos de data são strings (o que já está correto)
-    // e os campos de número de pessoas são numéricos.
-    // Apenas repassamos o payload como recebido do frontend.
-
-    // Faz a chamada para a API do FacilityHotel usando POST
     const response = await fetch(FACILITY_API_URL, {
       method: 'POST',
       headers: {
@@ -36,14 +29,20 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`FacilityHotel API error: ${response.status} ${response.statusText}`, errorText);
-      throw new Error(`Erro na API externa: ${response.statusText}`);
+      const errorBody = await response.text();
+      console.error(`FacilityHotel API Error: Status ${response.status}`, errorBody);
+      // Retorna um erro estruturado para o cliente para que possamos ver a mensagem exata
+      return new Response(
+        JSON.stringify({ 
+          error: `A API externa retornou um erro (status ${response.status}).`,
+          details: errorBody 
+        }),
+        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const data = await response.json();
 
-    // Retorna a resposta da API para o frontend
     return new Response(
       JSON.stringify(data),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
