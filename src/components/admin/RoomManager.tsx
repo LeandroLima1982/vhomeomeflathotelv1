@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Loader2, Save } from 'lucide-react';
+import { Loader2, Save, Plus, X } from 'lucide-react';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 import ImageManager from './ImageManager';
 
@@ -24,6 +24,12 @@ interface Room {
 function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
   const [formData, setFormData] = useState(room);
   const [isSaving, setIsSaving] = useState(false);
+  const [tags, setTags] = useState<string[]>(Object.values(room.details).filter((value): value is string => value !== null && value !== ''));
+  const [newTag, setNewTag] = useState('');
+
+  useEffect(() => {
+    setTags(Object.values(formData.details).filter((value): value is string => value !== null && value !== ''));
+  }, [formData.details]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -38,6 +44,29 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
       console.error('Erro ao parsear JSON dos detalhes:', error);
       showError('JSON inválido nos detalhes. Verifique a sintaxe.');
     }
+  };
+
+  const addTag = () => {
+    if (newTag.trim() && !tags.includes(newTag.trim())) {
+      const updatedTags = [...tags, newTag.trim()];
+      setTags(updatedTags);
+      updateDetailsFromTags(updatedTags);
+      setNewTag('');
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    const updatedTags = tags.filter(tag => tag !== tagToRemove);
+    setTags(updatedTags);
+    updateDetailsFromTags(updatedTags);
+  };
+
+  const updateDetailsFromTags = (updatedTags: string[]) => {
+    const newDetails: Record<string, string | null> = {};
+    updatedTags.forEach((tag, index) => {
+      newDetails[`tag_${index + 1}`] = tag;
+    });
+    setFormData(prev => ({ ...prev, details: newDetails }));
   };
 
   const handleSave = async () => {
@@ -117,6 +146,51 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
             <Label htmlFor={`booking_url-${room.id}`}>URL de Reserva</Label>
             <Input id={`booking_url-${room.id}`} name="booking_url" value={formData.booking_url || ''} onChange={handleInputChange} />
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Tags da Acomodação</CardTitle>
+          <CardDescription>Adicione ou remova tags facilmente. Estas aparecem como badges nos cards das acomodações.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <Input
+              placeholder="Digite uma nova tag..."
+              value={newTag}
+              onChange={(e) => setNewTag(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && addTag()}
+            />
+            <Button onClick={addTag} disabled={!newTag.trim()}>
+              <Plus className="h-4 w-4 mr-2" />
+              Adicionar
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {tags.map((tag, index) => (
+              <div key={index} className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+                <span>{tag}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeTag(tag)}
+                  className="h-4 w-4 p-0 hover:bg-blue-200"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Detalhes Avançados (JSON)</CardTitle>
+          <CardDescription>Para edições avançadas, você pode editar diretamente o JSON. Use com cuidado.</CardDescription>
+        </CardHeader>
+        <CardContent>
           <div>
             <Label htmlFor={`details-${room.id}`}>Detalhes (JSON)</Label>
             <Textarea
@@ -129,12 +203,13 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
             />
             <p className="text-sm text-gray-500 mt-1">Edite os detalhes da acomodação em formato JSON.</p>
           </div>
-          <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            Salvar Informações
-          </Button>
         </CardContent>
       </Card>
+
+      <Button onClick={handleSave} disabled={isSaving}>
+        {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+        Salvar Informações
+      </Button>
       
       <ImageManager
         folder={`rooms/${room.id}/gallery`}
