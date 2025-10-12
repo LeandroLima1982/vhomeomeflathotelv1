@@ -17,7 +17,7 @@ interface Room {
   name: string;
   special_name: string | null;
   booking_url: string | null;
-  details: Record<string, string | null>;
+  details: Record<string, any>;
   description: string | null;
 }
 
