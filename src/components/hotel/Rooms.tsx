@@ -103,7 +103,9 @@ export function Rooms() {
                   )}
                 </CardHeader>
                 <CardContent className="p-6 flex-grow flex flex-col">
-                  <CardTitle className="mb-2 text-xl font-bold text-primary">{room.specialName || room.name}</CardTitle>
+                  <CardTitle className="mb-2 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    {room.specialName || room.name}
+                  </CardTitle>
                   <p className="text-muted-foreground mb-4 flex-grow">{room.name}</p>
                   <ul className="space-y-2 text-sm text-gray-600">
                     {Object.entries(room.details).map(([key, value]) => {
@@ -119,7 +121,7 @@ export function Rooms() {
                   </ul>
                 </CardContent>
                 <CardFooter className="p-6 pt-0">
-                  <Button asChild className="w-full">
+                  <Button asChild className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition-all duration-300">
                     <a href={room.url} target="_blank" rel="noopener noreferrer">Reservar Agora</a>
                   </Button>
                 </CardFooter>
