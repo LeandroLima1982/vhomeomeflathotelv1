@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Hotel from "./pages/Hotel";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import SupabaseProvider from "./components/SupabaseProvider";
 
 const queryClient = new QueryClient();
 
@@ -15,12 +16,14 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Hotel />} />
-          <Route path="/admin" element={<Admin />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <SupabaseProvider>
+          <Routes>
+            <Route path="/" element={<Hotel />} />
+            <Route path="/admin" element={<Admin />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </SupabaseProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
