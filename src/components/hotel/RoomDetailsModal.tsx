@@ -75,7 +75,7 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
   return (
     <Dialog open={!!room} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-[90vw] md:max-w-[1000px] max-h-[95vh] w-full mx-2 sm:mx-4 bg-white/95 backdrop-blur-sm border-0 shadow-2xl rounded-2xl overflow-hidden flex flex-col">
-        <DialogHeader className="bg-gradient-to-r from-slate-50 to-slate-100 px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 border-b border-slate-200 flex-shrink-0 flex items-center justify-between">
+        <DialogHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 border-b border-slate-200 flex-shrink-0 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div className="flex-shrink-0">
               <Logo isScrolled={false} />
