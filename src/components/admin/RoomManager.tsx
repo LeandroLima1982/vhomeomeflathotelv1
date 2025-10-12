@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Loader2, Save } from 'lucide-react';
+import { Loader2, Save, Plus, X, Edit2 } from 'lucide-react';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 import ImageManager from './ImageManager';
 
@@ -25,6 +25,9 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
   const [formData, setFormData] = useState(room);
   const [isSaving, setIsSaving] = useState(false);
   const [tags, setTags] = useState<string[]>(Object.values(room.details).filter((value): value is string => value !== null && value !== ''));
+  const [newTag, setNewTag] = useState('');
+  const [editingTagIndex, setEditingTagIndex] = useState<number | null>(null);
+  const [editingTagValue, setEditingTagValue] = useState('');
 
   useEffect(() => {
     setTags(Object.values(formData.details).filter((value): value is string => value !== null && value !== ''));
@@ -35,10 +38,40 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleTagsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newTags = e.target.value.split(',').map(t => t.trim()).filter(t => t);
-    setTags(newTags);
-    updateDetailsFromTags(newTags);
+  const addTag = () => {
+    if (newTag.trim() && !tags.includes(newTag.trim())) {
+      const updatedTags = [...tags, newTag.trim()];
+      setTags(updatedTags);
+      updateDetailsFromTags(updatedTags);
+      setNewTag('');
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    const updatedTags = tags.filter(tag => tag !== tagToRemove);
+    setTags(updatedTags);
+    updateDetailsFromTags(updatedTags);
+  };
+
+  const startEditingTag = (index: number, currentValue: string) => {
+    setEditingTagIndex(index);
+    setEditingTagValue(currentValue);
+  };
+
+  const saveEditingTag = () => {
+    if (editingTagIndex !== null && editingTagValue.trim()) {
+      const updatedTags = [...tags];
+      updatedTags[editingTagIndex] = editingTagValue.trim();
+      setTags(updatedTags);
+      updateDetailsFromTags(updatedTags);
+      setEditingTagIndex(null);
+      setEditingTagValue('');
+    }
+  };
+
+  const cancelEditingTag = () => {
+    setEditingTagIndex(null);
+    setEditingTagValue('');
   };
 
   const updateDetailsFromTags = (updatedTags: string[]) => {
@@ -132,15 +165,63 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
       <Card>
         <CardHeader>
           <CardTitle>Tags da Acomodação</CardTitle>
-          <CardDescription>Digite as tags separadas por vírgula. Ex: Wi-Fi, TV, Ar-Condicionado</CardDescription>
+          <CardDescription>Gerencie as tags facilmente. Adicione novas, edite existentes ou remova clicando nos botões.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <Textarea
-            value={tags.join(', ')}
-            onChange={handleTagsChange}
-            placeholder="Digite as tags separadas por vírgula"
-            rows={3}
-          />
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <Input
+              placeholder="Digite uma nova tag..."
+              value={newTag}
+              onChange={(e) => setNewTag(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && addTag()}
+            />
+            <Button onClick={addTag} disabled={!newTag.trim()}>
+              <Plus className="h-4 w-4 mr-2" />
+              Adicionar
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {tags.map((tag, index) => (
+              <div key={index} className="flex items-center gap-2 bg-blue-50 p-2 rounded-md">
+                {editingTagIndex === index ? (
+                  <>
+                    <Input
+                      value={editingTagValue}
+                      onChange={(e) => setEditingTagValue(e.target.value)}
+                      className="flex-1"
+                      onKeyPress={(e) => e.key === 'Enter' && saveEditingTag()}
+                    />
+                    <Button size="sm" onClick={saveEditingTag} disabled={!editingTagValue.trim()}>
+                      Salvar
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={cancelEditingTag}>
+                      Cancelar
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <span className="flex-1 text-blue-800">{tag}</span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => startEditingTag(index, tag)}
+                      className="h-6 w-6 p-0"
+                    >
+                      <Edit2 className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => removeTag(tag)}
+                      className="h-6 w-6 p-0 text-red-600 hover:text-red-800"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
