@@ -74,7 +74,7 @@ export function Lightbox({ images, currentIndex, onClose, onNext, onPrev }: Ligh
       </button>
 
       <div
-        className="relative max-w-4xl max-h-[90vh] w-full cursor-grab active:cursor-grabbing"
+        className="relative max-w-4xl h-[90vh] w-full cursor-grab active:cursor-grabbing"
         onClick={(e) => e.stopPropagation()}
         onMouseDown={handleDragStart}
         onTouchStart={handleDragStart}
