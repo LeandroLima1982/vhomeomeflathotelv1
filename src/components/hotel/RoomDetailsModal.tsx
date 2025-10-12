@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/lib/supabaseClient';
 import toast from 'react-hot-toast';
 
-const RoomDetailsModal = ({ room, onClose, isAdmin, onRoomUpdate }) => {
+export const RoomDetailsModal = ({ room, onClose, isAdmin, onRoomUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -116,5 +116,3 @@ const RoomDetailsModal = ({ room, onClose, isAdmin, onRoomUpdate }) => {
     </div>
   );
 };
-
-export default RoomDetailsModal;

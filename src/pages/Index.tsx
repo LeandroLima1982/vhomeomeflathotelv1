@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import RoomCard from '@/components/hotel/RoomCard';
-import RoomDetailsModal from '@/components/hotel/RoomDetailsModal';
+import { RoomDetailsModal } from '@/components/hotel/RoomDetailsModal';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
