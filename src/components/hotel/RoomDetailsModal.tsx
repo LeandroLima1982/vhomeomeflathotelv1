@@ -3,7 +3,7 @@ import { X, Edit } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabaseClient';
 import toast from 'react-hot-toast';
 
 const RoomDetailsModal = ({ room, onClose, isAdmin, onRoomUpdate }) => {
