@@ -37,7 +37,7 @@ export default function Header() {
   }, []);
 
   const headerClasses = cn(
-    "fixed top-0 left-0 right-0 z-50 transition-transform duration-300",
+    "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
     {
       "bg-white/80 backdrop-blur-sm shadow-md py-2": isScrolled,
       "bg-transparent py-4": !isScrolled,
