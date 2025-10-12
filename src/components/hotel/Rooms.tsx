@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabaseClient";
-import { RoomDetailsModal } from "./RoomDetailsModal";
+import RoomDetailsModal from "./RoomDetailsModal";
 import { RoomBookingForm } from "./RoomBookingForm";
 import { BedDouble } from 'lucide-react';
 
