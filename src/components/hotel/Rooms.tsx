@@ -3,12 +3,14 @@ import { Card, CardContent, CardTitle } from '@/components/ui/card'; // Assumind
 
 const Rooms = ({ rooms }) => {
   const renderDetails = (details) => {
-    // Assumindo implementação existente
-    return details.map((detail, index) => (
-      <span key={index} className="text-xs bg-gray-100 px-2 py-1 rounded">
-        {detail}
-      </span>
-    ));
+    if (!details || typeof details !== 'object') return null;
+    return Object.entries(details)
+      .filter(([key, value]) => value && key !== 'description')
+      .map(([key, value]) => (
+        <span key={key} className="text-xs bg-gray-100 px-2 py-1 rounded">
+          {value}
+        </span>
+      ));
   };
 
   return (
