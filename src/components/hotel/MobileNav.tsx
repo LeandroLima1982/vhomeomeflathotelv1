@@ -22,6 +22,14 @@ export function MobileNav({ isScrolled }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const iconColor = isScrolled ? "text-gray-800" : "text-white";
 
+  const scrollToRooms = () => {
+    const element = document.getElementById('rooms');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+    setIsOpen(false); // Close the mobile menu after clicking
+  };
+
   return (
     <div className="md:hidden">
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -51,7 +59,7 @@ export function MobileNav({ isScrolled }: MobileNavProps) {
                 </a>
               </SheetClose>
             ))}
-            <Button className="mt-4 bg-blue-800 hover:bg-blue-900">
+            <Button onClick={scrollToRooms} className="mt-4 bg-blue-800 hover:bg-blue-900">
               Reservar Agora
             </Button>
           </nav>

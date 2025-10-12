@@ -37,6 +37,13 @@ export default function Header() {
     };
   }, []);
 
+  const scrollToRooms = () => {
+    const element = document.getElementById('rooms');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const headerClasses = cn(
     "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
     {
@@ -55,6 +62,7 @@ export default function Header() {
         <div className="flex items-center gap-4">
           <Nav isScrolled={isScrolled} />
           <Button
+            onClick={scrollToRooms}
             className={cn(
               "hidden md:inline-flex transition-colors",
               isScrolled
