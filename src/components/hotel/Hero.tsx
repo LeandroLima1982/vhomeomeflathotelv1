@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
 interface HeroImage {
+  name: string;
   src: string;
   alt: string;
 }
