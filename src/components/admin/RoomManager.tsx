@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Loader2, Save, Plus, X } from 'lucide-react';
+import { Loader2, Save, Plus, X, Edit2 } from 'lucide-react';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 import ImageManager from './ImageManager';
 
@@ -26,6 +26,8 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
   const [isSaving, setIsSaving] = useState(false);
   const [tags, setTags] = useState<string[]>(Object.values(room.details).filter((value): value is string => value !== null && value !== ''));
   const [newTag, setNewTag] = useState('');
+  const [editingTagIndex, setEditingTagIndex] = useState<number | null>(null);
+  const [editingTagValue, setEditingTagValue] = useState('');
 
   useEffect(() => {
     setTags(Object.values(formData.details).filter((value): value is string => value !== null && value !== ''));
@@ -59,6 +61,27 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
     const updatedTags = tags.filter(tag => tag !== tagToRemove);
     setTags(updatedTags);
     updateDetailsFromTags(updatedTags);
+  };
+
+  const startEditingTag = (index: number, currentValue: string) => {
+    setEditingTagIndex(index);
+    setEditingTagValue(currentValue);
+  };
+
+  const saveEditingTag = () => {
+    if (editingTagIndex !== null && editingTagValue.trim()) {
+      const updatedTags = [...tags];
+      updatedTags[editingTagIndex] = editingTagValue.trim();
+      setTags(updatedTags);
+      updateDetailsFromTags(updatedTags);
+      setEditingTagIndex(null);
+      setEditingTagValue('');
+    }
+  };
+
+  const cancelEditingTag = () => {
+    setEditingTagIndex(null);
+    setEditingTagValue('');
   };
 
   const updateDetailsFromTags = (updatedTags: string[]) => {
@@ -152,7 +175,7 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
       <Card>
         <CardHeader>
           <CardTitle>Tags da Acomodação</CardTitle>
-          <CardDescription>Adicione ou remova tags facilmente. Estas aparecem como badges nos cards das acomodações.</CardDescription>
+          <CardDescription>Gerencie as tags facilmente. Adicione novas, edite existentes ou remova clicando nos botões.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-2">
@@ -167,18 +190,45 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
               Adicionar
             </Button>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="space-y-2">
             {tags.map((tag, index) => (
-              <div key={index} className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
-                <span>{tag}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeTag(tag)}
-                  className="h-4 w-4 p-0 hover:bg-blue-200"
-                >
-                  <X className="h-3 w-3" />
-                </Button>
+              <div key={index} className="flex items-center gap-2 bg-blue-50 p-2 rounded-md">
+                {editingTagIndex === index ? (
+                  <>
+                    <Input
+                      value={editingTagValue}
+                      onChange={(e) => setEditingTagValue(e.target.value)}
+                      className="flex-1"
+                      onKeyPress={(e) => e.key === 'Enter' && saveEditingTag()}
+                    />
+                    <Button size="sm" onClick={saveEditingTag} disabled={!editingTagValue.trim()}>
+                      Salvar
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={cancelEditingTag}>
+                      Cancelar
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <span className="flex-1 text-blue-800">{tag}</span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => startEditingTag(index, tag)}
+                      className="h-6 w-6 p-0"
+                    >
+                      <Edit2 className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => removeTag(tag)}
+                      className="h-6 w-6 p-0 text-red-600 hover:text-red-800"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </>
+                )}
               </div>
             ))}
           </div>
