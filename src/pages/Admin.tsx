@@ -1,5 +1,6 @@
 import ImageManager from "@/components/admin/ImageManager";
 import LogoManager from "@/components/admin/LogoManager";
+import RoomImageManager from "@/components/admin/RoomImageManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Admin = () => {
@@ -41,11 +42,7 @@ const Admin = () => {
             />
           </TabsContent>
           <TabsContent value="rooms" className="mt-6">
-            <ImageManager 
-              folder="rooms"
-              title="Imagens das Acomodações"
-              description="Envie uma imagem para cada tipo de quarto. O nome do arquivo DEVE ser o ID da categoria do quarto (ex: '1.jpg', '2.png'). Isso garante que a imagem correta apareça no card do quarto correspondente."
-            />
+            <RoomImageManager />
           </TabsContent>
           <TabsContent value="logo" className="mt-6">
             <LogoManager />
