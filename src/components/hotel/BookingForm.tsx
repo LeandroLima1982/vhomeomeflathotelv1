@@ -68,7 +68,6 @@ export function BookingForm({ loading, onResults, setLoading, setError }: Bookin
       });
 
       if (functionError) {
-        // Lança o erro para ser pego pelo bloco catch, que agora pode extrair mais detalhes
         throw functionError;
       }
       
@@ -81,12 +80,23 @@ export function BookingForm({ loading, onResults, setLoading, setError }: Bookin
 
     } catch (err: any) {
       console.error("Error checking availability:", err);
-      // Tenta extrair a mensagem de erro detalhada da Edge Function
-      const errorDetails = err.context?.details;
       let errorMessage = "Ocorreu um erro ao verificar a disponibilidade. Por favor, tente novamente.";
       
-      if (errorDetails) {
-        errorMessage = `Erro da API: ${errorDetails}`;
+      if (err.context) {
+        try {
+          // O 'context' pode ser uma string JSON, então tentamos analisá-lo
+          const parsedContext = typeof err.context === 'string' ? JSON.parse(err.context) : err.context;
+          if (parsedContext.details) {
+            errorMessage = `Erro da API: ${parsedContext.details}`;
+          } else if (parsedContext.error) {
+            errorMessage = parsedContext.error;
+          } else {
+            errorMessage = `Resposta inesperada da função: ${JSON.stringify(parsedContext)}`;
+          }
+        } catch (parseError) {
+          // Se a análise falhar, o 'context' é provavelmente uma mensagem de texto simples
+          errorMessage = `Erro da API: ${err.context}`;
+        }
       } else if (err.message) {
         errorMessage = err.message;
       }
