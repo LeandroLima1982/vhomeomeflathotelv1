@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Loader2, Save, Plus, X, Edit2, Trash2 } from 'lucide-react';
+import { Loader2, Save, Plus, X, Edit2, Trash2, ClipboardPaste } from 'lucide-react';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 import ImageManager from './ImageManager';
 import { FeatureCategory, FeatureItem } from '../hotel/FeatureListDisplay'; // Importando as interfaces
@@ -48,6 +48,9 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
   const [editingCategoryTitle, setEditingCategoryTitle] = useState('');
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editingItemText, setEditingItemText] = useState('');
+
+  // State for raw text input
+  const [rawAdditionalFeaturesText, setRawAdditionalFeaturesText] = useState('');
 
 
   useEffect(() => {
@@ -198,6 +201,39 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
   const cancelEditingItem = () => {
     setEditingItemId(null);
     setEditingItemText('');
+  };
+
+  const handleParseAndApply = () => {
+    if (!rawAdditionalFeaturesText.trim()) {
+      showError('Por favor, cole o texto na caixa acima.');
+      return;
+    }
+
+    const lines = rawAdditionalFeaturesText.split('\n').map(line => line.trim()).filter(line => line !== '');
+    const parsedFeatures: FeatureCategory[] = [];
+    let currentCategory: FeatureCategory | null = null;
+
+    lines.forEach(line => {
+      if (line.endsWith(':')) {
+        // New category
+        currentCategory = { title: line, items: [] };
+        parsedFeatures.push(currentCategory);
+      } else if (currentCategory) {
+        // Item for current category
+        currentCategory.items.push({ text: line });
+      } else {
+        // If items appear before any category, create a default one
+        if (parsedFeatures.length === 0) {
+          currentCategory = { title: "Geral", items: [] };
+          parsedFeatures.push(currentCategory);
+        }
+        currentCategory?.items.push({ text: line });
+      }
+    });
+
+    setAdditionalFeatures(parsedFeatures);
+    setRawAdditionalFeaturesText(''); // Clear the textarea after applying
+    showSuccess('Texto analisado e aplicado com sucesso!');
   };
 
 
@@ -360,6 +396,22 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          <div className="space-y-2 mb-6 p-4 border rounded-md bg-blue-50">
+            <Label htmlFor="raw-features-text">Colar Texto para Características Adicionais</Label>
+            <Textarea
+              id="raw-features-text"
+              placeholder="Cole seu texto aqui. Linhas terminadas em ':' serão categorias, outras linhas serão itens."
+              value={rawAdditionalFeaturesText}
+              onChange={(e) => setRawAdditionalFeaturesText(e.target.value)}
+              rows={8}
+              className="bg-white"
+            />
+            <Button onClick={handleParseAndApply} className="w-full">
+              <ClipboardPaste className="h-4 w-4 mr-2" />
+              Analisar e Aplicar Texto
+            </Button>
+          </div>
+
           <div className="flex gap-2">
             <Input
               placeholder="Título da Nova Categoria (ex: Na sua cozinha privativa:)"
