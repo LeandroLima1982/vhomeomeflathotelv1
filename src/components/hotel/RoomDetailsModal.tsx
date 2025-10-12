@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import FeatureListDisplay, { FeatureCategory } from './FeatureListDisplay'; // Importando o novo componente e a interface FeatureCategory
 import { supabase } from '@/lib/supabaseClient';
-import { Loader2, Calendar, Info, Image as ImageIcon } from 'lucide-react';
+import { Loader2, Calendar, Info } from 'lucide-react';
 import { RoomBookingForm } from './RoomBookingForm';
 
 interface Room {
@@ -82,14 +82,10 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto">
           <Tabs defaultValue="details" className="w-full h-full">
-            <TabsList className="grid w-full grid-cols-3 mx-6 mt-4 bg-gray-100 rounded-lg p-1">
+            <TabsList className="grid w-full grid-cols-2 mx-6 mt-4 bg-gray-100 rounded-lg p-1">
               <TabsTrigger value="details" className="rounded-md font-medium transition-all flex items-center gap-2">
                 <Info className="h-4 w-4" />
                 Detalhes
-              </TabsTrigger>
-              <TabsTrigger value="gallery" className="rounded-md font-medium transition-all flex items-center gap-2">
-                <ImageIcon className="h-4 w-4" />
-                Galeria
               </TabsTrigger>
               <TabsTrigger value="book" className="rounded-md font-medium transition-all flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
@@ -131,7 +127,6 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
                   </div>
                 ) : (
                   <div className="text-center py-12 bg-gray-100 rounded-lg">
-                    <ImageIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
                     <p className="text-gray-500">Nenhuma imagem disponível para esta acomodação.</p>
                     <p className="text-sm text-gray-400 mt-2">Imagens serão adicionadas em breve.</p>
                   </div>
@@ -187,13 +182,6 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
                     <FeatureListDisplay features={room.additional_features} />
                   </div>
                 )}
-              </div>
-            </TabsContent>
-            <TabsContent value="gallery" className="p-6 pt-4">
-              <div className="text-center py-12">
-                <ImageIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">A galeria completa está disponível na aba Detalhes.</p>
-                <p className="text-sm text-gray-400 mt-2">Navegue para a aba Detalhes para ver todas as imagens.</p>
               </div>
             </TabsContent>
             <TabsContent value="book" className="p-6 pt-4">
