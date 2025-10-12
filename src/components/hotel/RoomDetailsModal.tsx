@@ -80,11 +80,6 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
             <Logo isScrolled={false} />
             <div>
               <DialogTitle className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 sm:gap-3">
-                {room.special_name && (
-                  <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300 rounded-full px-2 py-1 text-xs sm:text-sm font-medium">
-                    {room.special_name}
-                  </Badge>
-                )}
                 <Star className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500" />
                 {room.name}
               </DialogTitle>
@@ -151,7 +146,14 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
                 {/* Conteúdo Textual - Rola independentemente */}
                 <div className="w-full md:w-1/2 space-y-4 sm:space-y-5 md:space-y-6">
                   <div className="bg-slate-50 rounded-xl p-4 sm:p-5 md:p-6 shadow-sm">
-                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 text-slate-800">Sobre o Quarto</h3>
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 text-slate-800 flex items-center gap-2 sm:gap-3">
+                      {room.special_name && (
+                        <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300 rounded-full px-2 py-1 text-xs sm:text-sm font-medium">
+                          {room.special_name}
+                        </Badge>
+                      )}
+                      Sobre o Quarto
+                    </h3>
                     <p className="text-slate-700 leading-relaxed text-sm sm:text-base md:text-lg">{room.description}</p>
                   </div>
 
