@@ -1,40 +1,56 @@
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu } from "lucide-react"
+"use client";
+
+import { useState, useEffect } from "react";
+import { Logo } from "./Logo";
+import { Nav } from "./Nav";
+import { MobileNav } from "./MobileNav";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export default function Header() {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // Set initial state on mount
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const headerClasses = cn(
+    "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+    {
+      "bg-white shadow-md py-2": isScrolled,
+      "bg-transparent py-4": !isScrolled,
+    }
+  );
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">Hotel Paraíso</h1>
-        <nav className="hidden md:flex items-center space-x-6">
-          <a href="#about" className="text-gray-600 hover:text-blue-600 transition-colors">Sobre</a>
-          <a href="#rooms" className="text-gray-600 hover:text-blue-600 transition-colors">Acomodações</a>
-          <a href="#comodidades" className="text-gray-600 hover:text-blue-600 transition-colors">Comodidades</a>
-          <a href="#galeria" className="text-gray-600 hover:text-blue-600 transition-colors">Galeria</a>
-          <a href="#contato" className="text-gray-600 hover:text-blue-600 transition-colors">Contato</a>
-          <Button>Reservar Agora</Button>
-        </nav>
-        <div className="md:hidden">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Menu className="h-6 w-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right">
-              <nav className="flex flex-col space-y-4 mt-8">
-                <a href="#about" className="text-gray-600 hover:text-blue-600 transition-colors">Sobre</a>
-                <a href="#rooms" className="text-gray-600 hover:text-blue-600 transition-colors">Acomodações</a>
-                <a href="#comodidades" className="text-gray-600 hover:text-blue-600 transition-colors">Comodidades</a>
-                <a href="#galeria" className="text-gray-600 hover:text-blue-600 transition-colors">Galeria</a>
-                <a href="#contato" className="text-gray-600 hover:text-blue-600 transition-colors">Contato</a>
-                <Button className="mt-4">Reservar Agora</Button>
-              </nav>
-            </SheetContent>
-          </Sheet>
+    <header className={headerClasses}>
+      <div className="container mx-auto px-4 flex justify-between items-center">
+        <a href="#">
+          <Logo isScrolled={isScrolled} />
+        </a>
+        <div className="flex items-center gap-4">
+          <Nav isScrolled={isScrolled} />
+          <Button
+            className={cn(
+              "hidden md:inline-flex transition-colors",
+              isScrolled
+                ? "bg-blue-800 hover:bg-blue-900 text-white"
+                : "bg-white hover:bg-gray-200 text-gray-800"
+            )}
+          >
+            Reservar Agora
+          </Button>
+          <MobileNav isScrolled={isScrolled} />
         </div>
       </div>
     </header>
-  )
+  );
 }

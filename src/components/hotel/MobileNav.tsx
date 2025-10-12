@@ -8,6 +8,7 @@ import { Logo } from "./Logo";
 
 const navLinks = [
   { name: "Sobre", href: "#about" },
+  { name: "Acomodações", href: "#rooms" },
   { name: "Comodidades", href: "#comodidades" },
   { name: "Galeria", href: "#galeria" },
   { name: "Contato", href: "#contato" },
@@ -50,6 +51,9 @@ export function MobileNav({ isScrolled }: MobileNavProps) {
                 </a>
               </SheetClose>
             ))}
+            <Button className="mt-4 bg-blue-800 hover:bg-blue-900">
+              Reservar Agora
+            </Button>
           </nav>
         </SheetContent>
       </Sheet>
