@@ -4,6 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { BedDouble, Users, Wifi, Tv, ParkingSquare, UtensilsCrossed } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const iconMap = {
   'Wi-Fi': Wifi,
@@ -12,11 +15,67 @@ const iconMap = {
   'Cozinha': UtensilsCrossed,
 };
 
+const BUCKET_NAME = 'gallery';
+const ORDER_FILE_NAME = '_order.json';
+
 export function RoomDetailsModal({ room, onClose }) {
+  const [images, setImages] = useState<string[]>([]);
+  const [loadingImages, setLoadingImages] = useState(true);
+
+  useEffect(() => {
+    if (!room) {
+      setImages([]);
+      return;
+    }
+
+    const fetchImages = async () => {
+      setLoadingImages(true);
+      const FOLDER = `rooms/${room.id}/gallery`;
+      const { data: files, error: listError } = await supabase.storage.from(BUCKET_NAME).list(FOLDER, {
+        limit: 100,
+        offset: 0,
+        sortBy: { column: 'created_at', order: 'desc' },
+      });
+
+      if (listError) {
+        console.error(`Error fetching images for room ${room.id}:`, listError);
+        setImages([]);
+        setLoadingImages(false);
+        return;
+      }
+
+      const imageFiles = files.filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== ORDER_FILE_NAME);
+      const imageUrls = imageFiles.map(file => ({
+        name: file.name,
+        url: supabase.storage.from(BUCKET_NAME).getPublicUrl(`${FOLDER}/${file.name}`).data.publicUrl,
+      }));
+
+      const { data: orderFileData } = await supabase.storage.from(BUCKET_NAME).download(`${FOLDER}/${ORDER_FILE_NAME}`);
+
+      if (!orderFileData) {
+        setImages(imageUrls.map(img => img.url));
+      } else {
+        const orderJson = await orderFileData.text();
+        try {
+          const orderedNames = JSON.parse(orderJson) as string[];
+          const imageMap = new Map(imageUrls.map(img => [img.name, img.url]));
+          const sortedUrls = orderedNames.map(name => imageMap.get(name)).filter((url): url is string => !!url);
+          const newImageUrls = imageUrls.filter(img => !orderedNames.includes(img.name)).map(img => img.url);
+          setImages([...sortedUrls, ...newImageUrls]);
+        } catch (e) {
+          console.error("Error parsing order file, using default order", e);
+          setImages(imageUrls.map(img => img.url));
+        }
+      }
+      setLoadingImages(false);
+    };
+
+    fetchImages();
+  }, [room]);
+
   if (!room) return null;
 
   const details = room.details || {};
-  const images = details.images || [];
   const amenities = details.amenities || [];
   const price = details.price || 'N/A';
   const capacity = details.capacity || 'N/A';
@@ -29,7 +88,9 @@ export function RoomDetailsModal({ room, onClose }) {
         </DialogHeader>
         <ScrollArea className="flex-1">
           <div className="p-6">
-            {images.length > 0 && (
+            {loadingImages ? (
+              <Skeleton className="w-full h-64 rounded-lg mb-6" />
+            ) : images.length > 0 && (
               <Carousel className="w-full mb-6">
                 <CarouselContent>
                   {images.map((src, index) => (
