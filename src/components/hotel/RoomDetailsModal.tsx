@@ -58,6 +58,15 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
       ));
   };
 
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`h-5 w-5 ${i < rating ? 'text-yellow-500 fill-current' : 'text-gray-300'}`}
+      />
+    ));
+  };
+
   if (!room) return null;
 
   return (
@@ -67,12 +76,18 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
           <div className="flex justify-between items-start">
             <div className="space-y-2">
               <DialogTitle className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">{room.name}</DialogTitle>
-              {room.special_name && (
-                <div className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-yellow-500 fill-current" />
-                  <span className="text-sm font-medium text-blue-700 bg-blue-50 px-3 py-1 rounded-full">{room.special_name}</span>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1">
+                  {renderStars(4)}
+                  <span className="text-sm font-medium text-gray-600 ml-2">4 Estrelas</span>
                 </div>
-              )}
+                {room.special_name && (
+                  <div className="flex items-center gap-2">
+                    <Star className="h-5 w-5 text-yellow-500 fill-current" />
+                    <span className="text-sm font-medium text-blue-700 bg-blue-50 px-3 py-1 rounded-full">{room.special_name}</span>
+                  </div>
+                )}
+              </div>
             </div>
             <Button variant="ghost" size="sm" onClick={onClose} className="hover:bg-gray-100 rounded-full p-2">
               <X className="h-5 w-5" />
