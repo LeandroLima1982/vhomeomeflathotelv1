@@ -103,7 +103,7 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6">
           <Tabs defaultValue="details" className="w-full h-full">
-            <TabsList className="grid w-full grid-cols-2 bg-slate-100 rounded-xl p-1 mb-4 sm:mb-6 shadow-inner flex-shrink-0 sticky top-0 z-10 backdrop-blur-sm bg-slate-100/95">
+            <TabsList className="grid w-full grid-cols-2 bg-slate-100 rounded-xl p-1 mb-4 sm:mb-6 shadow-inner flex-shrink-0">
               <TabsTrigger value="details" className="rounded-lg font-semibold transition-all flex items-center gap-1 sm:gap-2 py-2 sm:py-3 text-xs sm:text-sm md:text-base text-slate-700 hover:bg-white hover:shadow-md">
                 <Info className="h-4 w-4 sm:h-5 sm:w-5" />
                 Detalhes
