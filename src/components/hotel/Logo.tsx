@@ -28,7 +28,7 @@ export const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false
     fetchLogo();
   }, []);
 
-  const logoClasses = isFooter ? "h-16 w-auto" : isScrolled ? "h-18 w-auto" : "h-20 w-auto";
+  const logoClasses = isFooter ? "h-16 w-auto" : isScrolled ? "h-24 w-auto" : "h-28 w-auto";
 
   return (
     <div className="flex items-center space-x-3">
