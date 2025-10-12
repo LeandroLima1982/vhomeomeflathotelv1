@@ -99,8 +99,6 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
           : item
       ));
       setEditingDetailId(null);
-      setEditingDetailKey('');
-      setEditingDetailValue('');
     } else {
       showError('Por favor, preencha a chave e o valor do detalhe.');
     }
@@ -135,8 +133,8 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
         .select();
 
       if (error) {
-        console.error('Erro ao salvar acomodação:', error);
-        showError(`Erro ao salvar: ${error.message}`);
+        console.error('Erro ao salvar acomodação no Supabase:', error); // Log mais detalhado
+        showError(`Erro ao salvar: ${error.message || 'Erro desconhecido'}`);
       } else {
         showSuccess('Acomodação atualizada com sucesso!');
         onSave(); // Recarrega a lista
