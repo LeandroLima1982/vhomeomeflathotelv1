@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Logo } from "./Logo";
 import { Nav } from "./Nav";
 import { MobileNav } from "./MobileNav";
@@ -10,17 +10,15 @@ import { cn } from "@/lib/utils";
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      // Define se a página foi rolada para além do topo
       setIsScrolled(currentScrollY > 50);
 
-      // Determina a direção da rolagem para a visibilidade
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
         // Rolando para baixo
         setIsVisible(false);
       } else {
@@ -28,24 +26,22 @@ export default function Header() {
         setIsVisible(true);
       }
 
-      // Guarda a posição atual para a próxima verificação
-      setLastScrollY(currentScrollY);
+      lastScrollY.current = currentScrollY;
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // Define o estado inicial ao carregar
     
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [lastScrollY]);
+  }, []);
 
   const headerClasses = cn(
-    "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
+    "fixed top-0 left-0 right-0 z-50 transition-transform duration-300",
     {
       "bg-white/80 backdrop-blur-sm shadow-md py-2": isScrolled,
       "bg-transparent py-4": !isScrolled,
-      "transform -translate-y-full": !isVisible && isScrolled, // Oculta apenas quando rolando para baixo
+      "-translate-y-full": !isVisible,
     }
   );
 
