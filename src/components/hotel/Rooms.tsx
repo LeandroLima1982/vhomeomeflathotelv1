@@ -76,29 +76,35 @@ const Rooms = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {loading ? (
             Array.from({ length: 6 }).map((_, index) => (
-              <Card key={index} className="shadow-lg overflow-hidden">
+              <Card key={index} className="shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                <Skeleton className="h-48 w-full" />
                 <CardContent className="p-6">
                   <Skeleton className="h-6 w-3/4 mb-2" />
                   <Skeleton className="h-4 w-full mb-4" />
-                  <div className="flex flex-wrap gap-2">
-                    <Skeleton className="h-4 w-16" />
+                  <div className="flex flex-col gap-2">
+                    <Skeleton className="h-4 w-24" />
                     <Skeleton className="h-4 w-20" />
-                    <Skeleton className="h-4 w-14" />
+                    <Skeleton className="h-4 w-16" />
                   </div>
                 </CardContent>
               </Card>
             ))
           ) : (
             rooms.map((room) => (
-              <Card key={room.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                <CardContent className="p-6 flex-grow flex flex-col">
+              <Card key={room.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden bg-white">
+                <img
+                  src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                  alt={`${room.name} room`}
+                  className="w-full h-48 object-cover"
+                />
+                <CardContent className="p-6">
                   <CardTitle className="text-xl font-semibold text-gray-800 mb-2">
                     {room.special_name} {room.name}
                   </CardTitle>
                   {room.description && (
                     <p className="text-gray-600 mb-4 text-sm">{room.description}</p>
                   )}
-                  <div className="flex flex-col gap-2 mt-auto">
+                  <div className="flex flex-col gap-2">
                     {renderDetails(room.details)}
                   </div>
                 </CardContent>
