@@ -82,7 +82,7 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
           
           <div className="relative z-10 flex items-center justify-between w-full">
             {/* Logo à esquerda com fundo elegante */}
-            <div className="flex-shrink-0 bg-white/90 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-white/20">
+            <div className="flex-shrink-0 bg-white/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-white/20">
               <Logo isScrolled={false} isModal={true} />
             </div>
             

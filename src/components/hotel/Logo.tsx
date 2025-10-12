@@ -29,7 +29,7 @@ export const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false
     fetchLogo();
   }, []);
 
-  const logoClasses = isFooter ? "h-20 w-auto" : isScrolled ? "h-20 w-auto" : "h-24 w-auto";
+  const logoClasses = isModal ? "h-16 w-auto" : (isFooter ? "h-20 w-auto" : isScrolled ? "h-20 w-auto" : "h-24 w-auto");
 
   const textColor = isModal ? 'text-gray-800' : (isScrolled ? 'text-gray-800' : 'text-white');
 
