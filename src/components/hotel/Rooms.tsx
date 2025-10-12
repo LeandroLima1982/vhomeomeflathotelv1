@@ -81,15 +81,17 @@ export function Rooms() {
       return null;
     }
 
-    const tagEntries = Object.entries(details)
-      .filter(([key, value]) => key.startsWith('tag_') && value && value.trim() !== '')
+    // Agora, vamos renderizar todos os valores não nulos e não vazios do objeto details,
+    // excluindo a chave 'description' se ela existir, como no modal de detalhes.
+    const detailEntries = Object.entries(details)
+      .filter(([key, value]) => value && value.trim() !== '' && key !== 'description')
       .map(([key, value]) => value as string);
     
-    console.log('DEBUG (Rooms.tsx): Tags encontradas para renderização:', tagEntries);
+    console.log('DEBUG (Rooms.tsx): Detalhes encontrados para renderização:', detailEntries);
     
-    return tagEntries.map((tag, index) => (
+    return detailEntries.map((detail, index) => (
       <Badge key={index} variant="secondary" className="font-normal">
-        {tag}
+        {detail}
       </Badge>
     ));
   };
