@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { Calendar as CalendarIcon, Users, ArrowLeft } from "lucide-react";
-import { DateRange } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -22,16 +22,24 @@ interface RoomBookingFormProps {
 }
 
 export function RoomBookingForm({ roomId, onCancel }: RoomBookingFormProps) {
-  const [date, setDate] = useState<DateRange | undefined>();
+  const [checkinDate, setCheckinDate] = useState<Date | undefined>();
+  const [checkoutDate, setCheckoutDate] = useState<Date | undefined>();
   const [guests, setGuests] = useState(2);
 
+  // Reseta a data de checkout se for anterior ou igual à de check-in
+  useEffect(() => {
+    if (checkinDate && checkoutDate && checkoutDate <= checkinDate) {
+      setCheckoutDate(undefined);
+    }
+  }, [checkinDate, checkoutDate]);
+
   const handleConsult = () => {
-    if (!date?.from || !date?.to) {
+    if (!checkinDate || !checkoutDate) {
       return;
     }
 
-    const checkIn = format(date.from, "yyyyMMdd");
-    const checkOut = format(date.to, "yyyyMMdd");
+    const checkIn = format(checkinDate, "yyyyMMdd");
+    const checkOut = format(checkoutDate, "yyyyMMdd");
     const baseUrl = "https://vhomeflathotel.motordereservas.com.br/novareserva";
     const url = `${baseUrl}?inicio=${checkIn}&fim=${checkOut}&adultos=${guests}&idquartoCategoria=${roomId}`;
 
@@ -50,40 +58,64 @@ export function RoomBookingForm({ roomId, onCancel }: RoomBookingFormProps) {
         
         <div className="grid gap-4">
           <div className="grid gap-2">
-            <Label>Check-in / Check-out</Label>
+            <Label>Check-in</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
-                  id="date"
                   variant={"outline"}
                   className={cn(
                     "w-full justify-start text-left font-normal",
-                    !date && "text-muted-foreground"
+                    !checkinDate && "text-muted-foreground"
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date?.from ? (
-                    date.to ? (
-                      <>
-                        {format(date.from, "LLL dd, y")} -{" "}
-                        {format(date.to, "LLL dd, y")}
-                      </>
-                    ) : (
-                      format(date.from, "LLL dd, y")
-                    )
+                  {checkinDate ? (
+                    format(checkinDate, "dd 'de' LLL", { locale: ptBR })
                   ) : (
-                    <span>Selecione as datas</span>
+                    <span>Selecione a data</span>
                   )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
+                  mode="single"
+                  selected={checkinDate}
+                  onSelect={setCheckinDate}
+                  disabled={{ before: new Date() }}
                   initialFocus
-                  mode="range"
-                  defaultMonth={date?.from}
-                  selected={date}
-                  onSelect={setDate}
-                  numberOfMonths={1}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div className="grid gap-2">
+            <Label>Check-out</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !checkoutDate && "text-muted-foreground"
+                  )}
+                  disabled={!checkinDate}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {checkoutDate ? (
+                    format(checkoutDate, "dd 'de' LLL", { locale: ptBR })
+                  ) : (
+                    <span>Selecione a data</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={checkoutDate}
+                  onSelect={setCheckoutDate}
+                  disabled={(date) =>
+                    !checkinDate || date <= checkinDate
+                  }
+                  initialFocus
                 />
               </PopoverContent>
             </Popover>
@@ -107,7 +139,7 @@ export function RoomBookingForm({ roomId, onCancel }: RoomBookingFormProps) {
       <div className="mt-6">
         <Button
           onClick={handleConsult}
-          disabled={!date?.from || !date?.to}
+          disabled={!checkinDate || !checkoutDate}
           className="w-full bg-blue-800 hover:bg-blue-900"
         >
           Consultar Disponibilidade
