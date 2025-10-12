@@ -25,52 +25,50 @@ interface Room {
   imageUrl: string | null;
 }
 
-const BUCKET_NAME = 'gallery';
-const FOLDER = 'rooms';
-
 export function Rooms() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [flippedCardId, setFlippedCardId] = useState<number | null>(null);
 
-  useEffect(() => {
-    const fetchRooms = async () => {
-      setIsLoading(true);
-      const { data, error } = await supabase.from("rooms").select("*").order('id');
+  const fetchRooms = async () => {
+    setIsLoading(true);
+    const { data, error } = await supabase.from("rooms").select("*").order('id');
 
-      if (error) {
-        console.error("Erro ao carregar os quartos.", error);
-        setRooms([]);
-      } else {
-        const { data: files, error: fileError } = await supabase.storage.from(BUCKET_NAME).list(FOLDER);
+    if (error) {
+      console.error("Erro ao carregar os quartos.", error);
+      setRooms([]);
+    } else {
+      const { data: files, error: fileError } = await supabase.storage.from('gallery').list('rooms');
 
-        if (fileError) {
-            console.error("Erro ao carregar imagens das acomodações.", fileError);
-        }
-
-        const imageMap = new Map(files?.map(file => {
-            const fileNameWithoutExt = file.name.split('.')[0];
-            const publicUrl = supabase.storage.from(BUCKET_NAME).getPublicUrl(`${FOLDER}/${file.name}`).data.publicUrl;
-            return [fileNameWithoutExt, publicUrl];
-        }));
-
-        const roomsWithImages = data.map(room => ({
-          ...room,
-          imageUrl: imageMap.get(String(room.id)) || null,
-        }));
-        
-        setRooms(roomsWithImages);
+      if (fileError) {
+          console.error("Erro ao carregar imagens das acomodações.", fileError);
       }
-      setIsLoading(false);
-    };
 
+      const imageMap = new Map(files?.map(file => {
+          const fileNameWithoutExt = file.name.split('.')[0];
+          const publicUrl = supabase.storage.from('gallery').getPublicUrl(`rooms/${file.name}`).data.publicUrl;
+          return [fileNameWithoutExt, publicUrl];
+      }));
+
+      const roomsWithImages = data.map(room => ({
+        ...room,
+        imageUrl: imageMap.get(String(room.id)) || null,
+      }));
+      
+      setRooms(roomsWithImages);
+    }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
     fetchRooms();
   }, []);
 
   const renderDetails = (details: Record<string, string | null>) => {
+    console.log('Detalhes da acomodação:', details); // Debug log
     return Object.entries(details)
-      .filter(([key, value]) => value && key !== 'description')
+      .filter(([key, value]) => value && key !== 'description' && key.startsWith('tag_'))
       .map(([key, value]) => (
         <Badge key={key} variant="secondary" className="font-normal">
           {value}
