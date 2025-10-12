@@ -10,9 +10,9 @@ export default function Header() {
         <nav className="hidden md:flex items-center space-x-6">
           <a href="#about" className="text-gray-600 hover:text-blue-600 transition-colors">Sobre</a>
           <a href="#rooms" className="text-gray-600 hover:text-blue-600 transition-colors">Acomodações</a>
-          <a href="#services" className="text-gray-600 hover:text-blue-600 transition-colors">Serviços</a>
-          <a href="#gallery" className="text-gray-600 hover:text-blue-600 transition-colors">Galeria</a>
-          <a href="#contact" className="text-gray-600 hover:text-blue-600 transition-colors">Contato</a>
+          <a href="#comodidades" className="text-gray-600 hover:text-blue-600 transition-colors">Comodidades</a>
+          <a href="#galeria" className="text-gray-600 hover:text-blue-600 transition-colors">Galeria</a>
+          <a href="#contato" className="text-gray-600 hover:text-blue-600 transition-colors">Contato</a>
           <Button>Reservar Agora</Button>
         </nav>
         <div className="md:hidden">
@@ -26,9 +26,9 @@ export default function Header() {
               <nav className="flex flex-col space-y-4 mt-8">
                 <a href="#about" className="text-gray-600 hover:text-blue-600 transition-colors">Sobre</a>
                 <a href="#rooms" className="text-gray-600 hover:text-blue-600 transition-colors">Acomodações</a>
-                <a href="#services" className="text-gray-600 hover:text-blue-600 transition-colors">Serviços</a>
-                <a href="#gallery" className="text-gray-600 hover:text-blue-600 transition-colors">Galeria</a>
-                <a href="#contact" className="text-gray-600 hover:text-blue-600 transition-colors">Contato</a>
+                <a href="#comodidades" className="text-gray-600 hover:text-blue-600 transition-colors">Comodidades</a>
+                <a href="#galeria" className="text-gray-600 hover:text-blue-600 transition-colors">Galeria</a>
+                <a href="#contato" className="text-gray-600 hover:text-blue-600 transition-colors">Contato</a>
                 <Button className="mt-4">Reservar Agora</Button>
               </nav>
             </SheetContent>
