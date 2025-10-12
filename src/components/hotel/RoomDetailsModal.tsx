@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { X, Loader2, Star } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { RoomBookingForm } from "./RoomBookingForm";
+import { Logo } from "./Logo";
 
 interface RoomDetailsModalProps {
   room: any;
@@ -74,19 +75,22 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
       <DialogContent className="max-w-full sm:max-w-5xl lg:max-w-7xl h-[95vh] flex flex-col p-0 overflow-hidden bg-white shadow-2xl rounded-2xl">
         <DialogHeader className="p-6 pb-4 border-b border-gray-100 flex-shrink-0 bg-gradient-to-r from-blue-50 to-white">
           <div className="flex justify-between items-start">
-            <div className="space-y-2">
-              <DialogTitle className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">{room.name}</DialogTitle>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1">
-                  {renderStars(4)}
-                  <span className="text-sm font-medium text-gray-600 ml-2">4 Estrelas</span>
-                </div>
-                {room.special_name && (
-                  <div className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-yellow-500 fill-current" />
-                    <span className="text-sm font-medium text-blue-700 bg-blue-50 px-3 py-1 rounded-full">{room.special_name}</span>
+            <div className="flex items-center gap-4">
+              <Logo className="h-12 w-auto" />
+              <div className="space-y-2">
+                <DialogTitle className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">{room.name}</DialogTitle>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1">
+                    {renderStars(4)}
+                    <span className="text-sm font-medium text-gray-600 ml-2">4 Estrelas</span>
                   </div>
-                )}
+                  {room.special_name && (
+                    <div className="flex items-center gap-2">
+                      <Star className="h-5 w-5 text-yellow-500 fill-current" />
+                      <span className="text-sm font-medium text-blue-700 bg-blue-50 px-3 py-1 rounded-full">{room.special_name}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <Button variant="ghost" size="sm" onClick={onClose} className="hover:bg-gray-100 rounded-full p-2">
