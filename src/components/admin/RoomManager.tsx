@@ -21,7 +21,7 @@ interface Room {
   description: string | null;
 }
 
-function RoomEditor({ room }: { room: Room }) {
+function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
   const [formData, setFormData] = useState(room);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -31,32 +31,60 @@ function RoomEditor({ room }: { room: Room }) {
   };
 
   const handleDetailsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFormData(prev => ({ ...prev, details: JSON.parse(e.target.value) }));
+    try {
+      const parsedDetails = JSON.parse(e.target.value);
+      setFormData(prev => ({ ...prev, details: parsedDetails }));
+    } catch (error) {
+      console.error('Erro ao parsear JSON dos detalhes:', error);
+      showError('JSON inválido nos detalhes. Verifique a sintaxe.');
+    }
   };
 
   const handleSave = async () => {
     setIsSaving(true);
     const toastId = showLoading('Salvando alterações...');
 
-    const { error } = await supabase
-      .from('rooms')
-      .update({
+    console.log('Tentando salvar dados:', {
+      id: room.id,
+      formData: {
         name: formData.name,
         special_name: formData.special_name,
         booking_url: formData.booking_url,
         details: formData.details,
         description: formData.description,
-      })
-      .eq('id', room.id);
+      }
+    });
+
+    try {
+      const { data, error } = await supabase
+        .from('rooms')
+        .update({
+          name: formData.name,
+          special_name: formData.special_name,
+          booking_url: formData.booking_url,
+          details: formData.details,
+          description: formData.description,
+        })
+        .eq('id', room.id)
+        .select();
+
+      console.log('Resposta do Supabase:', { data, error });
+
+      if (error) {
+        console.error('Erro ao salvar acomodação:', error);
+        showError(`Erro ao salvar: ${error.message}`);
+      } else {
+        console.log('Acomodação salva com sucesso:', data);
+        showSuccess('Acomodação atualizada com sucesso!');
+        onSave(); // Recarrega a lista
+      }
+    } catch (error) {
+      console.error('Erro inesperado ao salvar:', error);
+      showError('Erro inesperado ao salvar. Tente novamente.');
+    }
 
     dismissToast(toastId);
     setIsSaving(false);
-
-    if (error) {
-      showError(`Erro ao salvar: ${error.message}`);
-    } else {
-      showSuccess('Acomodação atualizada com sucesso!');
-    }
   };
 
   return (
@@ -121,18 +149,21 @@ export default function RoomManager() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchRooms = async () => {
+    setLoading(true);
+    console.log('Buscando acomodações...');
+    const { data, error } = await supabase.from('rooms').select('*').order('id');
+    console.log('Resposta da busca de acomodações:', { data, error });
+    if (error) {
+      showError('Erro ao carregar acomodações.');
+      console.error(error);
+    } else {
+      setRooms(data as Room[]);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchRooms = async () => {
-      setLoading(true);
-      const { data, error } = await supabase.from('rooms').select('*').order('id');
-      if (error) {
-        showError('Erro ao carregar acomodações.');
-        console.error(error);
-      } else {
-        setRooms(data as Room[]);
-      }
-      setLoading(false);
-    };
     fetchRooms();
   }, []);
 
@@ -161,7 +192,7 @@ export default function RoomManager() {
             <AccordionItem value={`item-${room.id}`} key={room.id}>
               <AccordionTrigger className="text-lg">{room.name}</AccordionTrigger>
               <AccordionContent>
-                <RoomEditor room={room} />
+                <RoomEditor room={room} onSave={fetchRooms} />
               </AccordionContent>
             </AccordionItem>
           ))}
