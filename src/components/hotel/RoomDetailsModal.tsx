@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import FeatureListDisplay, { FeatureCategory } from './FeatureListDisplay';
-import { Logo } from './Logo';
 import { supabase } from '@/lib/supabaseClient';
 import { Loader2, Calendar, Info } from 'lucide-react';
 import { RoomBookingForm } from './RoomBookingForm';
@@ -75,20 +74,14 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
   return (
     <Dialog open={!!room} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-[90vw] md:max-w-[1000px] max-h-[95vh] w-full mx-2 sm:mx-4 bg-white/95 backdrop-blur-sm border-0 shadow-2xl rounded-2xl overflow-hidden flex flex-col">
-        <DialogHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 border-b border-slate-200 flex-shrink-0 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <div className="flex-shrink-0">
-              <Logo isScrolled={false} />
-            </div>
-            <div className="h-12 w-px bg-slate-300 hidden sm:block"></div>
-            <div className="flex-1">
-              <DialogTitle className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800">
-                {room.name}
-              </DialogTitle>
-              <DialogDescription className="text-slate-600 text-sm sm:text-base md:text-lg mt-1 sm:mt-2">
-                Descubra o conforto e reserve sua experiência única
-              </DialogDescription>
-            </div>
+        <DialogHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 border-b border-slate-200 flex-shrink-0 flex items-center justify-center">
+          <div className="text-center">
+            <DialogTitle className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800">
+              {room.name}
+            </DialogTitle>
+            <DialogDescription className="text-slate-600 text-sm sm:text-base md:text-lg mt-1 sm:mt-2">
+              Descubra o conforto e reserve sua experiência única
+            </DialogDescription>
           </div>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6">
