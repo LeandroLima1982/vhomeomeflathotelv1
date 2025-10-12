@@ -10,6 +10,7 @@ import { Logo } from './Logo';
 import { supabase } from '@/lib/supabaseClient';
 import { Loader2, Calendar, Info } from 'lucide-react';
 import { RoomBookingForm } from './RoomBookingForm';
+import Autoplay from 'embla-carousel-autoplay';
 
 interface Room {
   id: number;
@@ -123,7 +124,7 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
                     </div>
                   ) : roomImages.length > 0 ? (
                     <div className="space-y-2 sm:space-y-3">
-                      <Carousel className="w-full max-w-[280px] sm:max-w-sm md:max-w-md mx-auto md:mx-0">
+                      <Carousel plugins={[Autoplay({ delay: 3000 })]} className="w-full max-w-[280px] sm:max-w-sm md:max-w-md mx-auto md:mx-0">
                         <CarouselContent>
                           {roomImages.map((image, index) => (
                             <CarouselItem key={index}>
