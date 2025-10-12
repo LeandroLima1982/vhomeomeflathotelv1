@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { X, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { RoomBookingForm } from "./RoomBookingForm";
@@ -47,6 +48,16 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
     }
   }, [room]);
 
+  const renderDetails = (details: Record<string, string | null>) => {
+    return Object.entries(details)
+      .filter(([key, value]) => value && key !== 'description')
+      .map(([key, value]) => (
+        <Badge key={key} variant="secondary" className="font-normal">
+          {value}
+        </Badge>
+      ));
+  };
+
   if (!room) return null;
 
   return (
@@ -71,7 +82,6 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
             <TabsContent value="details" className="mt-4 h-full">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
                 <div className="flex flex-col">
-                  <h3 className="text-md font-semibold mb-2">Imagens</h3>
                   {loadingImages ? (
                     <div className="flex justify-center items-center h-48">
                       <Loader2 className="h-8 w-8 animate-spin" />
@@ -98,8 +108,17 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
                 </div>
                 <div className="flex flex-col space-y-4">
                   <div>
-                    <h3 className="text-md font-semibold">Detalhes</h3>
-                    <p className="text-sm">{room.description}</p>
+                    <h3 className="text-xl font-semibold">{room.name}</h3>
+                    {room.special_name && (
+                      <p className="text-sm text-blue-800 font-medium">{room.special_name}</p>
+                    )}
+                    <p className="text-sm mt-2">{room.description}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-md font-semibold mb-2">Diferenciais</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {renderDetails(room.details)}
+                    </div>
                   </div>
                 </div>
               </div>
