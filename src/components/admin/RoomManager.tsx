@@ -24,14 +24,28 @@ interface Room {
 function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
   const [formData, setFormData] = useState(room);
   const [isSaving, setIsSaving] = useState(false);
-  const [tags, setTags] = useState<string[]>(Object.values(room.details).filter((value): value is string => value !== null && value !== ''));
+  const [tags, setTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState('');
   const [editingTagIndex, setEditingTagIndex] = useState<number | null>(null);
   const [editingTagValue, setEditingTagValue] = useState('');
 
   useEffect(() => {
-    setTags(Object.values(formData.details).filter((value): value is string => value !== null && value !== ''));
-  }, [formData.details]);
+    console.log('Room data received:', room);
+    console.log('Room details:', room.details);
+    
+    // Extract only tag values from details, filtering out null/empty values
+    const tagValues = Object.entries(room.details)
+      .filter(([key, value]) => key.startsWith('tag_') && value && value.trim() !== '')
+      .map(([key, value]) => value as string)
+      .sort((a, b) => {
+        const aNum = parseInt(key.split('_')[1]);
+        const bNum = parseInt(b.split('_')[1]);
+        return aNum - bNum;
+      });
+    
+    console.log('Extracted tags:', tagValues);
+    setTags(tagValues);
+  }, [room]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -75,11 +89,21 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
   };
 
   const updateDetailsFromTags = (updatedTags: string[]) => {
-    const newDetails: Record<string, string | null> = {};
+    const newDetails: Record<string, string | null> = { ...formData.details };
+    
+    // Remove all existing tag keys
+    Object.keys(newDetails).forEach(key => {
+      if (key.startsWith('tag_')) {
+        delete newDetails[key];
+      }
+    });
+    
+    // Add updated tag keys
     updatedTags.forEach((tag, index) => {
       newDetails[`tag_${index + 1}`] = tag;
     });
-    console.log('Atualizando detalhes das tags:', newDetails);
+    
+    console.log('Updated details object:', newDetails);
     setFormData(prev => ({ ...prev, details: newDetails }));
   };
 
@@ -87,17 +111,13 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
     setIsSaving(true);
     const toastId = showLoading('Salvando alterações...');
 
-    console.log('Details a salvar:', formData.details);
-
-    console.log('Tentando salvar dados:', {
-      id: room.id,
-      formData: {
-        name: formData.name,
-        special_name: formData.special_name,
-        booking_url: formData.booking_url,
-        details: formData.details,
-        description: formData.description,
-      }
+    console.log('Final details to save:', formData.details);
+    console.log('Full data to save:', {
+      name: formData.name,
+      special_name: formData.special_name,
+      booking_url: formData.booking_url,
+      details: formData.details,
+      description: formData.description,
     });
 
     try {
@@ -113,13 +133,13 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
         .eq('id', room.id)
         .select();
 
-      console.log('Resposta do Supabase:', { data, error });
+      console.log('Supabase update response:', { data, error });
 
       if (error) {
         console.error('Erro ao salvar acomodação:', error);
         showError(`Erro ao salvar: ${error.message}`);
       } else {
-        console.log('Acomodação salva com sucesso:', data);
+        console.log('Acomodação salva com sucesso. Dados retornados:', data);
         showSuccess('Acomodação atualizada com sucesso!');
         onSave(); // Recarrega a lista
       }

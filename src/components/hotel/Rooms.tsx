@@ -75,18 +75,16 @@ export function Rooms() {
   }, []);
 
   const renderDetails = (details: Record<string, string | null>) => {
-    console.log('Detalhes recebidos:', details);
-    const entries = Object.entries(details);
-    console.log('Todas as entries:', entries);
-    const filtered = entries.filter(([key, value]) => {
-      const keep = value && key !== 'description' && key.startsWith('tag_');
-      console.log(`Key: ${key}, Value: ${value}, Keep: ${keep}`);
-      return keep;
-    });
-    console.log('Entries filtradas:', filtered);
-    return filtered.map(([key, value]) => (
-      <Badge key={key} variant="secondary" className="font-normal">
-        {value}
+    console.log('Renderizando detalhes da acomodação:', details);
+    const tagEntries = Object.entries(details)
+      .filter(([key, value]) => key.startsWith('tag_') && value && value.trim() !== '')
+      .map(([key, value]) => value as string);
+    
+    console.log('Tags encontradas:', tagEntries);
+    
+    return tagEntries.map((tag, index) => (
+      <Badge key={index} variant="secondary" className="font-normal">
+        {tag}
       </Badge>
     ));
   };
