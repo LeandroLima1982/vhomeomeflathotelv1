@@ -12,33 +12,44 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabaseClient";
-import { roomsData } from "@/data/rooms";
 import { BedDouble } from 'lucide-react';
 import { RoomDetailsModal } from "./RoomDetailsModal";
 
-type RoomWithImage = (typeof roomsData)[number] & {
+interface Room {
+  id: number;
+  name: string;
+  special_name: string | null;
+  booking_url: string | null;
+  details: Record<string, string | null>;
   imageUrl: string | null;
-};
+}
 
 const BUCKET_NAME = 'gallery';
 const FOLDER = 'rooms';
 
 export default function Rooms() {
-  const [rooms, setRooms] = useState<RoomWithImage[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedRoom, setSelectedRoom] = useState<RoomWithImage | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
 
   useEffect(() => {
-    const fetchRoomImages = async () => {
+    const fetchRoomsAndImages = async () => {
       setLoading(true);
-      const { data: files, error } = await supabase.storage.from(BUCKET_NAME).list(FOLDER);
 
-      if (error) {
-        console.error("Erro ao carregar as imagens das acomodações.", error);
-        const roomsWithNoImages = roomsData.map(room => ({ ...room, imageUrl: null }));
-        setRooms(roomsWithNoImages);
+      // 1. Fetch room data from the database
+      const { data: roomData, error: roomError } = await supabase.from('rooms').select('*').order('id');
+      
+      if (roomError) {
+        console.error("Erro ao carregar dados das acomodações.", roomError);
         setLoading(false);
         return;
+      }
+
+      // 2. Fetch cover images from storage
+      const { data: files, error: fileError } = await supabase.storage.from(BUCKET_NAME).list(FOLDER);
+
+      if (fileError) {
+        console.error("Erro ao carregar as imagens das acomodações.", fileError);
       }
 
       const imageMap = new Map(files?.map(file => {
@@ -47,7 +58,8 @@ export default function Rooms() {
         return [fileNameWithoutExt, `${publicUrl}?t=${new Date().getTime()}`];
       }));
 
-      const roomsWithImages = roomsData.map(room => ({
+      // 3. Combine data
+      const roomsWithImages = roomData.map(room => ({
         ...room,
         imageUrl: imageMap.get(String(room.id)) || null,
       }));
@@ -56,10 +68,10 @@ export default function Rooms() {
       setLoading(false);
     };
 
-    fetchRoomImages();
+    fetchRoomsAndImages();
   }, []);
 
-  const renderDetails = (details: (typeof roomsData)[number]['details']) => {
+  const renderDetails = (details: Record<string, string | null>) => {
     return Object.values(details)
       .filter(Boolean)
       .map((value, index) => (
@@ -118,8 +130,8 @@ export default function Rooms() {
                         <BedDouble className="h-12 w-12 text-gray-400" />
                       </div>
                     )}
-                    {room.specialName && (
-                      <Badge className="absolute bottom-4 left-4 bg-blue-800 text-white">{room.specialName}</Badge>
+                    {room.special_name && (
+                      <Badge className="absolute bottom-4 left-4 bg-blue-800 text-white">{room.special_name}</Badge>
                     )}
                   </CardHeader>
                   <CardContent className="p-6 flex-grow">
@@ -138,7 +150,7 @@ export default function Rooms() {
                     >
                       Detalhes
                     </Button>
-                    <a href={room.url} target="_blank" rel="noopener noreferrer">
+                    <a href={room.booking_url || '#'} target="_blank" rel="noopener noreferrer">
                       <Button className="bg-blue-800 hover:bg-blue-900 transition-all duration-300 ease-in-out delay-100 transform translate-y-20 group-hover:translate-y-0">
                         Reservar Agora
                       </Button>

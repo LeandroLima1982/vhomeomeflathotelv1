@@ -13,25 +13,28 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabaseClient";
 import { BedDouble, Wifi, Maximize, Tv, Wind, Bath, Eye, Check } from 'lucide-react';
-import { roomsData } from "@/data/rooms";
 
-type RoomWithImage = (typeof roomsData)[number] & {
+interface Room {
+  id: number;
+  name: string;
+  special_name: string | null;
+  booking_url: string | null;
+  details: Record<string, string | null>;
   imageUrl: string | null;
-};
+}
 
 interface RoomDetailsModalProps {
-  room: RoomWithImage | null;
+  room: Room | null;
   onClose: () => void;
 }
 
 const iconMap: { [key: string]: React.ReactNode } = {
-  beds: <BedDouble className="h-4 w-4 mr-2 text-blue-800" />,
   size: <Maximize className="h-4 w-4 mr-2 text-blue-800" />,
   view: <Eye className="h-4 w-4 mr-2 text-blue-800" />,
   wifi: <Wifi className="h-4 w-4 mr-2 text-blue-800" />,
   tv: <Tv className="h-4 w-4 mr-2 text-blue-800" />,
   ac: <Wind className="h-4 w-4 mr-2 text-blue-800" />,
-  bath: <Bath className="h-4 w-4 mr-2 text-blue-800" />,
+  bathroom: <Bath className="h-4 w-4 mr-2 text-blue-800" />,
 };
 
 export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
@@ -43,14 +46,17 @@ export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
 
     const fetchGallery = async () => {
       setIsLoadingImages(true);
-      const { data, error } = await supabase.storage.from('gallery').list(`rooms/${room.id}`);
+      const { data, error } = await supabase.storage.from('gallery').list(`rooms/${room.id}/gallery`);
       
       if (error || !data || data.length === 0) {
+        // Se não houver galeria, usa a imagem de capa como fallback
         setGalleryImages(room.imageUrl ? [room.imageUrl] : []);
       } else {
-        const urls = data.map(file => 
-          supabase.storage.from('gallery').getPublicUrl(`rooms/${room.id}/${file.name}`).data.publicUrl
-        );
+        const urls = data
+          .filter(file => file.name !== '_order.json')
+          .map(file => 
+            supabase.storage.from('gallery').getPublicUrl(`rooms/${room.id}/gallery/${file.name}`).data.publicUrl
+          );
         setGalleryImages(urls);
       }
       setIsLoadingImages(false);
@@ -101,7 +107,7 @@ export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
                 <div>
                     <h3 className="font-semibold text-lg mb-3 text-gray-700">Comodidades Principais</h3>
                     <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-gray-600">
-                        {Object.entries(room.details).map(([key, value]) => (
+                        {Object.entries(room.details).filter(([, value]) => value !== null).map(([key, value]) => (
                             <div key={key} className="flex items-center">
                                 {iconMap[key] || <Check className="h-4 w-4 mr-2 text-blue-800" />}
                                 <span>{value}</span>
@@ -110,14 +116,16 @@ export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
                     </div>
                 </div>
 
-                <div>
-                    <h3 className="font-semibold text-lg mb-3 text-gray-700">Na sua cozinha privativa:</h3>
-                    <ul className="grid grid-cols-2 gap-x-4 gap-y-1 text-gray-600">
-                        {['Geladeira', 'Forno', 'Micro-ondas', 'Fogão', 'Utensílios de cozinha', 'Mesa de jantar'].map(item => (
-                            <li key={item} className="flex items-center"><Check className="h-4 w-4 mr-2 text-green-600" />{item}</li>
-                        ))}
-                    </ul>
-                </div>
+                {room.details.kitchen && (
+                  <div>
+                      <h3 className="font-semibold text-lg mb-3 text-gray-700">Na sua cozinha privativa:</h3>
+                      <ul className="grid grid-cols-2 gap-x-4 gap-y-1 text-gray-600">
+                          {['Geladeira', 'Forno', 'Micro-ondas', 'Fogão', 'Utensílios de cozinha', 'Mesa de jantar'].map(item => (
+                              <li key={item} className="flex items-center"><Check className="h-4 w-4 mr-2 text-green-600" />{item}</li>
+                          ))}
+                      </ul>
+                  </div>
+                )}
 
                 <div>
                     <h3 className="font-semibold text-lg mb-3 text-gray-700">No seu banheiro privativo:</h3>
@@ -130,7 +138,7 @@ export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
             </div>
 
             <DialogFooter className="mt-6 pt-6 border-t sm:justify-between">
-              <a href={room.url} target="_blank" rel="noopener noreferrer">
+              <a href={room.booking_url || '#'} target="_blank" rel="noopener noreferrer">
                 <Button className="w-full sm:w-auto bg-blue-800 hover:bg-blue-900">Reservar Agora</Button>
               </a>
               <Button variant="outline" onClick={onClose} className="w-full sm:w-auto mt-2 sm:mt-0">Fechar</Button>

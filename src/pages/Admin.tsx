@@ -1,6 +1,7 @@
 import ImageManager from "@/components/admin/ImageManager";
 import LogoManager from "@/components/admin/LogoManager";
 import RoomImageManager from "@/components/admin/RoomImageManager";
+import RoomManager from "@/components/admin/RoomManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Admin = () => {
@@ -9,17 +10,21 @@ const Admin = () => {
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold mb-4 text-gray-800">Gerenciamento de Conteúdo</h1>
         <p className="text-gray-600 mb-8">
-          Use as abas abaixo para gerenciar as imagens de cada seção do site.
+          Use as abas abaixo para gerenciar as imagens e conteúdos de cada seção do site.
         </p>
         
-        <Tabs defaultValue="gallery" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+        <Tabs defaultValue="rooms" className="w-full">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="rooms">Acomodações</TabsTrigger>
             <TabsTrigger value="gallery">Galeria Principal</TabsTrigger>
             <TabsTrigger value="hero">Banner Principal (Hero)</TabsTrigger>
             <TabsTrigger value="about">Seção "Sobre"</TabsTrigger>
-            <TabsTrigger value="rooms">Acomodações</TabsTrigger>
+            <TabsTrigger value="room_covers">Imagens de Capa</TabsTrigger>
             <TabsTrigger value="logo">Logo</TabsTrigger>
           </TabsList>
+          <TabsContent value="rooms" className="mt-6">
+            <RoomManager />
+          </TabsContent>
           <TabsContent value="gallery" className="mt-6">
             <ImageManager 
               folder="main"
@@ -41,7 +46,7 @@ const Admin = () => {
               description="Imagens para o carrossel da seção 'Bem-vindo ao V-Home'. Adicione 2 ou 3 imagens que mostrem o hotel."
             />
           </TabsContent>
-          <TabsContent value="rooms" className="mt-6">
+          <TabsContent value="room_covers" className="mt-6">
             <RoomImageManager />
           </TabsContent>
           <TabsContent value="logo" className="mt-6">
