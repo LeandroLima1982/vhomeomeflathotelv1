@@ -37,18 +37,29 @@ export function Rooms() {
   useEffect(() => {
     const fetchRooms = async () => {
       setIsLoading(true);
-      const { data, error } = await supabase.from("rooms").select("*");
+      const { data, error } = await supabase.from("rooms").select("*").order('id');
 
       if (error) {
         console.error("Erro ao carregar os quartos.", error);
         setRooms([]);
       } else {
-        const roomsWithImages = data.map(room => {
-          const { data: imageUrlData } = supabase.storage
-            .from(BUCKET_NAME)
-            .getPublicUrl(`${FOLDER}/${room.id}/1.jpg`);
-          return { ...room, imageUrl: imageUrlData.publicUrl };
-        });
+        const { data: files, error: fileError } = await supabase.storage.from(BUCKET_NAME).list(FOLDER);
+
+        if (fileError) {
+            console.error("Erro ao carregar imagens das acomodações.", fileError);
+        }
+
+        const imageMap = new Map(files?.map(file => {
+            const fileNameWithoutExt = file.name.split('.')[0];
+            const publicUrl = supabase.storage.from(BUCKET_NAME).getPublicUrl(`${FOLDER}/${file.name}`).data.publicUrl;
+            return [fileNameWithoutExt, publicUrl];
+        }));
+
+        const roomsWithImages = data.map(room => ({
+          ...room,
+          imageUrl: imageMap.get(String(room.id)) || null,
+        }));
+        
         setRooms(roomsWithImages);
       }
       setIsLoading(false);
