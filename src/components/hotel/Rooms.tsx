@@ -115,7 +115,7 @@ export default function Rooms() {
                     </div>
                   )}
                   {room.specialName && (
-                    <Badge className="absolute top-4 right-4 bg-blue-800 text-white">{room.specialName}</Badge>
+                    <Badge className="absolute bottom-4 left-4 bg-blue-800 text-white">{room.specialName}</Badge>
                   )}
                 </CardHeader>
                 <CardContent className="p-6 flex-grow">
