@@ -17,8 +17,7 @@ interface Room {
   name: string;
   special_name: string | null;
   booking_url: string | null;
-  details: Record<string, any>;
-  description: string | null;
+  details: Record<string, string | null>;
 }
 
 function RoomEditor({ room }: { room: Room }) {
@@ -31,11 +30,7 @@ function RoomEditor({ room }: { room: Room }) {
   };
 
   const handleDetailsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    try {
-      setFormData(prev => ({ ...prev, details: JSON.parse(e.target.value) }));
-    } catch (error) {
-      showError("O formato do JSON nos detalhes é inválido.");
-    }
+    setFormData(prev => ({ ...prev, details: JSON.parse(e.target.value) }));
   };
 
   const handleSave = async () => {
@@ -49,7 +44,6 @@ function RoomEditor({ room }: { room: Room }) {
         special_name: formData.special_name,
         booking_url: formData.booking_url,
         details: formData.details,
-        description: formData.description,
       })
       .eq('id', room.id);
 
@@ -77,18 +71,6 @@ function RoomEditor({ room }: { room: Room }) {
           <div>
             <Label htmlFor={`special_name-${room.id}`}>Nome Especial (Badge)</Label>
             <Input id={`special_name-${room.id}`} name="special_name" value={formData.special_name || ''} onChange={handleInputChange} />
-          </div>
-          <div>
-            <Label htmlFor={`description-${room.id}`}>Descrição</Label>
-            <Textarea
-              id={`description-${room.id}`}
-              name="description"
-              value={formData.description || ''}
-              onChange={handleInputChange}
-              rows={5}
-              placeholder="Adicione uma descrição detalhada do quarto..."
-            />
-            <p className="text-sm text-gray-500 mt-1">Esta descrição aparecerá no modal de detalhes do quarto.</p>
           </div>
           <div>
             <Label htmlFor={`booking_url-${room.id}`}>URL de Reserva</Label>
