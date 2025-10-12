@@ -1,51 +1,41 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { Skeleton } from "@/components/ui/skeleton";
-import { showError } from "@/utils/toast";
 
-export default function Hero() {
+interface HeroImage {
+  src: string;
+  alt: string;
+}
+
+export const Hero = () => {
+  const [images, setImages] = useState<HeroImage[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
-  const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const plugin = React. useRef(
-    Autoplay({ delay: 5000, stopOnInteraction: false })
-  );
-
   useEffect(() => {
-    setIsMounted(true);
-
     const fetchImages = async () => {
       setLoading(true);
-      console.log("Buscando imagens do banner (banner)...");
-      const { data, error } = await supabase.storage.from('gallery').list('banner', {
+      const { data, error } = await supabase.storage.from('gallery').list('hero', {
         limit: 5,
         offset: 0,
         sortBy: { column: 'created_at', order: 'desc' },
       });
 
       if (error) {
-        console.error("Erro ao buscar a lista de imagens do Supabase:", error);
-        showError("Não foi possível carregar as imagens do banner.");
+        console.error("Error fetching hero images:", error);
         setLoading(false);
         return;
       }
 
-      console.log("Arquivos encontrados no Supabase:", data);
-
       if (data) {
         const imageUrls = data
           .filter(file => file.name !== '.emptyFolderPlaceholder')
-          .map(file => {
-            const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(`banner/${file.name}`);
-            return `${publicUrl}?t=${new Date().getTime()}`;
-          });
-        
-        console.log("URLs das imagens construídas:", imageUrls);
+          .map(file => ({
+            src: supabase.storage.from('gallery').getPublicUrl(`hero/${file.name}`).data.publicUrl,
+            alt: `Imagem do banner principal ${file.name}`
+          }));
         setImages(imageUrls);
       }
       setLoading(false);
@@ -54,42 +44,41 @@ export default function Hero() {
     fetchImages();
   }, []);
 
+  useEffect(() => {
+    setIsMounted(true);
+    if (images.length > 0) {
+      const timer = setInterval(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+      }, 5000);
+      return () => clearInterval(timer);
+    }
+  }, [images]);
+
   return (
-    <section className="relative h-[600px] w-full overflow-hidden">
-      {loading ? (
-        <Skeleton className="h-full w-full" />
+    <div className="relative h-screen w-full overflow-hidden bg-gray-800">
+      {!loading && images.length > 0 ? (
+        images.map((image, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 h-full w-full bg-cover bg-center transition-opacity duration-1000 ${
+              index === currentIndex ? "opacity-100" : "opacity-0"
+            }`}
+            style={{ backgroundImage: `url(${image.src})` }}
+            role="img"
+            aria-label={image.alt}
+          />
+        ))
       ) : (
-        <Carousel
-          plugins={[plugin.current]}
-          className="h-full w-full"
-        >
-          <CarouselContent className="h-full">
-            {images.length > 0 ? (
-              images.map((src, index) => (
-                <CarouselItem key={index} className="h-full">
-                  <div
-                    className="h-full w-full bg-cover bg-center"
-                    style={{ backgroundImage: `url(${src})` }}
-                  />
-                </CarouselItem>
-              ))
-            ) : (
-              <CarouselItem className="h-full">
-                <div className="h-full w-full bg-gray-300 flex items-center justify-center">
-                  <span className="text-gray-500">Nenhuma imagem no banner. Adicione imagens na área de admin.</span>
-                </div>
-              </CarouselItem>
-            )}
-          </CarouselContent>
-        </Carousel>
+        <div className="absolute inset-0 bg-black bg-opacity-50" />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white p-4">
+      <div className="absolute inset-0 bg-black bg-opacity-50" />
+
+      <div className="relative z-10 flex h-full items-center justify-center p-4 text-center text-white">
         <div className={`transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-          <h1 className="text-4xl font-bold md:text-6xl drop-shadow-lg">Seu Flat Hotel à Beira Mar</h1>
-          <p className="mt-4 text-lg md:text-xl drop-shadow-md">Experimente o luxo e o conforto.</p>
+          <h1 className="text-4xl font-bold md:text-6xl">Bem-vindo ao Nosso Hotel</h1>
+          <p className="mt-4 text-lg md:text-xl">Experimente o luxo e o conforto.</p>
         </div>
       </div>
-    </section>
+    </div>
   );
-}
+};
