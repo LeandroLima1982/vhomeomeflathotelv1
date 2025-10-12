@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Calendar as CalendarIcon, Users } from "lucide-react";
-import { DateRange } from "react-day-picker";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -23,10 +22,8 @@ import {
 } from "@/components/ui/select";
 
 export function BookingForm() {
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: undefined,
-    to: undefined,
-  });
+  const [checkinDate, setCheckinDate] = useState<Date | undefined>();
+  const [checkoutDate, setCheckoutDate] = useState<Date | undefined>();
   const [guests, setGuests] = useState(1);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -34,16 +31,23 @@ export function BookingForm() {
     setIsMounted(true);
   }, []);
 
+  // Reseta a data de checkout se for anterior ou igual à de check-in
+  useEffect(() => {
+    if (checkinDate && checkoutDate && checkoutDate <= checkinDate) {
+      setCheckoutDate(undefined);
+    }
+  }, [checkinDate, checkoutDate]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!dateRange?.from || !dateRange?.to) {
+    if (!checkinDate || !checkoutDate) {
       alert("Por favor, selecione as datas de check-in e check-out.");
       return;
     }
 
-    const checkin = format(dateRange.from, "yyyyMMdd");
-    const checkout = format(dateRange.to, "yyyyMMdd");
+    const checkin = format(checkinDate, "yyyyMMdd");
+    const checkout = format(checkoutDate, "yyyyMMdd");
     const adults = guests;
     const categoryId = 3; // ID da categoria conforme o exemplo
 
@@ -58,49 +62,80 @@ export function BookingForm() {
       <div className="px-4">
         <div className={`max-w-4xl mx-auto bg-white/30 backdrop-blur-lg border border-white/50 p-4 md:p-6 rounded-xl shadow-xl transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-2 md:gap-4 md:grid-cols-4 md:items-end">
+            {/* Check-in */}
             <div className="space-y-2 text-left">
               <label className="font-medium text-gray-800 flex items-center gap-2 text-sm pl-1">
                 <CalendarIcon className="h-4 w-4" />
-                Check-in / Check-out
+                Check-in
               </label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
-                    id="date"
                     variant={"outline"}
                     className={cn(
                       "w-full justify-start text-left font-normal bg-white/80 hover:bg-white",
-                      !dateRange && "text-muted-foreground"
+                      !checkinDate && "text-muted-foreground"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateRange?.from ? (
-                      dateRange.to ? (
-                        <>
-                          {format(dateRange.from, "LLL dd, y", { locale: ptBR })} -{" "}
-                          {format(dateRange.to, "LLL dd, y", { locale: ptBR })}
-                        </>
-                      ) : (
-                        format(dateRange.from, "LLL dd, y", { locale: ptBR })
-                      )
+                    {checkinDate ? (
+                      format(checkinDate, "dd 'de' LLL", { locale: ptBR })
                     ) : (
-                      <span>Selecione as datas</span>
+                      <span>Selecione a data</span>
                     )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
+                    mode="single"
+                    selected={checkinDate}
+                    onSelect={setCheckinDate}
+                    disabled={{ before: new Date() }}
                     initialFocus
-                    mode="range"
-                    defaultMonth={dateRange?.from}
-                    selected={dateRange}
-                    onSelect={setDateRange}
-                    numberOfMonths={2}
                   />
                 </PopoverContent>
               </Popover>
             </div>
 
+            {/* Check-out */}
+            <div className="space-y-2 text-left">
+              <label className="font-medium text-gray-800 flex items-center gap-2 text-sm pl-1">
+                <CalendarIcon className="h-4 w-4" />
+                Check-out
+              </label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal bg-white/80 hover:bg-white",
+                      !checkoutDate && "text-muted-foreground"
+                    )}
+                    disabled={!checkinDate}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {checkoutDate ? (
+                      format(checkoutDate, "dd 'de' LLL", { locale: ptBR })
+                    ) : (
+                      <span>Selecione a data</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={checkoutDate}
+                    onSelect={setCheckoutDate}
+                    disabled={(date) =>
+                      !checkinDate || date <= checkinDate
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Guests */}
             <div className="space-y-2 text-left">
               <label htmlFor="guests" className="font-medium text-gray-800 flex items-center gap-2 text-sm pl-1">
                 <Users className="h-4 w-4" />
@@ -120,9 +155,10 @@ export function BookingForm() {
               </Select>
             </div>
 
-            <div className="md:col-span-2">
-              <Button type="submit" size="lg" className="w-full h-12 text-base font-bold bg-orange-500 hover:bg-orange-600 text-white">
-                Verificar Disponibilidade
+            {/* Submit Button */}
+            <div>
+              <Button type="submit" className="w-full font-bold bg-orange-500 hover:bg-orange-600 text-white">
+                Verificar
               </Button>
             </div>
           </form>
