@@ -1,133 +1,179 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from '@/lib/supabaseClient';
-import { Eye, Calendar, Users, Bed } from 'lucide-react';
-import RoomDetailsModal from './RoomDetailsModal';
+import { supabase } from "@/lib/supabaseClient";
+import RoomDetailsModal from "./RoomDetailsModal";
+import { RoomBookingForm } from "./RoomBookingForm";
+import { BedDouble, RefreshCw } from 'lucide-react';
+import { FeatureCategory } from './FeatureListDisplay'; // Importando a interface
 
 interface Room {
   id: number;
   name: string;
-  description: string | null;
+  special_name: string | null;
+  booking_url: string | null;
   details: Record<string, string | null>;
-  additional_features: FeatureCategory[] | null;
-  special_name?: string;
+  description: string | null;
+  imageUrl: string | null;
+  additional_features: FeatureCategory[] | null; // Nova propriedade
 }
 
-interface FeatureCategory {
-  category: string;
-  features: string[];
-}
-
-const Rooms: React.FC = () => {
+export function Rooms() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [flippedCardId, setFlippedCardId] = useState<number | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    const fetchRooms = async () => {
-      setIsLoading(true);
-      const { data, error } = await supabase.from('rooms').select('*');
+  const fetchRooms = async () => {
+    setRefreshing(true);
+    const { data, error } = await supabase.from("rooms").select("*").order('id');
 
-      if (error) {
-        console.error('Error fetching rooms:', error);
-      } else {
-        setRooms(data || []);
+    console.log('DEBUG (Rooms.tsx): Dados brutos do banco:', data);
+
+    if (error) {
+      console.error("Erro ao carregar os quartos.", error);
+      setRooms([]);
+    } else {
+      const { data: files, error: fileError } = await supabase.storage.from('gallery').list('rooms');
+
+      if (fileError) {
+          console.error("Erro ao carregar imagens das acomodações.", fileError);
       }
-      setIsLoading(false);
-    };
 
-    fetchRooms();
-  }, []);
+      const imageMap = new Map(files?.map(file => {
+          const fileNameWithoutExt = file.name.split('.')[0];
+          const publicUrl = supabase.storage.from('gallery').getPublicUrl(`rooms/${file.name}`).data.publicUrl;
+          return [fileNameWithoutExt, publicUrl];
+      }));
 
-  const handleViewDetails = (room: Room) => {
-    setSelectedRoom(room);
+      const roomsWithImages = data.map(room => ({
+        ...room,
+        imageUrl: imageMap.get(String(room.id)) || null,
+      }));
+      
+      setRooms(roomsWithImages);
+      console.log('DEBUG (Rooms.tsx): Acomodações carregadas:', roomsWithImages);
+    }
+    setIsLoading(false);
+    setRefreshing(false);
   };
 
-  const handleCloseModal = () => {
-    setSelectedRoom(null);
+  useEffect(() => {
+    fetchRooms();
+    
+    // Refresh data every 30 seconds to reflect admin changes
+    const interval = setInterval(fetchRooms, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const renderDetails = (details: Record<string, string | null>) => {
+    console.log('DEBUG (Rooms.tsx): Renderizando detalhes da acomodação:', details);
+    if (typeof details !== 'object' || details === null) {
+      console.error('DEBUG (Rooms.tsx): O objeto details não é válido:', details);
+      return null;
+    }
+
+    // Agora, vamos renderizar todos os valores não nulos e não vazios do objeto details,
+    // excluindo a chave 'description' se ela existir, como no modal de detalhes.
+    const detailEntries = Object.entries(details)
+      .filter(([key, value]) => value && value.trim() !== '' && key !== 'description')
+      .map(([key, value]) => value as string);
+    
+    console.log('DEBUG (Rooms.tsx): Detalhes encontrados para renderização:', detailEntries);
+    
+    return detailEntries.map((detail, index) => (
+      <Badge key={index} variant="secondary" className="font-normal">
+        {detail}
+      </Badge>
+    ));
+  };
+
+  const handleRefresh = () => {
+    fetchRooms();
   };
 
   return (
-    <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-slate-50 to-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10 sm:mb-12 md:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-slate-800 mb-4 tracking-wide">
+    <section id="rooms" className="py-12 md:py-20 bg-gray-50">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center mb-10">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800">
             Nossas Acomodações
           </h2>
-          <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Descubra quartos projetados para oferecer conforto, elegância e uma experiência inesquecível.
-          </p>
+          <Button 
+            onClick={handleRefresh} 
+            disabled={refreshing}
+            variant="outline"
+            size="sm"
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            Atualizar
+          </Button>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {isLoading
             ? Array.from({ length: 6 }).map((_, index) => (
-                <Skeleton key={index} className="h-96 w-full rounded-2xl" />
+                <Skeleton key={index} className="h-96 w-full" />
               ))
             : rooms.map((room) => (
-                <Card key={room.id} className="group bg-white border-0 shadow-lg hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden hover:-translate-y-1">
-                  <CardHeader className="p-6 sm:p-8">
-                    <div className="flex items-start justify-between mb-4">
-                      <CardTitle className="text-xl sm:text-2xl font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">
-                        {room.name}
-                      </CardTitle>
-                      {room.special_name && (
-                        <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0 rounded-full px-3 py-1 text-xs font-semibold shadow-md">
-                          {room.special_name}
-                        </Badge>
-                      )}
+                <Card
+                  key={room.id}
+                  className="group flex flex-col overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl"
+                >
+                  <div className="relative h-96 [transform-style:preserve-3d] transition-transform duration-500" style={{ transform: flippedCardId === room.id ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
+                    {/* Front of the card */}
+                    <div className="absolute w-full h-full [backface-visibility:hidden] flex flex-col">
+                      <CardHeader className="relative p-0 h-56 overflow-hidden">
+                        {room.imageUrl ? (
+                          <img src={room.imageUrl} alt={room.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <BedDouble className="h-16 w-16 text-gray-400" />
+                          </div>
+                        )}
+                        <CardFooter className="absolute bottom-0 left-0 right-0 p-6 bg-black/[.08] backdrop-blur-xl flex justify-between items-center transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out">
+                          <Button
+                            className="bg-white/[.08] border border-white/30 text-white hover:bg-white/20 backdrop-blur-sm"
+                            onClick={() => setSelectedRoom(room)}
+                          >
+                            Ver Detalhes
+                          </Button>
+                          <Button 
+                            className="bg-blue-800 hover:bg-blue-900"
+                            onClick={() => setFlippedCardId(room.id)}
+                          >
+                            Reservar Agora
+                          </Button>
+                        </CardFooter>
+                      </CardHeader>
+                      <CardContent className="p-6 flex-grow flex flex-col">
+                        <CardTitle className="text-xl font-semibold text-gray-800 mb-2">{room.name}</CardTitle>
+                        <p className="text-sm text-blue-800 font-medium mb-4">{room.special_name}</p>
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {renderDetails(room.details)}
+                        </div>
+                      </CardContent>
                     </div>
-                    <CardDescription className="text-slate-600 text-sm sm:text-base leading-relaxed line-clamp-3">
-                      {room.description}
-                    </CardDescription>
-                  </CardHeader>
-
-                  <CardContent className="px-6 sm:px-8 pb-4">
-                    <div className="space-y-3 sm:space-y-4">
-                      {room.details.capacity && (
-                        <div className="flex items-center gap-3 text-slate-700">
-                          <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
-                          <span className="text-sm sm:text-base font-medium">Capacidade: {room.details.capacity} pessoas</span>
-                        </div>
-                      )}
-                      {room.details.beds && (
-                        <div className="flex items-center gap-3 text-slate-700">
-                          <Bed className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
-                          <span className="text-sm sm:text-base font-medium">{room.details.beds}</span>
-                        </div>
-                      )}
-                      {room.details.price && (
-                        <div className="flex items-center gap-3 text-slate-700">
-                          <span className="text-lg sm:text-xl font-bold text-emerald-600">
-                            R$ {parseFloat(room.details.price).toFixed(2)} / noite
-                          </span>
-                        </div>
-                      )}
+                    {/* Back of the card */}
+                    <div className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                      <RoomBookingForm roomId={room.id} onCancel={() => setFlippedCardId(null)} />
                     </div>
-                  </CardContent>
-
-                  <CardFooter className="px-6 sm:px-8 pb-6 sm:pb-8 pt-0">
-                    <Button
-                      onClick={() => handleViewDetails(room)}
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2"
-                    >
-                      <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
-                      Ver Detalhes
-                    </Button>
-                  </CardFooter>
+                  </div>
                 </Card>
               ))}
         </div>
-
-        <RoomDetailsModal room={selectedRoom} onClose={handleCloseModal} />
       </div>
+      <RoomDetailsModal room={selectedRoom} onClose={() => setSelectedRoom(null)} />
     </section>
   );
-};
-
-export default Rooms;
+}
