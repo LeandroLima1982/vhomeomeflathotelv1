@@ -36,6 +36,8 @@ export function Rooms() {
     setRefreshing(true);
     const { data, error } = await supabase.from("rooms").select("*").order('id');
 
+    console.log('Dados brutos do banco:', data);
+
     if (error) {
       console.error("Erro ao carregar os quartos.", error);
       setRooms([]);
@@ -73,20 +75,20 @@ export function Rooms() {
   }, []);
 
   const renderDetails = (details: Record<string, string | null>) => {
-    console.log('Renderizando detalhes da acomodação:', details);
-    const tagEntries = Object.entries(details)
-      .filter(([key, value]) => value && key !== 'description' && key.startsWith('tag_'))
-      .map(([key, value]) => {
-        console.log(`Tag encontrada: ${key} = ${value}`);
-        return (
-          <Badge key={key} variant="secondary" className="font-normal">
-            {value}
-          </Badge>
-        );
-      });
-    
-    console.log('Tags renderizadas:', tagEntries.length);
-    return tagEntries;
+    console.log('Detalhes recebidos:', details);
+    const entries = Object.entries(details);
+    console.log('Todas as entries:', entries);
+    const filtered = entries.filter(([key, value]) => {
+      const keep = value && key !== 'description' && key.startsWith('tag_');
+      console.log(`Key: ${key}, Value: ${value}, Keep: ${keep}`);
+      return keep;
+    });
+    console.log('Entries filtradas:', filtered);
+    return filtered.map(([key, value]) => (
+      <Badge key={key} variant="secondary" className="font-normal">
+        {value}
+      </Badge>
+    ));
   };
 
   const handleRefresh = () => {

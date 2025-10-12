@@ -87,6 +87,8 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
     setIsSaving(true);
     const toastId = showLoading('Salvando alterações...');
 
+    console.log('Details a salvar:', formData.details);
+
     console.log('Tentando salvar dados:', {
       id: room.id,
       formData: {
