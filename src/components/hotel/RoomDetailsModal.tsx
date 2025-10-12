@@ -92,9 +92,6 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
                 </div>
               </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={onClose} className="hover:bg-gray-100 rounded-full p-2">
-              <X className="h-5 w-5" />
-            </Button>
           </div>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto">
