@@ -28,22 +28,25 @@ serve(async (req) => {
       body: JSON.stringify(payload),
     });
 
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const responseText = await response.text();
+      throw new Error(`A API externa respondeu com um formato inesperado (HTML/texto em vez de JSON). Status: ${response.status}. Início da resposta: ${responseText.substring(0, 200)}...`);
+    }
+
     if (!response.ok) {
-      const errorBody = await response.text();
-      // Lança um erro para ser pego pelo bloco catch
-      throw new Error(`Erro da API (${response.status}): ${errorBody}`);
+      const errorBody = await response.json();
+      throw new Error(`Erro da API (${response.status}): ${JSON.stringify(errorBody)}`);
     }
 
     const data = await response.json();
 
-    // Sempre retorna 200 OK, com uma estrutura de sucesso
     return new Response(
       JSON.stringify({ success: true, data: data }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
     console.error('Error in Edge Function:', error);
-    // Sempre retorna 200 OK, mas com uma estrutura de erro
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
