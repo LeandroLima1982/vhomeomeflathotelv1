@@ -30,28 +30,23 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorBody = await response.text();
-      console.error(`FacilityHotel API Error: Status ${response.status}`, errorBody);
-      // Retorna um erro estruturado para o cliente para que possamos ver a mensagem exata
-      return new Response(
-        JSON.stringify({ 
-          error: `A API externa retornou um erro (status ${response.status}).`,
-          details: errorBody 
-        }),
-        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      // Lança um erro para ser pego pelo bloco catch
+      throw new Error(`Erro da API (${response.status}): ${errorBody}`);
     }
 
     const data = await response.json();
 
+    // Sempre retorna 200 OK, com uma estrutura de sucesso
     return new Response(
-      JSON.stringify(data),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ success: true, data: data }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
     console.error('Error in Edge Function:', error);
+    // Sempre retorna 200 OK, mas com uma estrutura de erro
     return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ success: false, error: error.message }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
 })

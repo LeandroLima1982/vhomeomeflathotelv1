@@ -63,45 +63,33 @@ export function BookingForm({ loading, onResults, setLoading, setError }: Bookin
     };
 
     try {
-      const { data, error: functionError } = await supabase.functions.invoke('check-availability', {
+      const { data: functionResponse, error: functionError } = await supabase.functions.invoke('check-availability', {
         body: payload,
       });
 
       if (functionError) {
+        // Erro de rede ou da plataforma Supabase
         throw functionError;
       }
-      
-      if (data && (data.length === 0 || data.disponibilidade === false)) {
-         setError("Não há disponibilidade para os parâmetros informados. Tente outras datas ou acomodações.");
-         onResults([]);
+
+      // Agora verificamos a flag 'success' dentro da resposta
+      if (functionResponse.success) {
+        const results = functionResponse.data;
+        if (results && (results.length === 0 || results.disponibilidade === false)) {
+           setError("Não há disponibilidade para os parâmetros informados. Tente outras datas ou acomodações.");
+           onResults([]);
+        } else {
+           onResults(results);
+        }
       } else {
-         onResults(data);
+        // Se success for false, a função nos deu uma mensagem de erro clara
+        throw new Error(functionResponse.error || "Ocorreu um erro desconhecido na função.");
       }
 
     } catch (err: any) {
       console.error("Error checking availability:", err);
-      let errorMessage = "Ocorreu um erro ao verificar a disponibilidade. Por favor, tente novamente.";
-      
-      if (err.context) {
-        try {
-          // O 'context' pode ser uma string JSON, então tentamos analisá-lo
-          const parsedContext = typeof err.context === 'string' ? JSON.parse(err.context) : err.context;
-          if (parsedContext.details) {
-            errorMessage = `Erro da API: ${parsedContext.details}`;
-          } else if (parsedContext.error) {
-            errorMessage = parsedContext.error;
-          } else {
-            errorMessage = `Resposta inesperada da função: ${JSON.stringify(parsedContext)}`;
-          }
-        } catch (parseError) {
-          // Se a análise falhar, o 'context' é provavelmente uma mensagem de texto simples
-          errorMessage = `Erro da API: ${err.context}`;
-        }
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-      
-      setError(errorMessage);
+      // A mensagem de erro agora deve ser direta e informativa
+      setError(err.message);
     } finally {
       setLoading(false);
     }
