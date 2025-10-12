@@ -4,7 +4,6 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import Image from 'next/image';
 import FeatureListDisplay from './FeatureListDisplay'; // Importando o novo componente
 
 interface RoomDetailsModalProps {
@@ -148,13 +147,10 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ isOpen, onClose, ro
                     <CarouselItem key={index}>
                       <div className="p-1">
                         <div className="flex aspect-video items-center justify-center p-6">
-                          <Image
+                          <img
                             src={image}
                             alt={`Room image ${index + 1}`}
-                            width={700}
-                            height={400}
-                            objectFit="cover"
-                            className="rounded-md"
+                            className="rounded-md w-full h-full object-cover" // Usando classes Tailwind para width, height e object-fit
                           />
                         </div>
                       </div>
