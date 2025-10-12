@@ -21,30 +21,37 @@ interface Room {
   description: string | null;
 }
 
+interface DetailItem {
+  id: string; // Unique ID for React keys and internal management
+  key: string;
+  value: string;
+}
+
 function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
   const [formData, setFormData] = useState(room);
   const [isSaving, setIsSaving] = useState(false);
-  const [tags, setTags] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState('');
-  const [editingTagIndex, setEditingTagIndex] = useState<number | null>(null);
-  const [editingTagValue, setEditingTagValue] = useState('');
+  
+  const [detailItems, setDetailItems] = useState<DetailItem[]>([]);
+  const [newDetailKey, setNewDetailKey] = useState('');
+  const [newDetailValue, setNewDetailValue] = useState('');
+  const [editingDetailId, setEditingDetailId] = useState<string | null>(null);
+  const [editingDetailKey, setEditingDetailKey] = useState('');
+  const [editingDetailValue, setEditingDetailValue] = useState('');
 
   useEffect(() => {
-    console.log('Room data received:', room);
-    console.log('Room details:', room.details);
-    
-    // Extract only tag values from details, filtering out null/empty values
-    const tagValues = Object.entries(room.details)
-      .filter(([key, value]) => key.startsWith('tag_') && value && value.trim() !== '')
-      .map(([key, value]) => value as string)
-      .sort((a, b) => {
-        const aNum = parseInt(key.split('_')[1]);
-        const bNum = parseInt(b.split('_')[1]);
-        return aNum - bNum;
-      });
-    
-    console.log('Extracted tags:', tagValues);
-    setTags(tagValues);
+    setFormData(room); // Ensure formData is updated when room prop changes
+    if (room.details) {
+      const items: DetailItem[] = Object.entries(room.details)
+        .filter(([key, value]) => value !== null && value.trim() !== '' && key !== 'description')
+        .map(([key, value]) => ({
+          id: key, // Using key as ID for now, assuming unique keys.
+          key: key,
+          value: value as string,
+        }));
+      setDetailItems(items);
+    } else {
+      setDetailItems([]);
+    }
   }, [room]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -52,95 +59,69 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const addTag = () => {
-    if (newTag.trim() && !tags.includes(newTag.trim())) {
-      const updatedTags = [...tags, newTag.trim()];
-      setTags(updatedTags);
-      updateDetailsFromTags(updatedTags);
-      setNewTag('');
-    }
-  };
-
-  const removeTag = (tagToRemove: string) => {
-    const updatedTags = tags.filter(tag => tag !== tagToRemove);
-    setTags(updatedTags);
-    updateDetailsFromTags(updatedTags);
-  };
-
-  const startEditingTag = (index: number, currentValue: string) => {
-    setEditingTagIndex(index);
-    setEditingTagValue(currentValue);
-  };
-
-  const saveEditingTag = () => {
-    if (editingTagIndex !== null && editingTagValue.trim()) {
-      const updatedTags = [...tags];
-      updatedTags[editingTagIndex] = editingTagValue.trim();
-      setTags(updatedTags);
-      updateDetailsFromTags(updatedTags);
-      setEditingTagIndex(null);
-      setEditingTagValue('');
-    }
-  };
-
-  const cancelEditingTag = () => {
-    setEditingTagIndex(null);
-    setEditingTagValue('');
-  };
-
-  const updateDetailsFromTags = (updatedTags: string[]) => {
-    const newDetails: Record<string, string | null> = { ...formData.details };
-    
-    // Remove all existing tag keys
-    Object.keys(newDetails).forEach(key => {
-      if (key.startsWith('tag_')) {
-        delete newDetails[key];
+  const addDetail = () => {
+    if (newDetailKey.trim() && newDetailValue.trim()) {
+      const trimmedKey = newDetailKey.trim();
+      if (detailItems.some(item => item.key === trimmedKey)) {
+        showError('A chave do detalhe já existe. Por favor, use uma chave única.');
+        return;
       }
-    });
-    
-    // Add updated tag keys
-    updatedTags.forEach((tag, index) => {
-      newDetails[`tag_${index + 1}`] = tag;
-    });
-    
-    console.log('Updated details object:', newDetails);
-    setFormData(prev => ({ ...prev, details: newDetails }));
+      setDetailItems(prev => [...prev, { id: trimmedKey, key: trimmedKey, value: newDetailValue.trim() }]);
+      setNewDetailKey('');
+      setNewDetailValue('');
+    } else {
+      showError('Por favor, preencha a chave e o valor do detalhe.');
+    }
+  };
+
+  const removeDetail = (idToRemove: string) => {
+    setDetailItems(prev => prev.filter(item => item.id !== idToRemove));
+  };
+
+  const startEditingDetail = (id: string, key: string, value: string) => {
+    setEditingDetailId(id);
+    setEditingDetailKey(key);
+    setEditingDetailValue(value);
+  };
+
+  const saveEditingDetail = () => {
+    if (editingDetailId && editingDetailKey.trim() && editingDetailValue.trim()) {
+      const trimmedKey = editingDetailKey.trim();
+      // Check for key uniqueness if the key is being changed
+      if (trimmedKey !== editingDetailId && detailItems.some(item => item.key === trimmedKey && item.id !== editingDetailId)) {
+        showError('A nova chave do detalhe já existe. Por favor, use uma chave única.');
+        return;
+      }
+
+      setDetailItems(prev => prev.map(item =>
+        item.id === editingDetailId
+          ? { ...item, id: trimmedKey, key: trimmedKey, value: editingDetailValue.trim() }
+          : item
+      ));
+      setEditingDetailId(null);
+      setEditingDetailKey('');
+      setEditingDetailValue('');
+    } else {
+      showError('Por favor, preencha a chave e o valor do detalhe.');
+    }
+  };
+
+  const cancelEditingDetail = () => {
+    setEditingDetailId(null);
+    setEditingDetailKey('');
+    setEditingDetailValue('');
   };
 
   const handleSave = async () => {
     setIsSaving(true);
     const toastId = showLoading('Salvando alterações...');
 
-    console.log('Final details to save:', formData.details);
-    console.log('Full data to save:', {
-      name: formData.name,
-      special_name: formData.special_name,
-      booking_url: formData.booking_url,
-      details: formData.details,
-      description: formData.description,
+    const updatedDetails: Record<string, string | null> = {};
+    detailItems.forEach(item => {
+      updatedDetails[item.key] = item.value;
     });
 
     try {
-      // First, let's try to update only the details column to isolate the issue
-      console.log('Attempting to update details column only...');
-      const { data: detailsUpdate, error: detailsError } = await supabase
-        .from('rooms')
-        .update({ details: formData.details })
-        .eq('id', room.id)
-        .select();
-
-      console.log('Details update response:', { detailsUpdate, detailsError });
-
-      if (detailsError) {
-        console.error('Error updating details:', detailsError);
-        showError(`Erro ao salvar detalhes: ${detailsError.message}`);
-        dismissToast(toastId);
-        setIsSaving(false);
-        return;
-      }
-
-      // If details update worked, update the rest
-      console.log('Details updated successfully, now updating other fields...');
       const { data, error } = await supabase
         .from('rooms')
         .update({
@@ -148,17 +129,15 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
           special_name: formData.special_name,
           booking_url: formData.booking_url,
           description: formData.description,
+          details: updatedDetails, // Use the newly constructed details object
         })
         .eq('id', room.id)
         .select();
-
-      console.log('Full update response:', { data, error });
 
       if (error) {
         console.error('Erro ao salvar acomodação:', error);
         showError(`Erro ao salvar: ${error.message}`);
       } else {
-        console.log('Acomodação salva com sucesso. Dados retornados:', data);
         showSuccess('Acomodação atualizada com sucesso!');
         onSave(); // Recarrega a lista
       }
@@ -206,58 +185,73 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Tags da Acomodação</CardTitle>
-          <CardDescription>Gerencie as tags facilmente. Adicione novas, edite existentes ou remova clicando nos botões.</CardDescription>
+          <CardTitle>Detalhes da Acomodação</CardTitle>
+          <CardDescription>Adicione, edite ou remova os detalhes (tags) que aparecem nos cards e no modal da acomodação. Use chaves únicas para cada detalhe.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <Input
-              placeholder="Digite uma nova tag..."
-              value={newTag}
-              onChange={(e) => setNewTag(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addTag()}
+              placeholder="Chave (ex: wifi)"
+              value={newDetailKey}
+              onChange={(e) => setNewDetailKey(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && addDetail()}
+              className="sm:col-span-1"
             />
-            <Button onClick={addTag} disabled={!newTag.trim()}>
+            <Input
+              placeholder="Valor (ex: Wi-Fi Grátis)"
+              value={newDetailValue}
+              onChange={(e) => setNewDetailValue(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && addDetail()}
+              className="sm:col-span-1"
+            />
+            <Button onClick={addDetail} disabled={!newDetailKey.trim() || !newDetailValue.trim()} className="sm:col-span-1">
               <Plus className="h-4 w-4 mr-2" />
-              Adicionar
+              Adicionar Detalhe
             </Button>
           </div>
           <div className="space-y-2">
-            {tags.map((tag, index) => (
-              <div key={index} className="flex items-center gap-2 bg-blue-50 p-2 rounded-md">
-                {editingTagIndex === index ? (
+            {detailItems.map((item) => (
+              <div key={item.id} className="flex flex-col sm:flex-row items-center gap-2 bg-blue-50 p-2 rounded-md">
+                {editingDetailId === item.id ? (
                   <>
                     <Input
-                      value={editingTagValue}
-                      onChange={(e) => setEditingTagValue(e.target.value)}
+                      value={editingDetailKey}
+                      onChange={(e) => setEditingDetailKey(e.target.value)}
                       className="flex-1"
-                      onKeyPress={(e) => e.key === 'Enter' && saveEditingTag()}
+                      placeholder="Chave"
                     />
-                    <Button size="sm" onClick={saveEditingTag} disabled={!editingTagValue.trim()}>
+                    <Input
+                      value={editingDetailValue}
+                      onChange={(e) => setEditingDetailValue(e.target.value)}
+                      className="flex-1"
+                      placeholder="Valor"
+                    />
+                    <Button size="sm" onClick={saveEditingDetail} disabled={!editingDetailKey.trim() || !editingDetailValue.trim()}>
                       Salvar
                     </Button>
-                    <Button size="sm" variant="outline" onClick={cancelEditingTag}>
+                    <Button size="sm" variant="outline" onClick={cancelEditingDetail}>
                       Cancelar
                     </Button>
                   </>
                 ) : (
                   <>
-                    <span className="flex-1 text-blue-800">{tag}</span>
+                    <span className="font-semibold text-blue-800 w-24 flex-shrink-0">{item.key}:</span>
+                    <span className="flex-1 text-gray-700">{item.value}</span>
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => startEditingTag(index, tag)}
-                      className="h-6 w-6 p-0"
+                      onClick={() => startEditingDetail(item.id, item.key, item.value)}
+                      className="h-8 w-8 p-0"
                     >
-                      <Edit2 className="h-3 w-3" />
+                      <Edit2 className="h-4 w-4" />
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => removeTag(tag)}
-                      className="h-6 w-6 p-0 text-red-600 hover:text-red-800"
+                      onClick={() => removeDetail(item.id)}
+                      className="h-8 w-8 p-0 text-red-600 hover:text-red-800"
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-4 w-4" />
                     </Button>
                   </>
                 )}
@@ -269,7 +263,7 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
 
       <Button onClick={handleSave} disabled={isSaving}>
         {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-        Salvar Informações
+        Salvar Informações da Acomodação
       </Button>
       
       <ImageManager
@@ -287,9 +281,7 @@ export default function RoomManager() {
 
   const fetchRooms = async () => {
     setLoading(true);
-    console.log('Buscando acomodações...');
-    const { data, error } = await supabase.from('rooms').select('*').order('id');
-    console.log('Resposta da busca de acomodações:', { data, error });
+    const { data, error } = await supabase.from("rooms").select('*').order('id');
     if (error) {
       showError('Erro ao carregar acomodações.');
       console.error(error);

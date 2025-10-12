@@ -56,7 +56,7 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
       return null;
     }
     return Object.entries(details)
-      .filter(([key, value]) => value && key !== 'description')
+      .filter(([key, value]) => value && value.trim() !== '' && key !== 'description')
       .map(([key, value]) => (
         <Badge key={key} variant="secondary" className="font-normal bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors">
           {value}
@@ -81,7 +81,7 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
         <DialogHeader className="p-6 pb-4 border-b border-gray-100 flex-shrink-0 bg-gradient-to-r from-blue-50 to-white">
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-4">
-              <Logo className="h-12 w-auto" />
+              <Logo isScrolled={true} /> {/* Corrigido: passando isScrolled={true} */}
               <div className="space-y-2">
                 <DialogTitle className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">{room.name}</DialogTitle>
                 <div className="flex items-center gap-4">
