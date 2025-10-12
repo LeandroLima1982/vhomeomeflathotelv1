@@ -8,9 +8,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Loader2, Save, Plus, X, Edit2 } from 'lucide-react';
+import { Loader2, Save, Plus, X, Edit2, Trash2 } from 'lucide-react';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 import ImageManager from './ImageManager';
+import { FeatureCategory, FeatureItem } from '../hotel/FeatureListDisplay'; // Importando as interfaces
 
 interface Room {
   id: number;
@@ -19,6 +20,7 @@ interface Room {
   booking_url: string | null;
   details: Record<string, string | null>;
   description: string | null;
+  additional_features: FeatureCategory[] | null; // Nova propriedade
 }
 
 interface DetailItem {
@@ -38,6 +40,16 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
   const [editingDetailKey, setEditingDetailKey] = useState('');
   const [editingDetailValue, setEditingDetailValue] = useState('');
 
+  // State for additional features
+  const [additionalFeatures, setAdditionalFeatures] = useState<FeatureCategory[]>([]);
+  const [newCategoryTitle, setNewCategoryTitle] = useState('');
+  const [newItemText, setNewItemText] = useState('');
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [editingCategoryTitle, setEditingCategoryTitle] = useState('');
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editingItemText, setEditingItemText] = useState('');
+
+
   useEffect(() => {
     setFormData(room); // Ensure formData is updated when room prop changes
     if (room.details) {
@@ -52,6 +64,9 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
     } else {
       setDetailItems([]);
     }
+
+    // Initialize additional features
+    setAdditionalFeatures(room.additional_features || []);
   }, [room]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -110,6 +125,82 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
     setEditingDetailValue('');
   };
 
+  // Additional Features management
+  const addCategory = () => {
+    if (newCategoryTitle.trim()) {
+      setAdditionalFeatures(prev => [...prev, { title: newCategoryTitle.trim(), items: [] }]);
+      setNewCategoryTitle('');
+    } else {
+      showError('Por favor, insira um título para a categoria.');
+    }
+  };
+
+  const removeCategory = (categoryIndex: number) => {
+    setAdditionalFeatures(prev => prev.filter((_, i) => i !== categoryIndex));
+  };
+
+  const startEditingCategory = (index: number, title: string) => {
+    setEditingCategoryId(String(index)); // Use index as ID for editing
+    setEditingCategoryTitle(title);
+  };
+
+  const saveEditingCategory = (index: number) => {
+    if (editingCategoryTitle.trim()) {
+      setAdditionalFeatures(prev => prev.map((cat, i) =>
+        i === index ? { ...cat, title: editingCategoryTitle.trim() } : cat
+      ));
+      setEditingCategoryId(null);
+    } else {
+      showError('O título da categoria não pode ser vazio.');
+    }
+  };
+
+  const cancelEditingCategory = () => {
+    setEditingCategoryId(null);
+    setEditingCategoryTitle('');
+  };
+
+  const addItemToCategory = (categoryIndex: number) => {
+    if (newItemText.trim()) {
+      setAdditionalFeatures(prev => prev.map((cat, i) =>
+        i === categoryIndex ? { ...cat, items: [...cat.items, { text: newItemText.trim() }] } : cat
+      ));
+      setNewItemText('');
+    } else {
+      showError('Por favor, insira um texto para o item.');
+    }
+  };
+
+  const removeItemFromCategory = (categoryIndex: number, itemIndex: number) => {
+    setAdditionalFeatures(prev => prev.map((cat, i) =>
+      i === categoryIndex ? { ...cat, items: cat.items.filter((_, j) => j !== itemIndex) } : cat
+    ));
+  };
+
+  const startEditingItem = (categoryIndex: number, itemIndex: number, text: string) => {
+    setEditingItemId(`${categoryIndex}-${itemIndex}`);
+    setEditingItemText(text);
+  };
+
+  const saveEditingItem = (categoryIndex: number, itemIndex: number) => {
+    if (editingItemText.trim()) {
+      setAdditionalFeatures(prev => prev.map((cat, i) =>
+        i === categoryIndex
+          ? { ...cat, items: cat.items.map((item, j) => j === itemIndex ? { text: editingItemText.trim() } : item) }
+          : cat
+      ));
+      setEditingItemId(null);
+    } else {
+      showError('O texto do item não pode ser vazio.');
+    }
+  };
+
+  const cancelEditingItem = () => {
+    setEditingItemId(null);
+    setEditingItemText('');
+  };
+
+
   const handleSave = async () => {
     setIsSaving(true);
     const toastId = showLoading('Salvando alterações...');
@@ -127,13 +218,14 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
           special_name: formData.special_name,
           booking_url: formData.booking_url,
           description: formData.description,
-          details: updatedDetails, // Use the newly constructed details object
+          details: updatedDetails,
+          additional_features: additionalFeatures, // Salva as novas características adicionais
         })
         .eq('id', room.id)
         .select();
 
       if (error) {
-        console.error('Erro ao salvar acomodação no Supabase:', error); // Log mais detalhado
+        console.error('Erro ao salvar acomodação no Supabase:', error);
         showError(`Erro ao salvar: ${error.message || 'Erro desconhecido'}`);
       } else {
         showSuccess('Acomodação atualizada com sucesso!');
@@ -183,7 +275,7 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Detalhes da Acomodação</CardTitle>
+          <CardTitle>Detalhes da Acomodação (Badges)</CardTitle>
           <CardDescription>Adicione, edite ou remova os detalhes (tags) que aparecem nos cards e no modal da acomodação. Use chaves únicas para cada detalhe.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -258,6 +350,106 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Nova seção para Descrição Adicional */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Descrição Adicional (Lista de Características)</CardTitle>
+          <CardDescription>
+            Crie categorias e adicione itens de texto para a descrição detalhada da acomodação.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex gap-2">
+            <Input
+              placeholder="Título da Nova Categoria (ex: Na sua cozinha privativa:)"
+              value={newCategoryTitle}
+              onChange={(e) => setNewCategoryTitle(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && addCategory()}
+              className="flex-grow"
+            />
+            <Button onClick={addCategory} disabled={!newCategoryTitle.trim()}>
+              <Plus className="h-4 w-4 mr-2" />
+              Adicionar Categoria
+            </Button>
+          </div>
+
+          <div className="space-y-4">
+            {additionalFeatures.map((category, categoryIndex) => (
+              <div key={categoryIndex} className="border rounded-md p-4 bg-gray-50">
+                <div className="flex items-center justify-between mb-3">
+                  {editingCategoryId === String(categoryIndex) ? (
+                    <div className="flex flex-grow gap-2">
+                      <Input
+                        value={editingCategoryTitle}
+                        onChange={(e) => setEditingCategoryTitle(e.target.value)}
+                        className="flex-grow"
+                      />
+                      <Button size="sm" onClick={() => saveEditingCategory(categoryIndex)}>Salvar</Button>
+                      <Button size="sm" variant="outline" onClick={cancelEditingCategory}>Cancelar</Button>
+                    </div>
+                  ) : (
+                    <>
+                      <h4 className="font-semibold text-blue-800 text-lg">{category.title}</h4>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="ghost" onClick={() => startEditingCategory(categoryIndex, category.title)}>
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => removeCategory(categoryIndex)} className="text-red-600 hover:text-red-800">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <div className="space-y-2 mb-4">
+                  {category.items.map((item, itemIndex) => (
+                    <div key={itemIndex} className="flex items-center gap-2 bg-white p-2 rounded-md border">
+                      {editingItemId === `${categoryIndex}-${itemIndex}` ? (
+                        <div className="flex flex-grow gap-2">
+                          <Input
+                            value={editingItemText}
+                            onChange={(e) => setEditingItemText(e.target.value)}
+                            className="flex-grow"
+                          />
+                          <Button size="sm" onClick={() => saveEditingItem(categoryIndex, itemIndex)}>Salvar</Button>
+                          <Button size="sm" variant="outline" onClick={cancelEditingItem}>Cancelar</Button>
+                        </div>
+                      ) : (
+                        <>
+                          <span className="flex-grow text-gray-700">{item.text}</span>
+                          <Button size="sm" variant="ghost" onClick={() => startEditingItem(categoryIndex, itemIndex, item.text)}>
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => removeItemFromCategory(categoryIndex, itemIndex)} className="text-red-600 hover:text-red-800">
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-2 mt-2">
+                  <Input
+                    placeholder="Novo item de característica"
+                    value={newItemText}
+                    onChange={(e) => setNewItemText(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && addItemToCategory(categoryIndex)}
+                    className="flex-grow"
+                  />
+                  <Button onClick={() => addItemToCategory(categoryIndex)} disabled={!newItemText.trim()}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Adicionar Item
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+      {/* Fim da nova seção para Descrição Adicional */}
 
       <Button onClick={handleSave} disabled={isSaving}>
         {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}

@@ -3,11 +3,11 @@
 import React from 'react';
 import { Check } from 'lucide-react';
 
-interface FeatureItem {
+export interface FeatureItem { // Exportando a interface
   text: string;
 }
 
-interface FeatureCategory {
+export interface FeatureCategory { // Exportando a interface
   title: string;
   items: FeatureItem[];
 }

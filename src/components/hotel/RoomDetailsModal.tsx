@@ -1,96 +1,77 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import FeatureListDisplay from './FeatureListDisplay'; // Importando o novo componente
+import FeatureListDisplay, { FeatureCategory } from './FeatureListDisplay'; // Importando o novo componente e a interface FeatureCategory
+import { supabase } from '@/lib/supabaseClient';
+import { Loader2 } from 'lucide-react';
 
-interface RoomDetailsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  room: {
-    id: string;
-    name: string;
-    description: string;
-    images: string[];
-    price: number;
-    capacity: number;
-    beds: number;
-    bathrooms: number;
-    amenities: string[];
-  };
+interface Room {
+  id: number;
+  name: string;
+  description: string | null;
+  details: Record<string, string | null>;
+  additional_features: FeatureCategory[] | null; // Nova propriedade
 }
 
-const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ isOpen, onClose, room }) => {
-  if (!isOpen) return null;
+interface RoomDetailsModalProps {
+  room: Room | null;
+  onClose: () => void;
+}
 
-  // Dados de exemplo para as características adicionais, similar à imagem
-  const roomFeatures = [
-    {
-      title: "Na sua cozinha privativa:",
-      items: [
-        { text: "Geladeira" },
-        { text: "Utensílios de cozinha" },
-        { text: "Fogão" },
-        { text: "Mesa de jantar" },
-        { text: "Micro-ondas" },
-        { text: "Forno" },
-        { text: "Área para refeições" },
-      ],
-    },
-    {
-      title: "No seu banheiro privativo:",
-      items: [
-        { text: "Produtos de higiene pessoal gratuitos" },
-        { text: "Chuveiro" },
-        { text: "Vaso sanitário" },
-        { text: "Secador de cabelo" },
-        { text: "Papel higiênico" },
-      ],
-    },
-    {
-      title: "Vista:",
-      items: [
-        { text: "Vista do mar" },
-      ],
-    },
-    {
-      title: "Comodidades dos quartos:",
-      items: [
-        { text: "Estojo para notebook" },
-        { text: "Mesa de trabalho" },
-        { text: "Protetores de tomadas" },
-        { text: "Cofre" },
-        { text: "Mesa de jantar" },
-        { text: "Andares superiores acessíveis por elevador" },
-        { text: "TV de tela plana" },
-        { text: "Forno" },
-        { text: "Acesso ao Lounge Executivo" },
-        { text: "Canais pay-per-view" },
-        { text: "Serviço de despertar" },
-        { text: "Toalhas" },
-        { text: "Tomada perto da cama" },
-        { text: "Micro-ondas" },
-        { text: "TV" },
-        { text: "Geladeira" },
-        { text: "Roupa de cama" },
-        { text: "Fogão" },
-        { text: "Piso de mármore/azulejo" },
-        { text: "Utensílios de cozinha" },
-        { text: "Cozinha" },
-        { text: "Aquecimento" },
-        { text: "Canais a cabo" },
-        { text: "Guarda-roupa ou armário" },
-        { text: "Canais via satélite" },
-        { text: "Ar-condicionado" },
-        { text: "Área para refeições" },
-      ],
-    },
-  ];
+const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) => {
+  const [roomImages, setRoomImages] = useState<string[]>([]);
+  const [loadingImages, setLoadingImages] = useState(true);
+
+  useEffect(() => {
+    if (room) {
+      const fetchRoomImages = async () => {
+        setLoadingImages(true);
+        const folderPath = `rooms/${room.id}/gallery`;
+        const { data: files, error } = await supabase.storage.from('gallery').list(folderPath);
+
+        if (error) {
+          console.error("Error fetching room images:", error);
+          setRoomImages([]);
+        } else {
+          const imageUrls = files
+            .filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json')
+            .map(file => supabase.storage.from('gallery').getPublicUrl(`${folderPath}/${file.name}`).data.publicUrl);
+          
+          // Optionally, fetch and apply order if you have an _order.json for room galleries
+          const { data: orderFileData } = await supabase.storage.from('gallery').download(`${folderPath}/_order.json`);
+          if (orderFileData) {
+            try {
+              const orderJson = await orderFileData.text();
+              const orderedNames = JSON.parse(orderJson) as string[];
+              const imageMap = new Map(imageUrls.map(url => [url.split('/').pop(), url]));
+              const sortedUrls = orderedNames.map(name => imageMap.get(name)).filter((url): url is string => !!url);
+              const newImageUrls = imageUrls.filter(url => !orderedNames.includes(url.split('/').pop() || ''));
+              setRoomImages([...sortedUrls, ...newImageUrls]);
+            } catch (e) {
+              console.error("Error parsing room gallery order file, using default order", e);
+              setRoomImages(imageUrls);
+            }
+          } else {
+            setRoomImages(imageUrls);
+          }
+        }
+        setLoadingImages(false);
+      };
+      fetchRoomImages();
+    }
+  }, [room]);
+
+  if (!room) return null;
+
+  const roomAmenities = Object.entries(room.details)
+    .filter(([key, value]) => value && value.trim() !== '' && key !== 'description')
+    .map(([, value]) => value as string);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={!!room} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[800px] h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{room.name}</DialogTitle>
@@ -109,57 +90,83 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ isOpen, onClose, ro
               <p className="text-gray-700 mb-6">{room.description}</p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div className="flex items-center">
-                  <span className="font-medium mr-2">Capacidade:</span>
-                  <span>{room.capacity} pessoas</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="font-medium mr-2">Camas:</span>
-                  <span>{room.beds}</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="font-medium mr-2">Banheiros:</span>
-                  <span>{room.bathrooms}</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="font-medium mr-2">Preço por noite:</span>
-                  <span>R$ {room.price.toFixed(2)}</span>
-                </div>
+                {/* Exemplo de como você pode extrair e exibir detalhes específicos se eles existirem */}
+                {room.details.capacity && (
+                  <div className="flex items-center">
+                    <span className="font-medium mr-2">Capacidade:</span>
+                    <span>{room.details.capacity} pessoas</span>
+                  </div>
+                )}
+                {room.details.beds && (
+                  <div className="flex items-center">
+                    <span className="font-medium mr-2">Camas:</span>
+                    <span>{room.details.beds}</span>
+                  </div>
+                )}
+                {room.details.bathrooms && (
+                  <div className="flex items-center">
+                    <span className="font-medium mr-2">Banheiros:</span>
+                    <span>{room.details.bathrooms}</span>
+                  </div>
+                )}
+                {room.details.price && (
+                  <div className="flex items-center">
+                    <span className="font-medium mr-2">Preço por noite:</span>
+                    <span>R$ {parseFloat(room.details.price).toFixed(2)}</span>
+                  </div>
+                )}
               </div>
 
-              <h3 className="text-lg font-bold mb-3">Comodidades:</h3>
-              <ul className="list-disc list-inside text-gray-700 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1">
-                {room.amenities.map((amenity, index) => (
-                  <li key={index}>{amenity}</li>
-                ))}
-              </ul>
+              {roomAmenities.length > 0 && (
+                <>
+                  <h3 className="text-lg font-bold mb-3">Comodidades:</h3>
+                  <ul className="list-disc list-inside text-gray-700 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1">
+                    {roomAmenities.map((amenity, index) => (
+                      <li key={index}>{amenity}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
 
               {/* Nova seção de descrição adicional */}
-              <h3 className="text-lg font-bold mb-3">Descrição Adicional:</h3>
-              <FeatureListDisplay features={roomFeatures} /> {/* Usando o novo componente aqui */}
+              {room.additional_features && room.additional_features.length > 0 && (
+                <>
+                  <h3 className="text-lg font-bold mb-3">Descrição Adicional:</h3>
+                  <FeatureListDisplay features={room.additional_features} />
+                </>
+              )}
               {/* Fim da nova seção */}
 
             </TabsContent>
             <TabsContent value="photos" className="p-6 pt-4">
-              <Carousel className="w-full max-w-full mx-auto">
-                <CarouselContent>
-                  {room.images.map((image, index) => (
-                    <CarouselItem key={index}>
-                      <div className="p-1">
-                        <div className="flex aspect-video items-center justify-center p-6">
-                          <img
-                            src={image}
-                            alt={`Room image ${index + 1}`}
-                            className="rounded-md w-full h-full object-cover" // Usando classes Tailwind para width, height e object-fit
-                          />
+              {loadingImages ? (
+                <div className="flex justify-center items-center h-full">
+                  <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+                  <p className="ml-4">Carregando imagens...</p>
+                </div>
+              ) : roomImages.length > 0 ? (
+                <Carousel className="w-full max-w-full mx-auto">
+                  <CarouselContent>
+                    {roomImages.map((image, index) => (
+                      <CarouselItem key={index}>
+                        <div className="p-1">
+                          <div className="flex aspect-video items-center justify-center p-6">
+                            <img
+                              src={image}
+                              alt={`Room image ${index + 1}`}
+                              className="rounded-md w-full h-full object-cover"
+                            />
+                          </div>
                         </div>
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-              </Carousel>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
+              ) : (
+                <div className="text-center text-gray-500 py-10">Nenhuma imagem disponível para esta acomodação.</div>
+              )}
             </TabsContent>
           </Tabs>
         </div>

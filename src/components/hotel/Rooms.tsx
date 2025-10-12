@@ -15,6 +15,7 @@ import { supabase } from "@/lib/supabaseClient";
 import RoomDetailsModal from "./RoomDetailsModal";
 import { RoomBookingForm } from "./RoomBookingForm";
 import { BedDouble, RefreshCw } from 'lucide-react';
+import { FeatureCategory } from './FeatureListDisplay'; // Importando a interface
 
 interface Room {
   id: number;
@@ -22,7 +23,9 @@ interface Room {
   special_name: string | null;
   booking_url: string | null;
   details: Record<string, string | null>;
+  description: string | null;
   imageUrl: string | null;
+  additional_features: FeatureCategory[] | null; // Nova propriedade
 }
 
 export function Rooms() {
