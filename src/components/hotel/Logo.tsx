@@ -1,37 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Star } from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient';
+import React from 'react';
+import { useTheme } from 'next-themes';
 
 interface LogoProps {
-  isScrolled?: boolean;
-  isFooter?: boolean;
-  isModal?: boolean;
+  className?: string;
 }
 
-export const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false, isModal = false }) => {
-  const [logoUrl, setLogoUrl] = useState<string>('/placeholder.svg'); // Fallback to placeholder
+const Logo: React.FC<LogoProps> = ({ className }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
-  useEffect(() => {
-    const fetchLogo = async () => {
-      try {
-        const { data } = supabase.storage.from('gallery').getPublicUrl('logo/logo.png');
-        if (data.publicUrl) {
-          setLogoUrl(`${data.publicUrl}?t=${new Date().getTime()}`); // Add timestamp to avoid cache issues
-        }
-      } catch (error) {
-        console.error('Error fetching logo:', error);
-        // Keep placeholder if error
-      }
-    };
+  // Determine the logo URL based on the theme
+  const logoUrl = isDark
+    ? '/images/logo-dark.png' // Path to your dark mode logo
+    : '/images/logo-light.png'; // Path to your light mode logo
 
-    fetchLogo();
-  }, []);
-
-  const logoClasses = isModal ? "h-16 w-auto" : (isFooter ? "h-20 w-auto" : isScrolled ? "h-20 w-auto" : "h-24 w-auto");
-
-  const textColor = isModal ? 'text-gray-800' : (isScrolled ? 'text-gray-800' : 'text-white');
+  const logoClasses = `h-8 w-auto ${className || ''}`;
 
   return (
     <div className="flex items-center space-x-3">
@@ -39,17 +24,12 @@ export const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false
         src={logoUrl}
         alt="Flat Hotel Logo"
         className={logoClasses}
+        width="32" // Adicionado para reservar espaço
+        height="32" // Adicionado para reservar espaço
       />
-      <div className="flex flex-col items-center">
-        <h1 className={`font-light ${isFooter ? 'text-base' : isScrolled ? 'text-lg' : 'text-xl'} ${textColor}`}>
-          Flat Hotel
-        </h1>
-        <div className="flex items-center space-x-1">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <Star key={index} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-          ))}
-        </div>
-      </div>
+      <span className="text-xl font-semibold">Flat Hotel</span>
     </div>
   );
 };
+
+export default Logo;
