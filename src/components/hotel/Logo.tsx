@@ -19,11 +19,11 @@ export function Logo({ className, isScrolled, isFooter }: LogoProps) {
     }
   }, []);
 
-  const logoClasses = cn("h-10 w-auto", className);
+  const logoClasses = cn("h-14 w-auto", className);
 
   if (!logoUrl) {
     // Mostra um placeholder para evitar que o layout mude enquanto o logo carrega
-    return <div className="h-10 w-[150px] bg-gray-300/20 animate-pulse rounded-md" />;
+    return <div className="h-14 w-[210px] bg-gray-300/20 animate-pulse rounded-md" />;
   }
 
   return (
@@ -31,8 +31,8 @@ export function Logo({ className, isScrolled, isFooter }: LogoProps) {
       src={logoUrl}
       alt="V-Home Logo"
       className={logoClasses}
-      width="150"
-      height="40"
+      width="210"
+      height="56"
     />
   );
 }
