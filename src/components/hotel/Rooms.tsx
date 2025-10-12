@@ -2,16 +2,29 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from '@/components/ui/skeleton';
 import { roomsData } from '@/data/rooms';
+import { Ruler, CookingPot, Bath, Waves, AirVent, Tv2, Wifi, Balcony } from 'lucide-react';
 
 const BUCKET_NAME = 'gallery';
 const FOLDER = 'rooms';
 
 type Room = (typeof roomsData)[number] & {
   imageUrl: string | null;
+};
+
+const iconMap = {
+  size: <Ruler className="w-4 h-4 mr-2 flex-shrink-0" />,
+  kitchen: <CookingPot className="w-4 h-4 mr-2 flex-shrink-0" />,
+  bathroom: <Bath className="w-4 h-4 mr-2 flex-shrink-0" />,
+  view: (text: string | null) => text?.toLowerCase().includes('varanda') 
+    ? <Balcony className="w-4 h-4 mr-2 flex-shrink-0" /> 
+    : <Waves className="w-4 h-4 mr-2 flex-shrink-0" />,
+  ac: <AirVent className="w-4 h-4 mr-2 flex-shrink-0" />,
+  tv: <Tv2 className="w-4 h-4 mr-2 flex-shrink-0" />,
+  wifi: <Wifi className="w-4 h-4 mr-2 flex-shrink-0" />,
 };
 
 export function Rooms() {
@@ -69,10 +82,20 @@ export function Rooms() {
                 </div>
                 <div className="flex flex-col flex-grow p-6">
                   <CardHeader className="p-0">
-                    <CardTitle className="text-lg h-14">{room.name}</CardTitle>
+                    <CardTitle className="text-lg font-semibold">{room.name}</CardTitle>
                   </CardHeader>
-                  <div className="flex-grow" />
-                  <CardFooter className="p-0 mt-4">
+                  <CardContent className="p-0 pt-4 flex-grow">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700">
+                      {room.details.size && <div className="flex items-center">{iconMap.size}<span>{room.details.size}</span></div>}
+                      {room.details.kitchen && <div className="flex items-center">{iconMap.kitchen}<span>{room.details.kitchen}</span></div>}
+                      {room.details.bathroom && <div className="flex items-center">{iconMap.bathroom}<span>{room.details.bathroom}</span></div>}
+                      {room.details.view && <div className="flex items-center">{iconMap.view(room.details.view)}<span>{room.details.view}</span></div>}
+                      {room.details.ac && <div className="flex items-center">{iconMap.ac}<span>{room.details.ac}</span></div>}
+                      {room.details.tv && <div className="flex items-center">{iconMap.tv}<span>{room.details.tv}</span></div>}
+                      {room.details.wifi && <div className="flex items-center">{iconMap.wifi}<span>{room.details.wifi}</span></div>}
+                    </div>
+                  </CardContent>
+                  <CardFooter className="p-0 pt-6">
                     <a href={room.url} target="_blank" rel="noopener noreferrer" className="w-full">
                       <Button className="w-full bg-blue-800 hover:bg-blue-900">Reservar Agora</Button>
                     </a>
