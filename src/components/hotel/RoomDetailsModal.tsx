@@ -1,96 +1,43 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogClose,
-} from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/lib/supabaseClient";
-import { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import { DateRange } from "react-day-picker";
+import { addDays, format } from "date-fns";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { X } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export const RoomDetailsModal = ({ room, onClose }) => {
-  const [checkInDate, setCheckInDate] = useState<Date | null>(null);
-  const [checkOutDate, setCheckOutDate] = useState<Date | null>(null);
-  const [images, setImages] = useState<string[]>([]);
-  const [isLoadingImages, setIsLoadingImages] = useState(true);
-
-  useEffect(() => {
-    const fetchImages = async () => {
-      if (!room) return;
-      setIsLoadingImages(true);
-      const folderPath = `rooms/${room.id}/gallery`;
-      const BUCKET_NAME = 'gallery';
-      const ORDER_FILE_NAME = '_order.json';
-
-      try {
-        const { data: files, error: listError } = await supabase.storage
-          .from(BUCKET_NAME)
-          .list(folderPath, {
-            limit: 100,
-            offset: 0,
-            sortBy: { column: "created_at", order: "desc" },
-          });
-
-        if (listError) throw listError;
-
-        const imageUrls = files
-          .filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== ORDER_FILE_NAME)
-          .map((file) => {
-            const { data: { publicUrl } } = supabase.storage
-              .from(BUCKET_NAME)
-              .getPublicUrl(`${folderPath}/${file.name}`);
-            return { name: file.name, url: publicUrl };
-          });
-
-        const { data: orderFileData } = await supabase.storage.from(BUCKET_NAME).download(`${folderPath}/${ORDER_FILE_NAME}`);
-
-        if (!orderFileData) {
-          setImages(imageUrls.map(img => img.url));
-        } else {
-          const orderJson = await orderFileData.text();
-          try {
-            const orderedNames = JSON.parse(orderJson) as string[];
-            const imageMap = new Map(imageUrls.map(img => [img.name, img.url]));
-            const sortedUrls = orderedNames.map(name => imageMap.get(name)).filter((url): url is string => !!url);
-            const newImageUrls = imageUrls.filter(img => !orderedNames.includes(img.name)).map(img => img.url);
-            setImages([...sortedUrls, ...newImageUrls]);
-          } catch (e) {
-            console.error("Error parsing order file, using default order", e);
-            setImages(imageUrls.map(img => img.url));
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching images:", error);
-        setImages([]);
-      } finally {
-        setIsLoadingImages(false);
-      }
-    };
-
-    fetchImages();
-  }, [room]);
+export function RoomDetailsModal({ room, onClose }) {
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: new Date(),
+    to: addDays(new Date(), 5),
+  });
+  const [guests, setGuests] = useState(2);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   if (!room) return null;
 
+  const images = room.details?.images || [];
+
   const handleBooking = () => {
     if (room.booking_url) {
-      window.open(room.booking_url, "_blank");
+      const checkin = date?.from ? format(date.from, 'yyyy-MM-dd') : '';
+      const checkout = date?.to ? format(date.to, 'yyyy-MM-dd') : '';
+      const bookingUrl = `${room.booking_url}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`;
+      window.open(bookingUrl, '_blank');
     }
   };
 
-  const renderDetailsBadges = () => {
-    if (!room.details) return null;
-    return Object.entries(room.details)
-      .filter(([key, value]) => value && key !== 'description')
-      .map(([key, value]) => (
-        <Badge key={key} variant="secondary">{value}</Badge>
-      ));
+  const handleDateSelect = (selectedDate: DateRange | undefined) => {
+    setDate(selectedDate);
+    if (selectedDate?.from && selectedDate?.to) {
+      setIsCalendarOpen(false);
+    }
   };
 
   return (
@@ -99,72 +46,97 @@ export const RoomDetailsModal = ({ room, onClose }) => {
         <DialogHeader className="p-6 pb-0">
           <DialogTitle className="text-2xl font-bold text-gray-800">{room.name}</DialogTitle>
           <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-            <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </DialogClose>
         </DialogHeader>
-        <div className="flex-grow overflow-y-auto">
-          <div className="grid md:grid-cols-2 h-full">
-            <div className="p-6 flex items-center justify-center bg-gray-100 overflow-hidden">
-              {isLoadingImages ? (
-                <Skeleton className="w-full h-full" />
-              ) : images.length > 0 ? (
-                <Carousel className="w-full max-w-full h-full flex items-center">
-                  <CarouselContent>
-                    {images.map((url, index) => (
-                      <CarouselItem key={index}>
-                        <div className="flex items-center justify-center h-full p-1">
-                          <img src={url} alt={`Imagem do quarto ${index + 1}`} className="max-w-full max-h-full object-contain rounded-lg" />
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious className="absolute left-2" />
-                  <CarouselNext className="absolute right-2" />
-                </Carousel>
-              ) : (
-                <div className="text-gray-500">Nenhuma imagem disponível</div>
-              )}
+        <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            {images.length > 0 ? (
+              <Carousel className="w-full">
+                <CarouselContent>
+                  {images.map((img, index) => (
+                    <CarouselItem key={index}>
+                      <div className="p-1">
+                        <Card>
+                          <CardContent className="flex aspect-video items-center justify-center p-0">
+                            <img src={img.url} alt={img.alt || `Room image ${index + 1}`} className="w-full h-full object-cover rounded-lg" />
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious />
+                <CarouselNext />
+              </Carousel>
+            ) : (
+              <div className="bg-gray-200 h-64 w-full rounded-lg flex items-center justify-center">
+                <span className="text-gray-500">No image available</span>
+              </div>
+            )}
+            <p className="text-gray-600 mt-4">{room.description || 'No description available.'}</p>
+          </div>
+          <div className="flex flex-col space-y-4">
+            <h3 className="text-lg font-semibold border-b pb-2">Reserve your stay</h3>
+            
+            <div>
+              <Label>Check-in / Check-out</Label>
+              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="date"
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date?.from ? (
+                      date.to ? (
+                        <>
+                          {format(date.from, "LLL dd, y")} -{" "}
+                          {format(date.to, "LLL dd, y")}
+                        </>
+                      ) : (
+                        format(date.from, "LLL dd, y")
+                      )
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={date?.from}
+                    selected={date}
+                    onSelect={handleDateSelect}
+                    numberOfMonths={2}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
-            <div className="p-6 flex flex-col">
-              <div className="flex flex-wrap gap-2 mb-4">
-                {renderDetailsBadges()}
-              </div>
 
-              {room.description && (
-                <div className="mb-4 prose prose-sm max-w-none text-gray-600">
-                  <p>{room.description}</p>
-                </div>
-              )}
-
-              <div className="mb-4">
-                <h3 className="font-semibold text-lg mb-2">Check-in / Check-out</h3>
-                <div className="flex gap-4">
-                  <Calendar
-                    mode="single"
-                    selected={checkInDate}
-                    onSelect={setCheckInDate}
-                    className="rounded-md border"
-                    disabled={{ before: new Date() }}
-                  />
-                  <Calendar
-                    mode="single"
-                    selected={checkOutDate}
-                    onSelect={setCheckOutDate}
-                    className="rounded-md border"
-                    disabled={(date) => !checkInDate || date <= checkInDate}
-                  />
-                </div>
-              </div>
-              <div className="mt-auto">
-                <Button onClick={handleBooking} className="w-full" disabled={!room.booking_url}>
-                  Reservar Agora
-                </Button>
-              </div>
+            <div>
+              <Label htmlFor="guests">Guests</Label>
+              <Input 
+                id="guests" 
+                type="number" 
+                min="1" 
+                value={guests} 
+                onChange={(e) => setGuests(parseInt(e.target.value, 10))} 
+              />
             </div>
           </div>
         </div>
+        <DialogFooter className="p-6 pt-0">
+          <Button onClick={handleBooking} disabled={!room.booking_url} className="w-full md:w-auto">
+            Book Now
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-};
+}
