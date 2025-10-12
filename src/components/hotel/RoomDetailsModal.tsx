@@ -34,7 +34,7 @@ const renderDetails = (details) => {
     });
 };
 
-const RoomDetailsModal = ({ room, onClose }) => {
+export const RoomDetailsModal = ({ room, onClose }) => {
   if (!room) return null;
 
   const images = room.details?.images || [];
