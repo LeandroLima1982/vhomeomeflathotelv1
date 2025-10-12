@@ -7,7 +7,7 @@ import { Nearby } from "@/components/hotel/Nearby";
 import { Gallery } from "@/components/hotel/Gallery";
 import { Footer } from "@/components/hotel/Footer";
 import Contact from "@/components/hotel/Contact";
-import Rooms from "@/components/hotel/Rooms";
+import { Rooms } from "@/components/hotel/Rooms";
 import { ScrollToTop } from "@/components/hotel/ScrollToTop";
 
 const Hotel = () => {
