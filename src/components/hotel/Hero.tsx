@@ -76,7 +76,7 @@ export const Hero = () => {
       <div className="relative z-10 flex h-full items-center justify-center p-4 text-center text-white">
         <div className={`transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <h1 className="text-4xl font-bold md:text-6xl">Seu Flat Hotel à Beira Mar</h1>
-          <p className="mt-4 text-lg md:text-xl">Experimente o luxo e o conforto.</p>
+          <p className="mt-4 text-lg md:text-xl">Onde Conforto, Sofisticação e Natureza se Entrelaçam</p>
         </div>
       </div>
     </div>
