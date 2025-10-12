@@ -22,4 +22,4 @@ const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter = false }) => {
   );
 };
 
-export default Logo;
+export { Logo };
