@@ -5,6 +5,7 @@ import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carouse
 import Autoplay from "embla-carousel-autoplay";
 import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
+import { showError } from "@/utils/toast";
 
 export default function Hero() {
   const [isMounted, setIsMounted] = useState(false);
@@ -20,6 +21,7 @@ export default function Hero() {
 
     const fetchImages = async () => {
       setLoading(true);
+      console.log("Buscando imagens do banner (hero)...");
       const { data, error } = await supabase.storage.from('gallery').list('hero', {
         limit: 5,
         offset: 0,
@@ -27,15 +29,20 @@ export default function Hero() {
       });
 
       if (error) {
-        console.error("Error fetching hero images:", error);
+        console.error("Erro ao buscar a lista de imagens do Supabase:", error);
+        showError("Não foi possível carregar as imagens do banner.");
         setLoading(false);
         return;
       }
+
+      console.log("Arquivos encontrados no Supabase:", data);
 
       if (data) {
         const imageUrls = data
           .filter(file => file.name !== '.emptyFolderPlaceholder')
           .map(file => supabase.storage.from('gallery').getPublicUrl(`hero/${file.name}`).data.publicUrl);
+        
+        console.log("URLs das imagens construídas:", imageUrls);
         setImages(imageUrls);
       }
       setLoading(false);
@@ -66,7 +73,7 @@ export default function Hero() {
             ) : (
               <CarouselItem className="h-full">
                 <div className="h-full w-full bg-gray-300 flex items-center justify-center">
-                  <span className="text-gray-500">Nenhuma imagem no banner</span>
+                  <span className="text-gray-500">Nenhuma imagem no banner. Adicione imagens na área de admin.</span>
                 </div>
               </CarouselItem>
             )}
