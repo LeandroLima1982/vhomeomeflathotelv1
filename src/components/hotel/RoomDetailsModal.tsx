@@ -38,6 +38,7 @@ interface RoomDetailsModalProps {
 }
 
 const BUCKET_NAME = 'gallery';
+const ORDER_FILE_NAME = '_order.json';
 
 export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
   const [images, setImages] = useState<string[]>([]);
@@ -48,19 +49,44 @@ export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
   const [isCheckinOpen, setIsCheckinOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
+  const FOLDER = 'rooms';
+
   useEffect(() => {
     if (room) {
       setIsLoadingImages(true);
       const fetchImages = async () => {
-        const { data, error } = await supabase.storage.from(BUCKET_NAME).list(`${FOLDER}/${room.id}`);
-        if (error) {
-          console.error("Erro ao carregar imagens da galeria.", error);
+        const imageFolderPath = `${FOLDER}/${room.id}/gallery`;
+        const { data: files, error: listError } = await supabase.storage.from(BUCKET_NAME).list(imageFolderPath);
+        
+        if (listError) {
+          console.error("Erro ao carregar imagens da galeria.", listError);
           setImages([]);
+          setIsLoadingImages(false);
+          return;
+        }
+
+        const imageFiles = files.filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== ORDER_FILE_NAME);
+        const imageUrls = imageFiles.map(file => ({
+          name: file.name,
+          url: supabase.storage.from(BUCKET_NAME).getPublicUrl(`${imageFolderPath}/${file.name}`).data.publicUrl,
+        }));
+
+        const { data: orderFileData } = await supabase.storage.from(BUCKET_NAME).download(`${imageFolderPath}/${ORDER_FILE_NAME}`);
+
+        if (!orderFileData) {
+          setImages(imageUrls.map(img => img.url));
         } else {
-          const imageUrls = data.map(file => 
-            supabase.storage.from(BUCKET_NAME).getPublicUrl(`${FOLDER}/${room.id}/${file.name}`).data.publicUrl
-          );
-          setImages(imageUrls);
+          const orderJson = await orderFileData.text();
+          try {
+            const orderedNames = JSON.parse(orderJson) as string[];
+            const imageMap = new Map(imageUrls.map(img => [img.name, img.url]));
+            const sortedUrls = orderedNames.map(name => imageMap.get(name)).filter((url): url is string => !!url);
+            const newImageUrls = imageUrls.filter(img => !orderedNames.includes(img.name)).map(img => img.url);
+            setImages([...sortedUrls, ...newImageUrls]);
+          } catch (e) {
+            console.error("Error parsing order file, using default order", e);
+            setImages(imageUrls.map(img => img.url));
+          }
         }
         setIsLoadingImages(false);
       };
@@ -79,8 +105,6 @@ export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
   }, [checkinDate, checkoutDate]);
 
   if (!room) return null;
-
-  const FOLDER = 'rooms';
 
   const renderDetails = (details: Record<string, string | null>) => {
     return Object.entries(details)
