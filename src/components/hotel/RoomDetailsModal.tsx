@@ -60,10 +60,10 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
   };
 
   const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
+    return Array.from({ length: rating }, (_, i) => (
       <Star
         key={i}
-        className={`h-5 w-5 ${i < rating ? 'text-yellow-500 fill-current' : 'text-gray-300'}`}
+        className="h-5 w-5 text-yellow-500 fill-current"
       />
     ));
   };
