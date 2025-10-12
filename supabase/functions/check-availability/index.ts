@@ -19,7 +19,13 @@ serve(async (req) => {
 
   try {
     // O corpo da requisição vem do nosso frontend
-    const body = await req.json();
+    const originalBody = await req.json();
+
+    // Garante que o numeroAdultos seja uma string, para evitar problemas de tipo
+    const payload = {
+      ...originalBody,
+      numeroAdultos: String(originalBody.numeroAdultos),
+    };
 
     // Faz a chamada para a API do FacilityHotel usando POST
     const response = await fetch(FACILITY_API_URL, {
@@ -28,7 +34,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${FACILITY_API_TOKEN}`,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
