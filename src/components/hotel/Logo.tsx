@@ -38,7 +38,7 @@ export const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false
         className={logoClasses}
       />
       <div className="flex flex-col items-center">
-        <h1 className={`font-light ${isFooter ? 'text-lg' : isScrolled ? 'text-xl' : 'text-2xl'} ${isScrolled ? 'text-white' : 'text-gray-300'}`}>
+        <h1 className={`font-light ${isFooter ? 'text-lg' : isScrolled ? 'text-xl' : 'text-2xl'} ${isScrolled ? 'text-gray-800' : 'text-white'}`}>
           Flat Hotel
         </h1>
         <div className="flex items-center space-x-1">

@@ -15,8 +15,9 @@ export default function Header() {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      const heroHeight = window.innerHeight; // Hero is full screen height
 
-      setIsScrolled(currentScrollY > 50);
+      setIsScrolled(currentScrollY > heroHeight);
 
       if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
         // Rolando para baixo

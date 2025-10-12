@@ -15,10 +15,10 @@ type NavProps = {
 export function Nav({ isScrolled }: NavProps) {
   const linkClasses = `
     hidden md:flex gap-6 font-medium
-    ${isScrolled ? "text-white" : "text-white"}
+    ${isScrolled ? "text-gray-800" : "text-white"}
   `;
 
-  const hoverClasses = isScrolled ? "hover:text-gray-300" : "hover:text-gray-300";
+  const hoverClasses = isScrolled ? "hover:text-gray-600" : "hover:text-gray-300";
 
   return (
     <nav className={linkClasses}>
