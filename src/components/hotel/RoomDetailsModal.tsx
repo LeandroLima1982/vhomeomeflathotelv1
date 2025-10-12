@@ -1,116 +1,64 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/lib/supabaseClient";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { BedDouble, X, Calendar as CalendarIcon, Users } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/integrations/supabase";
+import { useEffect, useState } from "react";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { X } from "lucide-react";
 
-interface Room {
-  id: number;
-  name: string;
-  special_name: string | null;
-  booking_url: string | null;
-  details: Record<string, string | null>;
-  imageUrl: string | null;
-}
-
-interface RoomDetailsModalProps {
-  room: Room | null;
-  onClose: () => void;
-}
-
-const BUCKET_NAME = 'gallery';
-
-export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
-  const [images, setImages] = useState<string[]>([]);
-  const [isLoadingImages, setIsLoadingImages] = useState(false);
-  const [checkinDate, setCheckinDate] = useState<Date | undefined>();
-  const [checkoutDate, setCheckoutDate] = useState<Date | undefined>();
-  const [guests, setGuests] = useState(2);
-  const [isCheckinOpen, setIsCheckinOpen] = useState(false);
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+export const RoomDetailsModal = ({ room, onClose }) => {
+  const [checkInDate, setCheckInDate] = useState(null);
+  const [checkOutDate, setCheckOutDate] = useState(null);
+  const [images, setImages] = useState([]);
+  const [isLoadingImages, setIsLoadingImages] = useState(true);
 
   useEffect(() => {
-    if (room) {
+    const fetchImages = async () => {
+      if (!room || !room.special_name) return;
       setIsLoadingImages(true);
-      const fetchImages = async () => {
-        const { data, error } = await supabase.storage.from(BUCKET_NAME).list(`${FOLDER}/${room.id}`);
-        if (error) {
-          console.error("Erro ao carregar imagens da galeria.", error);
-          setImages([]);
-        } else {
-          const imageUrls = data.map(file => 
-            supabase.storage.from(BUCKET_NAME).getPublicUrl(`${FOLDER}/${room.id}/${file.name}`).data.publicUrl
-          );
-          setImages(imageUrls);
-        }
-        setIsLoadingImages(false);
-      };
-      fetchImages();
-      // Reset form when room changes
-      setCheckinDate(undefined);
-      setCheckoutDate(undefined);
-      setGuests(2);
-    }
-  }, [room]);
+      try {
+        const { data, error } = await supabase.storage
+          .from("hotel-images")
+          .list(`${room.special_name}`, {
+            limit: 10,
+            offset: 0,
+            sortBy: { column: "name", order: "asc" },
+          });
 
-  useEffect(() => {
-    if (checkinDate && checkoutDate && checkoutDate <= checkinDate) {
-      setCheckoutDate(undefined);
-    }
-  }, [checkinDate, checkoutDate]);
+        if (error) throw error;
+
+        const imageUrls = data.map((file) => {
+          const { data: { publicUrl } } = supabase.storage
+            .from("hotel-images")
+            .getPublicUrl(`${room.special_name}/${file.name}`);
+          return publicUrl;
+        });
+        setImages(imageUrls);
+      } catch (error) {
+        console.error("Error fetching images:", error);
+        setImages([]);
+      } finally {
+        setIsLoadingImages(false);
+      }
+    };
+
+    fetchImages();
+  }, [room]);
 
   if (!room) return null;
 
-  const FOLDER = 'rooms';
-
-  const renderDetails = (details: Record<string, string | null>) => {
-    return Object.entries(details)
-      .filter(([key, value]) => value && key !== 'description')
-      .map(([key, value]) => (
-        <Badge key={key} variant="secondary" className="font-normal">
-          {value}
-        </Badge>
-      ));
-  };
-
   const handleBooking = () => {
-    if (!room || !checkinDate || !checkoutDate) {
-      return;
+    if (room.booking_url) {
+      window.open(room.booking_url, "_blank");
     }
-    const checkIn = format(checkinDate, "yyyyMMdd");
-    const checkOut = format(checkoutDate, "yyyyMMdd");
-    const baseUrl = "https://vhomeflathotel.motordereservas.com.br/novareserva";
-    const url = `${baseUrl}?inicio=${checkIn}&fim=${checkOut}&adultos=${guests}&idquartoCategoria=${room.id}`;
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
-
-  const handleCheckinSelect = (date: Date | undefined) => {
-    setCheckinDate(date);
-    setIsCheckinOpen(false);
-  };
-
-  const handleCheckoutSelect = (date: Date | undefined) => {
-    setCheckoutDate(date);
-    setIsCheckoutOpen(false);
   };
 
   return (
@@ -123,90 +71,68 @@ export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
             <span className="sr-only">Close</span>
           </DialogClose>
         </DialogHeader>
-        <div className="grid md:grid-cols-2 flex-grow overflow-hidden">
-          <div className="p-4 flex items-center justify-center bg-gray-100 h-full">
-            {isLoadingImages ? (
-              <Skeleton className="w-full h-full" />
-            ) : (
-              <Carousel className="w-full max-w-xs">
-                <CarouselContent>
-                  {images.length > 0 ? images.map((img, index) => (
-                    <CarouselItem key={index}>
-                      <img src={img} alt={`${room.name} - Imagem ${index + 1}`} className="w-full h-full object-cover rounded-md" />
-                    </CarouselItem>
-                  )) : (
-                    <CarouselItem>
-                      <div className="w-full h-64 bg-gray-200 flex items-center justify-center rounded-md">
-                        <BedDouble className="h-16 w-16 text-gray-400" />
-                      </div>
-                    </CarouselItem>
-                  )}
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-              </Carousel>
-            )}
-          </div>
-          <div className="p-6 flex flex-col overflow-y-auto">
-            <div className="flex-grow">
-              <p className="text-gray-600 mb-4">{room.details.description}</p>
-              <div className="flex flex-wrap gap-2 mb-6">
-                {renderDetails(room.details)}
+        <div className="flex-grow overflow-y-auto">
+          <div className="grid md:grid-cols-2 h-full">
+            <div className="p-6 flex items-center justify-center bg-gray-100 overflow-hidden">
+              {isLoadingImages ? (
+                <Skeleton className="w-full h-full" />
+              ) : images.length > 0 ? (
+                <Carousel className="w-full h-full flex items-center">
+                  <CarouselContent className="h-auto">
+                    {images.map((url, index) => (
+                      <CarouselItem key={index}>
+                        <div className="flex items-center justify-center h-full">
+                          <img src={url} alt={`Room image ${index + 1}`} className="max-w-full max-h-full object-contain" />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="absolute left-2" />
+                  <CarouselNext className="absolute right-2" />
+                </Carousel>
+              ) : (
+                <div className="text-gray-500">Nenhuma imagem disponível</div>
+              )}
+            </div>
+            <div className="p-6 flex flex-col">
+              <div className="flex flex-wrap gap-2 mb-4">
+                {room.details?.tags?.map((tag, index) => (
+                  <Badge key={index} variant="secondary">{tag}</Badge>
+                ))}
               </div>
-              
-              <div className="space-y-4 border-t pt-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label>Check-in</Label>
-                    <Popover open={isCheckinOpen} onOpenChange={setIsCheckinOpen}>
-                      <PopoverTrigger asChild>
-                        <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !checkinDate && "text-muted-foreground")}>
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {checkinDate ? format(checkinDate, "dd 'de' LLL", { locale: ptBR }) : <span>Selecione</span>}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar mode="single" selected={checkinDate} onSelect={handleCheckinSelect} disabled={{ before: new Date() }} initialFocus />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label>Check-out</Label>
-                    <Popover open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
-                      <PopoverTrigger asChild>
-                        <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !checkoutDate && "text-muted-foreground")} disabled={!checkinDate}>
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {checkoutDate ? format(checkoutDate, "dd 'de' LLL", { locale: ptBR }) : <span>Selecione</span>}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar mode="single" selected={checkoutDate} onSelect={handleCheckoutSelect} disabled={(date) => !checkinDate || date <= checkinDate} initialFocus />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
+
+              {room.description && (
+                <div className="mb-4">
+                  <p className="text-gray-600">{room.description}</p>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="guests-modal">Hóspedes</Label>
-                  <div className="relative">
-                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                    <Input id="guests-modal" type="number" value={guests} onChange={(e) => setGuests(Math.max(1, parseInt(e.target.value) || 1))} min="1" className="pl-10" />
-                  </div>
+              )}
+
+              <div className="mb-4">
+                <h3 className="font-semibold text-lg mb-2">Check-in / Check-out</h3>
+                <div className="flex gap-4">
+                  <Calendar
+                    mode="single"
+                    selected={checkInDate}
+                    onSelect={setCheckInDate}
+                    className="rounded-md border"
+                  />
+                  <Calendar
+                    mode="single"
+                    selected={checkOutDate}
+                    onSelect={setCheckOutDate}
+                    className="rounded-md border"
+                  />
                 </div>
+              </div>
+              <div className="mt-auto">
+                <Button onClick={handleBooking} className="w-full" disabled={!room.booking_url}>
+                  Book Now
+                </Button>
               </div>
             </div>
           </div>
         </div>
-        <DialogFooter className="p-6 bg-gray-50 border-t">
-          <Button variant="outline" onClick={onClose}>Fechar</Button>
-          <Button 
-            className="bg-blue-800 hover:bg-blue-900"
-            onClick={handleBooking}
-            disabled={!checkinDate || !checkoutDate}
-          >
-            Reservar Agora
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}
+};
