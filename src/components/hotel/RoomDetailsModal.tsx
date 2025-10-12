@@ -6,7 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import FeatureListDisplay, { FeatureCategory } from './FeatureListDisplay'; // Importando o novo componente e a interface FeatureCategory
 import { supabase } from '@/lib/supabaseClient';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Calendar, Info, Image as ImageIcon } from 'lucide-react';
+import { RoomBookingForm } from './RoomBookingForm';
 
 interface Room {
   id: number;
@@ -72,101 +73,131 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
 
   return (
     <Dialog open={!!room} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[800px] h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-[900px] h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>{room.name}</DialogTitle>
-          <DialogDescription>
-            Detalhes e informações sobre o quarto.
+          <DialogTitle className="text-2xl font-bold text-gray-800">{room.name}</DialogTitle>
+          <DialogDescription className="text-gray-600">
+            Explore os detalhes e reserve sua estadia perfeita
           </DialogDescription>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto">
           <Tabs defaultValue="details" className="w-full h-full">
-            <TabsList className="grid w-full grid-cols-2 mx-6 mt-4 bg-gray-100 rounded-lg p-1">
-              <TabsTrigger value="details" className="rounded-md font-medium transition-all">Detalhes</TabsTrigger>
-              <TabsTrigger value="photos" className="rounded-md font-medium transition-all">Fotos</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 mx-6 mt-4 bg-gray-100 rounded-lg p-1">
+              <TabsTrigger value="details" className="rounded-md font-medium transition-all flex items-center gap-2">
+                <Info className="h-4 w-4" />
+                Detalhes
+              </TabsTrigger>
+              <TabsTrigger value="gallery" className="rounded-md font-medium transition-all flex items-center gap-2">
+                <ImageIcon className="h-4 w-4" />
+                Galeria
+              </TabsTrigger>
+              <TabsTrigger value="book" className="rounded-md font-medium transition-all flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Agendar
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="details" className="p-6 pt-4">
-              <h2 className="text-xl font-bold mb-4">Sobre o Quarto</h2>
-              <p className="text-gray-700 mb-6">{room.description}</p>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xl font-bold mb-4 text-gray-800">Sobre o Quarto</h3>
+                  <p className="text-gray-700 mb-6 leading-relaxed">{room.description}</p>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                {/* Exemplo de como você pode extrair e exibir detalhes específicos se eles existirem */}
-                {room.details.capacity && (
-                  <div className="flex items-center">
-                    <span className="font-medium mr-2">Capacidade:</span>
-                    <span>{room.details.capacity} pessoas</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-semibold text-lg mb-3 text-gray-800">Características Principais</h4>
+                    {roomAmenities.length > 0 ? (
+                      <ul className="list-disc list-inside text-gray-700 space-y-1">
+                        {roomAmenities.map((amenity, index) => (
+                          <li key={index}>{amenity}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-500">Nenhuma característica específica listada.</p>
+                    )}
                   </div>
-                )}
-                {room.details.beds && (
-                  <div className="flex items-center">
-                    <span className="font-medium mr-2">Camas:</span>
-                    <span>{room.details.beds}</span>
+
+                  <div>
+                    <h4 className="font-semibold text-lg mb-3 text-gray-800">Capacidade e Preços</h4>
+                    <div className="space-y-2">
+                      {room.details.capacity && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Capacidade:</span>
+                          <span className="font-medium">{room.details.capacity} pessoas</span>
+                        </div>
+                      )}
+                      {room.details.beds && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Camas:</span>
+                          <span className="font-medium">{room.details.beds}</span>
+                        </div>
+                      )}
+                      {room.details.price && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Preço por noite:</span>
+                          <span className="font-medium text-green-600">R$ {parseFloat(room.details.price).toFixed(2)}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
-                {room.details.bathrooms && (
-                  <div className="flex items-center">
-                    <span className="font-medium mr-2">Banheiros:</span>
-                    <span>{room.details.bathrooms}</span>
-                  </div>
-                )}
-                {room.details.price && (
-                  <div className="flex items-center">
-                    <span className="font-medium mr-2">Preço por noite:</span>
-                    <span>R$ {parseFloat(room.details.price).toFixed(2)}</span>
+                </div>
+
+                {room.additional_features && room.additional_features.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-lg mb-3 text-gray-800">Características Adicionais</h4>
+                    <FeatureListDisplay features={room.additional_features} />
                   </div>
                 )}
               </div>
-
-              {roomAmenities.length > 0 && (
-                <>
-                  <h3 className="text-lg font-bold mb-3">Comodidades:</h3>
-                  <ul className="list-disc list-inside text-gray-700 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1">
-                    {roomAmenities.map((amenity, index) => (
-                      <li key={index}>{amenity}</li>
-                    ))}
-                  </ul>
-                </>
-              )}
-
-              {/* Nova seção de descrição adicional */}
-              {room.additional_features && room.additional_features.length > 0 && (
-                <>
-                  <h3 className="text-lg font-bold mb-3">Descrição Adicional:</h3>
-                  <FeatureListDisplay features={room.additional_features} />
-                </>
-              )}
-              {/* Fim da nova seção */}
-
             </TabsContent>
-            <TabsContent value="photos" className="p-6 pt-4">
+            <TabsContent value="gallery" className="p-6 pt-4">
               {loadingImages ? (
                 <div className="flex justify-center items-center h-full">
                   <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
                   <p className="ml-4">Carregando imagens...</p>
                 </div>
               ) : roomImages.length > 0 ? (
-                <Carousel className="w-full max-w-full mx-auto">
-                  <CarouselContent>
-                    {roomImages.map((image, index) => (
-                      <CarouselItem key={index}>
-                        <div className="p-1">
-                          <div className="flex aspect-video items-center justify-center p-6">
-                            <img
-                              src={image}
-                              alt={`Room image ${index + 1}`}
-                              className="rounded-md w-full h-full object-cover"
-                            />
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold text-gray-800">Galeria de Imagens</h3>
+                  <Carousel className="w-full max-w-full mx-auto">
+                    <CarouselContent>
+                      {roomImages.map((image, index) => (
+                        <CarouselItem key={index}>
+                          <div className="p-1">
+                            <div className="flex aspect-video items-center justify-center p-6">
+                              <img
+                                src={image}
+                                alt={`Imagem do quarto ${index + 1}`}
+                                className="rounded-lg w-full h-full object-cover shadow-lg"
+                              />
+                            </div>
                           </div>
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious />
-                  <CarouselNext />
-                </Carousel>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="left-4" />
+                    <CarouselNext className="right-4" />
+                  </Carousel>
+                  <p className="text-center text-gray-500 text-sm">
+                    {roomImages.length} imagem{roomImages.length !== 1 ? 's' : ''} disponível{roomImages.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
               ) : (
-                <div className="text-center text-gray-500 py-10">Nenhuma imagem disponível para esta acomodação.</div>
+                <div className="text-center py-12">
+                  <ImageIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500">Nenhuma imagem disponível para esta acomodação.</p>
+                  <p className="text-sm text-gray-400 mt-2">Imagens serão adicionadas em breve.</p>
+                </div>
               )}
+            </TabsContent>
+            <TabsContent value="book" className="p-6 pt-4">
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-gray-800">Reserve sua Estadia</h3>
+                <p className="text-gray-600 mb-4">
+                  Selecione as datas desejadas e verifique a disponibilidade para {room.name}.
+                </p>
+                <RoomBookingForm roomId={room.id} onCancel={() => {}} />
+              </div>
             </TabsContent>
           </Tabs>
         </div>
