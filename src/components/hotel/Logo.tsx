@@ -19,11 +19,29 @@ export function Logo({ className, isScrolled, isFooter }: LogoProps) {
     }
   }, []);
 
-  const logoClasses = cn("h-14 w-auto", className);
+  // O logo é maior quando a página está no topo (!isScrolled) e não está no rodapé.
+  const isLarge = !isScrolled && !isFooter;
+
+  const logoClasses = cn(
+    "w-auto transition-all duration-300",
+    {
+      "h-20": isLarge, // Tamanho maior no topo
+      "h-14": !isLarge, // Tamanho normal ao rolar ou no rodapé
+    },
+    className
+  );
+
+  const placeholderClasses = cn(
+    "bg-gray-300/20 animate-pulse rounded-md transition-all duration-300",
+    {
+      "h-20 w-[300px]": isLarge,
+      "h-14 w-[210px]": !isLarge,
+    }
+  );
 
   if (!logoUrl) {
-    // Mostra um placeholder para evitar que o layout mude enquanto o logo carrega
-    return <div className="h-14 w-[210px] bg-gray-300/20 animate-pulse rounded-md" />;
+    // Mostra um placeholder com o tamanho correto para evitar que o layout mude
+    return <div className={placeholderClasses} />;
   }
 
   return (
@@ -31,8 +49,6 @@ export function Logo({ className, isScrolled, isFooter }: LogoProps) {
       src={logoUrl}
       alt="V-Home Logo"
       className={logoClasses}
-      width="210"
-      height="56"
     />
   );
 }
