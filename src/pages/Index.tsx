@@ -4,7 +4,7 @@ import Contact from "@/components/hotel/Contact";
 import { Footer } from "@/components/hotel/Footer";
 import { Gallery } from "@/components/hotel/Gallery";
 import { Header } from "@/components/hotel/Header";
-import { Hero } from "@/components/hotel/Hero";
+import Hero from "@/components/hotel/Hero";
 
 export default function Index() {
   return (
