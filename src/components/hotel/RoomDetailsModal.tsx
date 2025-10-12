@@ -56,7 +56,6 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
           <div className="flex justify-between items-start">
             <div>
               <DialogTitle className="text-lg sm:text-xl font-bold">{room.name}</DialogTitle>
-              <p className="text-sm text-muted-foreground">{room.description}</p>
             </div>
             <Button variant="ghost" size="sm" onClick={onClose}>
               <X className="h-4 w-4" />
