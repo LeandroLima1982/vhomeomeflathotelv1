@@ -95,9 +95,9 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
               </TabsTrigger>
             </TabsList>
             <TabsContent value="details" className="space-y-4 sm:space-y-6 md:space-y-8 mt-0">
-              <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 md:gap-8">
-                {/* Carrossel de Imagens */}
-                <div className="w-full lg:w-1/2">
+              <div className="flex flex-col md:flex-row gap-4 sm:gap-6 md:gap-8">
+                {/* Carrossel de Imagens - Sempre à esquerda quando possível */}
+                <div className="w-full md:w-1/2 order-1 md:order-1">
                   {loadingImages ? (
                     <div className="flex justify-center items-center h-48 sm:h-56 md:h-64 bg-slate-50 rounded-xl shadow-sm">
                       <Loader2 className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 animate-spin text-slate-500" />
@@ -105,7 +105,7 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
                     </div>
                   ) : roomImages.length > 0 ? (
                     <div className="space-y-2 sm:space-y-3">
-                      <Carousel className="w-full max-w-[280px] sm:max-w-sm md:max-w-md mx-auto lg:mx-0">
+                      <Carousel className="w-full max-w-[280px] sm:max-w-sm md:max-w-md mx-auto md:mx-0">
                         <CarouselContent>
                           {roomImages.map((image, index) => (
                             <CarouselItem key={index}>
@@ -136,8 +136,8 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
                   )}
                 </div>
 
-                {/* Conteúdo Textual */}
-                <div className="w-full lg:w-1/2 space-y-4 sm:space-y-5 md:space-y-6">
+                {/* Conteúdo Textual - Sempre à direita quando possível */}
+                <div className="w-full md:w-1/2 space-y-4 sm:space-y-5 md:space-y-6 order-2 md:order-2">
                   <div className="bg-slate-50 rounded-xl p-4 sm:p-5 md:p-6 shadow-sm">
                     <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 text-slate-800">Sobre o Quarto</h3>
                     <p className="text-slate-700 leading-relaxed text-sm sm:text-base md:text-lg">{room.description}</p>
