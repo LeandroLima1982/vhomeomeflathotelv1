@@ -38,16 +38,6 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleDetailsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    try {
-      const parsedDetails = JSON.parse(e.target.value);
-      setFormData(prev => ({ ...prev, details: parsedDetails }));
-    } catch (error) {
-      console.error('Erro ao parsear JSON dos detalhes:', error);
-      showError('JSON inválido nos detalhes. Verifique a sintaxe.');
-    }
-  };
-
   const addTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim())) {
       const updatedTags = [...tags, newTag.trim()];
@@ -231,27 +221,6 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
                 )}
               </div>
             ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Detalhes Avançados (JSON)</CardTitle>
-          <CardDescription>Para edições avançadas, você pode editar diretamente o JSON. Use com cuidado.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div>
-            <Label htmlFor={`details-${room.id}`}>Detalhes (JSON)</Label>
-            <Textarea
-              id={`details-${room.id}`}
-              name="details"
-              value={JSON.stringify(formData.details, null, 2)}
-              onChange={handleDetailsChange}
-              rows={8}
-              className="font-mono"
-            />
-            <p className="text-sm text-gray-500 mt-1">Edite os detalhes da acomodação em formato JSON.</p>
           </div>
         </CardContent>
       </Card>
