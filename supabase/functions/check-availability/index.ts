@@ -19,13 +19,11 @@ serve(async (req) => {
 
   try {
     // O corpo da requisição vem do nosso frontend
-    const originalBody = await req.json();
+    const payload = await req.json();
 
-    // Garante que o numeroAdultos seja uma string, para evitar problemas de tipo
-    const payload = {
-      ...originalBody,
-      numeroAdultos: String(originalBody.numeroAdultos),
-    };
+    // A documentação especifica que os campos de data são strings (o que já está correto)
+    // e os campos de número de pessoas são numéricos.
+    // Apenas repassamos o payload como recebido do frontend.
 
     // Faz a chamada para a API do FacilityHotel usando POST
     const response = await fetch(FACILITY_API_URL, {
