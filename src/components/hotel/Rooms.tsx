@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Skeleton } from '@/components/ui/skeleton';
 import { roomsData } from '@/data/rooms';
-import { Ruler, CookingPot, Bath, Waves, AirVent, Tv2, Wifi, Balcony } from 'lucide-react';
+import { Ruler, CookingPot, Bath, Waves, AirVent, Tv2, Wifi, View } from 'lucide-react';
 
 const BUCKET_NAME = 'gallery';
 const FOLDER = 'rooms';
@@ -20,7 +20,7 @@ const iconMap = {
   kitchen: <CookingPot className="w-4 h-4 mr-2 flex-shrink-0" />,
   bathroom: <Bath className="w-4 h-4 mr-2 flex-shrink-0" />,
   view: (text: string | null) => text?.toLowerCase().includes('varanda') 
-    ? <Balcony className="w-4 h-4 mr-2 flex-shrink-0" /> 
+    ? <View className="w-4 h-4 mr-2 flex-shrink-0" /> 
     : <Waves className="w-4 h-4 mr-2 flex-shrink-0" />,
   ac: <AirVent className="w-4 h-4 mr-2 flex-shrink-0" />,
   tv: <Tv2 className="w-4 h-4 mr-2 flex-shrink-0" />,
