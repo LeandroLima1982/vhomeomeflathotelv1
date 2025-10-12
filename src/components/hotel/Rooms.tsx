@@ -14,6 +14,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabaseClient";
 import { BedDouble } from 'lucide-react';
 import { RoomDetailsModal } from "./RoomDetailsModal";
+import { RoomBookingForm } from "./RoomBookingForm";
+import { cn } from "@/lib/utils";
 
 interface Room {
   id: number;
@@ -31,12 +33,11 @@ export default function Rooms() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [flippedCardId, setFlippedCardId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchRoomsAndImages = async () => {
       setLoading(true);
-
-      // 1. Fetch room data from the database
       const { data: roomData, error: roomError } = await supabase.from('rooms').select('*').order('id');
       
       if (roomError) {
@@ -45,7 +46,6 @@ export default function Rooms() {
         return;
       }
 
-      // 2. Fetch cover images from storage
       const { data: files, error: fileError } = await supabase.storage.from(BUCKET_NAME).list(FOLDER);
 
       if (fileError) {
@@ -58,7 +58,6 @@ export default function Rooms() {
         return [fileNameWithoutExt, `${publicUrl}?t=${new Date().getTime()}`];
       }));
 
-      // 3. Combine data
       const roomsWithImages = roomData.map(room => ({
         ...room,
         imageUrl: imageMap.get(String(room.id)) || null,
@@ -91,10 +90,10 @@ export default function Rooms() {
               Conforto e elegância em cada detalhe.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 [perspective:1000px]">
             {loading ? (
               Array.from({ length: 3 }).map((_, index) => (
-                <Card key={index} className="flex flex-col">
+                <Card key={index} className="flex flex-col min-h-[480px]">
                   <CardHeader className="p-0">
                     <Skeleton className="h-56 w-full" />
                   </CardHeader>
@@ -114,49 +113,67 @@ export default function Rooms() {
               ))
             ) : (
               rooms.map((room) => (
-                <Card
+                <div
                   key={room.id}
-                  className="group flex flex-col overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300"
+                  className={cn(
+                    "relative w-full min-h-[480px] transition-transform duration-700 [transform-style:preserve-3d]",
+                    flippedCardId === room.id && "[transform:rotateY(180deg)]"
+                  )}
                 >
-                  <CardHeader className="p-0 relative">
-                    {room.imageUrl ? (
-                      <img
-                        src={room.imageUrl}
-                        alt={room.name}
-                        className="w-full h-56 object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-56 bg-gray-200 flex items-center justify-center">
-                        <BedDouble className="h-12 w-12 text-gray-400" />
+                  {/* Card Front */}
+                  <Card
+                    className="absolute w-full h-full flex flex-col overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 [backface-visibility:hidden]"
+                  >
+                    <CardHeader className="p-0 relative">
+                      {room.imageUrl ? (
+                        <img
+                          src={room.imageUrl}
+                          alt={room.name}
+                          className="w-full h-56 object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-56 bg-gray-200 flex items-center justify-center">
+                          <BedDouble className="h-12 w-12 text-gray-400" />
+                        </div>
+                      )}
+                      {room.special_name && (
+                        <Badge className="absolute bottom-4 left-4 bg-blue-800 text-white">{room.special_name}</Badge>
+                      )}
+                    </CardHeader>
+                    <CardContent className="p-6 flex-grow">
+                      <CardTitle className="text-xl font-semibold text-gray-800 mb-4">
+                        {room.name}
+                      </CardTitle>
+                      <div className="flex flex-wrap gap-2">
+                        {renderDetails(room.details)}
                       </div>
-                    )}
-                    {room.special_name && (
-                      <Badge className="absolute bottom-4 left-4 bg-blue-800 text-white">{room.special_name}</Badge>
-                    )}
-                  </CardHeader>
-                  <CardContent className="p-6 flex-grow">
-                    <CardTitle className="text-xl font-semibold text-gray-800 mb-4">
-                      {room.name}
-                    </CardTitle>
-                    <div className="flex flex-wrap gap-2">
-                      {renderDetails(room.details)}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="p-6 bg-gray-50 flex justify-between items-center overflow-hidden">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setSelectedRoom(room)}
-                      className="transition-all duration-300 ease-in-out transform translate-y-20 group-hover:translate-y-0"
-                    >
-                      Detalhes
-                    </Button>
-                    <a href={room.booking_url || '#'} target="_blank" rel="noopener noreferrer">
-                      <Button className="bg-blue-800 hover:bg-blue-900 transition-all duration-300 ease-in-out delay-100 transform translate-y-20 group-hover:translate-y-0">
+                    </CardContent>
+                    <CardFooter className="p-6 bg-gray-50 flex justify-between items-center">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setSelectedRoom(room)}
+                      >
+                        Detalhes
+                      </Button>
+                      <Button 
+                        className="bg-blue-800 hover:bg-blue-900"
+                        onClick={() => setFlippedCardId(room.id)}
+                      >
                         Reservar Agora
                       </Button>
-                    </a>
-                  </CardFooter>
-                </Card>
+                    </CardFooter>
+                  </Card>
+
+                  {/* Card Back */}
+                  <div className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                    <Card className="w-full h-full">
+                      <RoomBookingForm 
+                        roomId={room.id} 
+                        onCancel={() => setFlippedCardId(null)} 
+                      />
+                    </Card>
+                  </div>
+                </div>
               ))
             )}
           </div>
