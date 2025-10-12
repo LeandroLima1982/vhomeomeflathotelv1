@@ -9,24 +9,43 @@ import { cn } from "@/lib/utils";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const currentScrollY = window.scrollY;
+
+      // Define se a página foi rolada para além do topo
+      setIsScrolled(currentScrollY > 50);
+
+      // Determina a direção da rolagem para a visibilidade
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Rolando para baixo
+        setIsVisible(false);
+      } else {
+        // Rolando para cima
+        setIsVisible(true);
+      }
+
+      // Guarda a posição atual para a próxima verificação
+      setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener("scroll", handleScroll);
-    handleScroll(); // Set initial state on mount
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Define o estado inicial ao carregar
+    
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [lastScrollY]);
 
   const headerClasses = cn(
-    "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+    "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
     {
-      "bg-white shadow-md py-2": isScrolled,
+      "bg-white/80 backdrop-blur-sm shadow-md py-2": isScrolled,
       "bg-transparent py-4": !isScrolled,
+      "transform -translate-y-full": !isVisible && isScrolled, // Oculta apenas quando rolando para baixo
     }
   );
 
