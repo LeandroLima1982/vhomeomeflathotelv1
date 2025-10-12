@@ -1,5 +1,3 @@
-## Modifying Logo Size
-- Found a component for the hotel logo, located in Logo.tsx, being updated to increase visibility.[REDACTED]</think><dyad-write path="src/components/hotel/Logo.tsx" description="Further increasing the logo size by adjusting the height classes to make it more prominent.">
 "use client";
 
 import React, { useState, useEffect } from 'react';
