@@ -75,20 +75,29 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
   return (
     <Dialog open={!!room} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-[90vw] md:max-w-[1000px] max-h-[95vh] w-full mx-2 sm:mx-4 bg-white/95 backdrop-blur-sm border-0 shadow-2xl rounded-2xl overflow-hidden flex flex-col">
-        <DialogHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 border-b border-slate-200 flex-shrink-0 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex-shrink-0 bg-white/80 rounded-lg p-2 shadow-md">
+        <DialogHeader className="relative bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 px-6 sm:px-8 md:px-10 py-6 sm:py-8 md:py-10 border-b border-slate-200/50 flex-shrink-0 overflow-hidden">
+          {/* Elemento decorativo sutil */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-100/30 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-purple-100/30 to-transparent rounded-full translate-y-12 -translate-x-12"></div>
+          
+          <div className="relative z-10 flex items-center justify-between w-full">
+            {/* Logo à esquerda com fundo elegante */}
+            <div className="flex-shrink-0 bg-white/90 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-white/20">
               <Logo isScrolled={false} isModal={true} />
             </div>
-            <div className="h-12 w-px bg-slate-300 hidden sm:block"></div>
-          </div>
-          <div className="flex-1 text-center sm:text-left">
-            <DialogTitle className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800">
-              {room.name}
-            </DialogTitle>
-            <DialogDescription className="text-slate-600 text-sm sm:text-base md:text-lg mt-1 sm:mt-2">
-              Descubra o conforto e reserve sua experiência única
-            </DialogDescription>
+            
+            {/* Título e descrição centralizados */}
+            <div className="flex-1 text-center mx-6 sm:mx-8">
+              <DialogTitle className="text-2xl sm:text-3xl md:text-4xl font-light text-slate-800 tracking-wide leading-tight">
+                {room.name}
+              </DialogTitle>
+              <DialogDescription className="text-slate-600 text-sm sm:text-base md:text-lg mt-2 font-medium italic">
+                Descubra o conforto e reserve sua experiência única
+              </DialogDescription>
+            </div>
+            
+            {/* Espaço reservado para equilíbrio, opcionalmente adicionar ícone ou badge */}
+            <div className="flex-shrink-0 w-20 sm:w-24"></div>
           </div>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6">
