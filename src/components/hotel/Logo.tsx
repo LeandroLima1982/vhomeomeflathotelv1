@@ -8,7 +8,7 @@ interface LogoProps {
   logoClasses?: string;
 }
 
-const Logo: React.FC<LogoProps> = ({ logoUrl, logoClasses = "h-12 w-auto" }) => {
+export const Logo: React.FC<LogoProps> = ({ logoUrl, logoClasses = "h-12 w-auto" }) => {
   return (
     <div className="flex items-center space-x-3">
       <img
@@ -27,5 +27,3 @@ const Logo: React.FC<LogoProps> = ({ logoUrl, logoClasses = "h-12 w-auto" }) => 
     </div>
   );
 };
-
-export default Logo;
