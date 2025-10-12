@@ -78,7 +78,7 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
         <DialogHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 border-b border-slate-200 flex-shrink-0 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex-shrink-0 bg-white/80 rounded-lg p-2 shadow-md">
-              <Logo isScrolled={false} />
+              <Logo isScrolled={false} isModal={true} />
             </div>
             <div className="h-12 w-px bg-slate-300 hidden sm:block"></div>
           </div>

@@ -7,9 +7,10 @@ import { supabase } from '@/lib/supabaseClient';
 interface LogoProps {
   isScrolled?: boolean;
   isFooter?: boolean;
+  isModal?: boolean;
 }
 
-export const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => {
+export const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false, isModal = false }) => {
   const [logoUrl, setLogoUrl] = useState<string>('/placeholder.svg'); // Fallback to placeholder
 
   useEffect(() => {
@@ -30,6 +31,8 @@ export const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false
 
   const logoClasses = isFooter ? "h-20 w-auto" : isScrolled ? "h-20 w-auto" : "h-24 w-auto";
 
+  const textColor = isModal ? 'text-gray-800' : (isScrolled ? 'text-gray-800' : 'text-white');
+
   return (
     <div className="flex items-center space-x-3">
       <img
@@ -38,7 +41,7 @@ export const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false
         className={logoClasses}
       />
       <div className="flex flex-col items-center">
-        <h1 className={`font-light ${isFooter ? 'text-base' : isScrolled ? 'text-lg' : 'text-xl'} ${isScrolled ? 'text-gray-800' : 'text-white'}`}>
+        <h1 className={`font-light ${isFooter ? 'text-base' : isScrolled ? 'text-lg' : 'text-xl'} ${textColor}`}>
           Flat Hotel
         </h1>
         <div className="flex items-center space-x-1">
