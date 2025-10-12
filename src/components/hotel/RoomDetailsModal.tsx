@@ -74,19 +74,16 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
     <Dialog open={!!room} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-[90vw] md:max-w-[1100px] max-h-[95vh] w-full mx-2 sm:mx-4 bg-gradient-to-br from-white via-slate-50 to-blue-50/30 backdrop-blur-md border border-slate-200/50 shadow-2xl rounded-3xl overflow-hidden flex flex-col transition-all duration-500 ease-in-out">
         <DialogHeader className="relative bg-gradient-to-r from-slate-100 via-blue-50 to-emerald-50 px-8 sm:px-10 md:px-12 py-8 sm:py-10 md:py-12 border-b border-slate-200/30 flex-shrink-0 overflow-hidden">
-          {/* Elementos decorativos sutis inspirados em luxo */}
           <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-gold-200/20 via-transparent to-emerald-100/20 rounded-full -translate-y-20 translate-x-20 animate-pulse"></div>
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-slate-200/20 to-blue-100/20 rounded-full translate-y-16 -translate-x-16"></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-1 bg-gradient-to-r from-transparent via-slate-300/30 to-transparent rounded-full"></div>
           <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23f1f5f9" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="1"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
           
           <div className="relative z-10 flex items-center justify-between w-full">
-            {/* Logo à esquerda com fundo elegante e sombra dourada */}
             <div className="flex-shrink-0 bg-white/95 backdrop-blur-sm rounded-2xl p-3 shadow-xl border border-gold-200/50 transition-transform duration-300 hover:scale-105">
               <Logo isScrolled={false} isModal={true} />
             </div>
             
-            {/* Título e descrição centralizados com tipografia premium */}
             <div className="flex-1 text-center mx-8 sm:mx-10">
               <DialogTitle className="text-3xl sm:text-4xl md:text-5xl font-extralight text-slate-800 tracking-wider leading-tight drop-shadow-sm">
                 {room.name}
@@ -96,7 +93,6 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
               </DialogDescription>
             </div>
             
-            {/* Espaço reservado para equilíbrio, com possível ícone de luxo */}
             <div className="flex-shrink-0 w-24 sm:w-28 flex items-center justify-center">
               <div className="w-12 h-12 bg-gradient-to-br from-gold-400 to-emerald-500 rounded-full shadow-lg opacity-20"></div>
             </div>
@@ -116,7 +112,6 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
             </TabsList>
             <TabsContent value="details" className="space-y-6 sm:space-y-8 md:space-y-10 mt-0">
               <div className="md:flex md:gap-10">
-                {/* Carrossel de Imagens - Sticky à esquerda em telas médias e maiores */}
                 <div className="w-full md:w-1/2 md:sticky md:top-0 md:self-start">
                   {loadingImages ? (
                     <div className="flex justify-center items-center h-56 sm:h-64 md:h-72 bg-gradient-to-br from-slate-50 to-blue-50/50 rounded-2xl shadow-lg border border-slate-200/30">
@@ -156,7 +151,6 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
                   )}
                 </div>
 
-                {/* Conteúdo Textual - Rola independentemente */}
                 <div className="w-full md:w-1/2 space-y-6 sm:space-y-7 md:space-y-8">
                   <div className="bg-gradient-to-br from-white to-slate-50/50 rounded-2xl p-6 sm:p-7 md:p-8 shadow-lg border border-slate-200/30 transition-all duration-300 hover:shadow-xl">
                     <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-5 text-slate-800 flex items-center justify-between tracking-wide">
