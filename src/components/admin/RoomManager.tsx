@@ -18,6 +18,7 @@ interface Room {
   special_name: string | null;
   booking_url: string | null;
   details: Record<string, string | null>;
+  description: string | null;
 }
 
 function RoomEditor({ room }: { room: Room }) {
@@ -30,7 +31,12 @@ function RoomEditor({ room }: { room: Room }) {
   };
 
   const handleDetailsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFormData(prev => ({ ...prev, details: JSON.parse(e.target.value) }));
+    try {
+      const parsedDetails = JSON.parse(e.target.value);
+      setFormData(prev => ({ ...prev, details: parsedDetails }));
+    } catch (error) {
+      showError("JSON de detalhes inválido.");
+    }
   };
 
   const handleSave = async () => {
@@ -44,6 +50,7 @@ function RoomEditor({ room }: { room: Room }) {
         special_name: formData.special_name,
         booking_url: formData.booking_url,
         details: formData.details,
+        description: formData.description,
       })
       .eq('id', room.id);
 
@@ -77,6 +84,17 @@ function RoomEditor({ room }: { room: Room }) {
             <Input id={`booking_url-${room.id}`} name="booking_url" value={formData.booking_url || ''} onChange={handleInputChange} />
           </div>
           <div>
+            <Label htmlFor={`description-${room.id}`}>Descrição</Label>
+            <Textarea
+              id={`description-${room.id}`}
+              name="description"
+              value={formData.description || ''}
+              onChange={handleInputChange}
+              rows={5}
+            />
+            <p className="text-sm text-gray-500 mt-1">Esta descrição aparecerá no pop-up de detalhes da acomodação.</p>
+          </div>
+          <div>
             <Label htmlFor={`details-${room.id}`}>Detalhes (JSON)</Label>
             <Textarea
               id={`details-${room.id}`}
@@ -86,7 +104,7 @@ function RoomEditor({ room }: { room: Room }) {
               rows={8}
               className="font-mono"
             />
-            <p className="text-sm text-gray-500 mt-1">Edite os detalhes da acomodação em formato JSON.</p>
+            <p className="text-sm text-gray-500 mt-1">Edite os detalhes da acomodação em formato JSON. Estes são os badges que aparecem no card.</p>
           </div>
           <Button onClick={handleSave} disabled={isSaving}>
             {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
