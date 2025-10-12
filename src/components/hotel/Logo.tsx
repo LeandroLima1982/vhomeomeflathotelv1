@@ -7,7 +7,7 @@ interface LogoProps {
   isFooter?: boolean;
 }
 
-const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter = false }) => {
+export const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter = false }) => {
   return (
     <div className="flex flex-col items-center">
       <h1 className={`font-light ${isFooter ? 'text-base' : isScrolled ? 'text-lg' : 'text-xl'} ${isScrolled ? 'text-blue-600' : 'text-white'}`}>
@@ -21,5 +21,3 @@ const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter = false }) => {
     </div>
   );
 };
-
-export default Logo;
