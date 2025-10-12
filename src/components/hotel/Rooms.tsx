@@ -21,9 +21,9 @@ const roomsData = [
   { id: 9, name: "Quarto duplo deluxe c/varanda", url: "https://vhomeflathotel.motordereservas.com.br/novareserva?idquartoCategoria=9" },
 ];
 
-interface Room extends (typeof roomsData)[0] {
+type Room = (typeof roomsData)[number] & {
   imageUrl: string | null;
-}
+};
 
 export function Rooms() {
   const [rooms, setRooms] = useState<Room[]>([]);
