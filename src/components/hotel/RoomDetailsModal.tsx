@@ -81,9 +81,8 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
                 <DialogTitle className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">{room.name}</DialogTitle>
                 <div className="flex items-center gap-4">
                   {room.special_name && (
-                    <div className="flex items-center gap-2">
-                      <Star className="h-5 w-5 text-yellow-500 fill-current" />
-                      <span className="text-sm font-medium text-blue-700 bg-blue-50 px-3 py-1 rounded-full">{room.special_name}</span>
+                    <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full shadow-lg font-semibold text-sm uppercase tracking-wide">
+                      {room.special_name}
                     </div>
                   )}
                   <div className="flex items-center gap-1">
