@@ -130,12 +130,16 @@ export default function Rooms() {
                       {renderDetails(room.details)}
                     </div>
                   </CardContent>
-                  <CardFooter className="p-6 bg-gray-50 flex justify-between items-center">
-                    <Button variant="outline" onClick={() => setSelectedRoom(room)}>
+                  <CardFooter className="p-6 bg-gray-50 flex justify-between items-center overflow-hidden">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setSelectedRoom(room)}
+                      className="transition-all duration-300 ease-in-out transform translate-y-20 group-hover:translate-y-0"
+                    >
                       Detalhes
                     </Button>
                     <a href={room.url} target="_blank" rel="noopener noreferrer">
-                      <Button className="bg-blue-800 hover:bg-blue-900">
+                      <Button className="bg-blue-800 hover:bg-blue-900 transition-all duration-300 ease-in-out delay-100 transform translate-y-20 group-hover:translate-y-0">
                         Reservar Agora
                       </Button>
                     </a>
