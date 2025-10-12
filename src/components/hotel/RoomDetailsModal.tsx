@@ -150,7 +150,7 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
                         <ul className="list-disc list-inside text-slate-700 space-y-1 sm:space-y-2 text-sm sm:text-base md:text-lg">
                           {roomAmenities.map((amenity, index) => (
                             <li key={index} className="leading-relaxed">{amenity}</li>
-                          })}
+                          ))}
                         </ul>
                       ) : (
                         <p className="text-slate-500 font-medium text-sm sm:text-base">Nenhuma característica específica listada.</p>
