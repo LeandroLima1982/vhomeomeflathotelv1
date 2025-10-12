@@ -27,17 +27,36 @@ interface RoomDetailsModalProps {
 }
 
 const RoomDetailsModal = ({ room, onClose, isAdmin = false }: RoomDetailsModalProps) => {
-  const [description, setDescription] = useState(room?.description || '');
+  const [description, setDescription] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [isLoadingDescription, setIsLoadingDescription] = useState(false);
 
   useEffect(() => {
     if (room) {
-      setDescription(room.description || '');
+      fetchDescription();
       fetchGalleryImages();
     }
   }, [room]);
+
+  const fetchDescription = async () => {
+    if (!room) return;
+    setIsLoadingDescription(true);
+    const { data, error } = await supabase
+      .from('rooms')
+      .select('description')
+      .eq('id', room.id)
+      .single();
+
+    if (error) {
+      console.error('Erro ao buscar descrição:', error);
+      setDescription('');
+    } else {
+      setDescription(data?.description || '');
+    }
+    setIsLoadingDescription(false);
+  };
 
   const fetchGalleryImages = async () => {
     if (!room) return;
@@ -96,6 +115,7 @@ const RoomDetailsModal = ({ room, onClose, isAdmin = false }: RoomDetailsModalPr
     setIsSaving(false);
 
     if (error) {
+      console.error('Erro ao salvar descrição:', error);
       showError(`Erro ao salvar descrição: ${error.message}`);
     } else {
       showSuccess('Descrição salva com sucesso!');
@@ -158,9 +178,13 @@ const RoomDetailsModal = ({ room, onClose, isAdmin = false }: RoomDetailsModalPr
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <p className="text-gray-600 leading-relaxed">
-                      {description || 'Nenhuma descrição disponível.'}
-                    </p>
+                    {isLoadingDescription ? (
+                      <p className="text-gray-500">Carregando descrição...</p>
+                    ) : (
+                      <p className="text-gray-600 leading-relaxed">
+                        {description || 'Nenhuma descrição disponível.'}
+                      </p>
+                    )}
                     {isAdmin && (
                       <Button variant="outline" onClick={() => setIsEditing(true)}>
                         <Edit className="mr-2 h-4 w-4" />
