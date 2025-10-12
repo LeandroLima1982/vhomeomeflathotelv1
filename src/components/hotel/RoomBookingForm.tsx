@@ -25,8 +25,9 @@ export function RoomBookingForm({ roomId, onCancel }: RoomBookingFormProps) {
   const [checkinDate, setCheckinDate] = useState<Date | undefined>();
   const [checkoutDate, setCheckoutDate] = useState<Date | undefined>();
   const [guests, setGuests] = useState(2);
+  const [isCheckinOpen, setIsCheckinOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  // Reseta a data de checkout se for anterior ou igual à de check-in
   useEffect(() => {
     if (checkinDate && checkoutDate && checkoutDate <= checkinDate) {
       setCheckoutDate(undefined);
@@ -46,6 +47,16 @@ export function RoomBookingForm({ roomId, onCancel }: RoomBookingFormProps) {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  const handleCheckinSelect = (date: Date | undefined) => {
+    setCheckinDate(date);
+    setIsCheckinOpen(false);
+  };
+
+  const handleCheckoutSelect = (date: Date | undefined) => {
+    setCheckoutDate(date);
+    setIsCheckoutOpen(false);
+  };
+
   return (
     <div className="p-6 flex flex-col justify-between h-full bg-white rounded-lg">
       <div>
@@ -59,7 +70,7 @@ export function RoomBookingForm({ roomId, onCancel }: RoomBookingFormProps) {
         <div className="grid gap-4">
           <div className="grid gap-2">
             <Label>Check-in</Label>
-            <Popover>
+            <Popover open={isCheckinOpen} onOpenChange={setIsCheckinOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant={"outline"}
@@ -80,7 +91,7 @@ export function RoomBookingForm({ roomId, onCancel }: RoomBookingFormProps) {
                 <Calendar
                   mode="single"
                   selected={checkinDate}
-                  onSelect={setCheckinDate}
+                  onSelect={handleCheckinSelect}
                   disabled={{ before: new Date() }}
                   initialFocus
                 />
@@ -89,7 +100,7 @@ export function RoomBookingForm({ roomId, onCancel }: RoomBookingFormProps) {
           </div>
           <div className="grid gap-2">
             <Label>Check-out</Label>
-            <Popover>
+            <Popover open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant={"outline"}
@@ -111,7 +122,7 @@ export function RoomBookingForm({ roomId, onCancel }: RoomBookingFormProps) {
                 <Calendar
                   mode="single"
                   selected={checkoutDate}
-                  onSelect={setCheckoutDate}
+                  onSelect={handleCheckoutSelect}
                   disabled={(date) =>
                     !checkinDate || date <= checkinDate
                   }
@@ -123,7 +134,7 @@ export function RoomBookingForm({ roomId, onCancel }: RoomBookingFormProps) {
           <div className="grid gap-2">
             <Label htmlFor="guests">Hóspedes</Label>
             <div className="relative">
-                <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                <Users className="absolute left-3 top-1/2 -translatey-1/2 h-4 w-4 text-gray-500" />
                 <Input
                     id="guests"
                     type="number"
