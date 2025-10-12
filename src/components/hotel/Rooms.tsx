@@ -79,7 +79,7 @@ export function Rooms() {
   };
 
   return (
-    <section className="py-12 md:py-20 bg-gray-50">
+    <section id="rooms" className="py-12 md:py-20 bg-gray-50">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-10">
           Nossas Acomodações
