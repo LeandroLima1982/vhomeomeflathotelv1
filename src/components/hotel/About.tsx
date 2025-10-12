@@ -17,6 +17,10 @@ const features = [
     { icon: Coffee, text: "Café da Manhã Incluso" },
 ];
 
+const BUCKET_NAME = 'gallery';
+const FOLDER = 'about';
+const ORDER_FILE_NAME = '_order.json';
+
 export function About() {
   const plugin = React.useRef(
     Autoplay({ delay: 4000, stopOnInteraction: true })
@@ -27,23 +31,40 @@ export function About() {
   useEffect(() => {
     const fetchImages = async () => {
       setLoading(true);
-      const { data, error } = await supabase.storage.from('gallery').list('about', {
-        limit: 5,
+      const { data: files, error: listError } = await supabase.storage.from(BUCKET_NAME).list(FOLDER, {
+        limit: 100,
         offset: 0,
         sortBy: { column: 'created_at', order: 'desc' },
       });
 
-      if (error) {
-        console.error("Error fetching about images:", error);
+      if (listError) {
+        console.error("Error fetching about images:", listError);
         setLoading(false);
         return;
       }
 
-      if (data) {
-        const imageUrls = data
-          .filter(file => file.name !== '.emptyFolderPlaceholder')
-          .map(file => supabase.storage.from('gallery').getPublicUrl(`about/${file.name}`).data.publicUrl);
-        setImages(imageUrls);
+      const imageFiles = files.filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== ORDER_FILE_NAME);
+      const imageUrls = imageFiles.map(file => ({
+        name: file.name,
+        url: supabase.storage.from(BUCKET_NAME).getPublicUrl(`${FOLDER}/${file.name}`).data.publicUrl,
+      }));
+
+      const { data: orderFileData } = await supabase.storage.from(BUCKET_NAME).download(`${FOLDER}/${ORDER_FILE_NAME}`);
+
+      if (!orderFileData) {
+        setImages(imageUrls.map(img => img.url).slice(0, 5));
+      } else {
+        const orderJson = await orderFileData.text();
+        try {
+          const orderedNames = JSON.parse(orderJson) as string[];
+          const imageMap = new Map(imageUrls.map(img => [img.name, img.url]));
+          const sortedUrls = orderedNames.map(name => imageMap.get(name)).filter((url): url is string => !!url);
+          const newImageUrls = imageUrls.filter(img => !orderedNames.includes(img.name)).map(img => img.url);
+          setImages([...sortedUrls, ...newImageUrls].slice(0, 5));
+        } catch (e) {
+          console.error("Error parsing order file, using default order", e);
+          setImages(imageUrls.map(img => img.url).slice(0, 5));
+        }
       }
       setLoading(false);
     };

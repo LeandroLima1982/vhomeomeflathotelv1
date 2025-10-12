@@ -7,14 +7,73 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Trash2, Upload, Loader2 } from 'lucide-react';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const BUCKET_NAME = 'gallery';
+const ORDER_FILE_NAME = '_order.json';
 
 interface ImageFile {
   id: string;
   name: string;
   path: string;
   publicURL: string;
+}
+
+interface SortableImageProps {
+  image: ImageFile;
+  onDelete: (path: string) => void;
+}
+
+function SortableImage({ image, onDelete }: SortableImageProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: image.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="touch-none">
+      <Card className="overflow-hidden group relative cursor-grab active:cursor-grabbing">
+        <img src={image.publicURL} alt={image.name} className="aspect-square w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-300 flex items-center justify-center">
+          <Button
+            variant="destructive"
+            size="icon"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(image.path);
+            }}
+            className="opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </Card>
+    </div>
+  );
 }
 
 interface ImageManagerProps {
@@ -31,28 +90,42 @@ export default function ImageManager({ folder, title, description }: ImageManage
 
   const fetchImages = async () => {
     setLoading(true);
-    const { data, error } = await supabase.storage.from(BUCKET_NAME).list(folder, {
+    const { data: files, error: listError } = await supabase.storage.from(BUCKET_NAME).list(folder, {
       limit: 100,
       offset: 0,
       sortBy: { column: 'created_at', order: 'desc' },
     });
 
-    if (error) {
-      showError(`Erro ao carregar imagens: ${error.message}`);
-      console.error('Error fetching images:', error);
+    if (listError) {
+      showError(`Erro ao carregar imagens: ${listError.message}`);
       setLoading(false);
       return;
     }
 
-    if (data) {
-      const imageFiles = data
-        .filter(file => file.name !== '.emptyFolderPlaceholder')
-        .map(file => {
-          const imagePath = `${folder}/${file.name}`;
-          const { data: { publicUrl } } = supabase.storage.from(BUCKET_NAME).getPublicUrl(imagePath);
-          return { id: file.id, name: file.name, path: imagePath, publicURL: publicUrl };
-        });
-      setImages(imageFiles);
+    const imageFilesData = files
+      .filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== ORDER_FILE_NAME)
+      .map(file => {
+        const imagePath = `${folder}/${file.name}`;
+        const { data: { publicUrl } } = supabase.storage.from(BUCKET_NAME).getPublicUrl(imagePath);
+        return { id: file.name, name: file.name, path: imagePath, publicURL: publicUrl };
+      });
+
+    const { data: orderFileData } = await supabase.storage.from(BUCKET_NAME).download(`${folder}/${ORDER_FILE_NAME}`);
+
+    if (!orderFileData) {
+      setImages(imageFilesData);
+    } else {
+      const orderJson = await orderFileData.text();
+      try {
+        const orderedNames = JSON.parse(orderJson) as string[];
+        const imageMap = new Map(imageFilesData.map(img => [img.name, img]));
+        const sortedImages = orderedNames.map(name => imageMap.get(name)).filter((img): img is ImageFile => !!img);
+        const newImages = imageFilesData.filter(img => !orderedNames.includes(img.name));
+        setImages([...sortedImages, ...newImages]);
+      } catch (e) {
+        console.error("Error parsing order file, using default order", e);
+        setImages(imageFilesData);
+      }
     }
     setLoading(false);
   };
@@ -60,6 +133,18 @@ export default function ImageManager({ folder, title, description }: ImageManage
   useEffect(() => {
     fetchImages();
   }, [folder]);
+
+  const updateOrderFile = async (currentImages: ImageFile[]) => {
+    const orderedNames = currentImages.map(img => img.name);
+    const blob = new Blob([JSON.stringify(orderedNames, null, 2)], { type: 'application/json' });
+    const filePath = `${folder}/${ORDER_FILE_NAME}`;
+
+    const { error } = await supabase.storage.from(BUCKET_NAME).upload(filePath, blob, { upsert: true });
+    if (error) {
+      showError('Não foi possível salvar a nova ordem das imagens.');
+      console.error('Error updating order file:', error);
+    }
+  };
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -75,19 +160,16 @@ export default function ImageManager({ folder, title, description }: ImageManage
 
     setUploading(true);
     const toastId = showLoading('Enviando imagem...');
-    const fileName = `${Date.now()}-${selectedFile.name}`;
+    const fileName = `${Date.now()}-${selectedFile.name.replace(/\s/g, '_')}`;
     const filePath = `${folder}/${fileName}`;
 
-    const { error } = await supabase.storage
-      .from(BUCKET_NAME)
-      .upload(filePath, selectedFile);
+    const { error } = await supabase.storage.from(BUCKET_NAME).upload(filePath, selectedFile);
 
     dismissToast(toastId);
     setUploading(false);
 
     if (error) {
       showError(`Falha no upload: ${error.message}`);
-      console.error('Error uploading image:', error);
     } else {
       showSuccess('Imagem enviada com sucesso!');
       setSelectedFile(null);
@@ -105,12 +187,32 @@ export default function ImageManager({ folder, title, description }: ImageManage
 
     if (error) {
       showError(`Falha ao excluir: ${error.message}`);
-      console.error('Error deleting image:', error);
     } else {
       showSuccess('Imagem excluída com sucesso!');
-      fetchImages();
+      const imageName = imagePath.split('/').pop();
+      const updatedImages = images.filter(img => img.name !== imageName);
+      setImages(updatedImages);
+      await updateOrderFile(updatedImages);
     }
   };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setImages((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+        const newItems = arrayMove(items, oldIndex, newIndex);
+        updateOrderFile(newItems);
+        return newItems;
+      });
+    }
+  }
 
   return (
     <Card>
@@ -130,23 +232,18 @@ export default function ImageManager({ folder, title, description }: ImageManage
         {loading ? (
           <div className="text-center text-gray-500">Carregando imagens...</div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {images.map((image) => (
-              <Card key={image.id} className="overflow-hidden group relative">
-                <img src={image.publicURL} alt={image.name} className="aspect-square w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-300 flex items-center justify-center">
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    onClick={() => handleDelete(image.path)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+          <>
+            <p className="text-sm text-gray-500 mb-4">Arraste e solte as imagens para reordená-las.</p>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={images} strategy={rectSortingStrategy}>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {images.map((image) => (
+                    <SortableImage key={image.id} image={image} onDelete={handleDelete} />
+                  ))}
                 </div>
-              </Card>
-            ))}
-          </div>
+              </SortableContext>
+            </DndContext>
+          </>
         )}
         {!loading && images.length === 0 && (
             <div className="text-center py-12 text-gray-500">

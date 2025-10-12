@@ -8,6 +8,10 @@ interface HeroImage {
   alt: string;
 }
 
+const BUCKET_NAME = 'gallery';
+const FOLDER = 'hero';
+const ORDER_FILE_NAME = '_order.json';
+
 export const Hero = () => {
   const [images, setImages] = useState<HeroImage[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -17,26 +21,41 @@ export const Hero = () => {
   useEffect(() => {
     const fetchImages = async () => {
       setLoading(true);
-      const { data, error } = await supabase.storage.from('gallery').list('hero', {
-        limit: 5,
+      const { data: files, error: listError } = await supabase.storage.from(BUCKET_NAME).list(FOLDER, {
+        limit: 100,
         offset: 0,
         sortBy: { column: 'created_at', order: 'desc' },
       });
 
-      if (error) {
-        console.error("Error fetching hero images:", error);
+      if (listError) {
+        console.error("Error fetching hero images:", listError);
         setLoading(false);
         return;
       }
 
-      if (data) {
-        const imageUrls = data
-          .filter(file => file.name !== '.emptyFolderPlaceholder')
-          .map(file => ({
-            src: supabase.storage.from('gallery').getPublicUrl(`hero/${file.name}`).data.publicUrl,
-            alt: `Imagem do banner principal ${file.name}`
-          }));
-        setImages(imageUrls);
+      const imageFiles = files.filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== ORDER_FILE_NAME);
+      const imageObjects = imageFiles.map(file => ({
+        name: file.name,
+        src: supabase.storage.from(BUCKET_NAME).getPublicUrl(`${FOLDER}/${file.name}`).data.publicUrl,
+        alt: `Imagem do banner principal ${file.name}`
+      }));
+
+      const { data: orderFileData } = await supabase.storage.from(BUCKET_NAME).download(`${FOLDER}/${ORDER_FILE_NAME}`);
+
+      if (!orderFileData) {
+        setImages(imageObjects.slice(0, 5));
+      } else {
+        const orderJson = await orderFileData.text();
+        try {
+          const orderedNames = JSON.parse(orderJson) as string[];
+          const imageMap = new Map(imageObjects.map(img => [img.name, img]));
+          const sortedImages = orderedNames.map(name => imageMap.get(name)).filter((img): img is HeroImage => !!img);
+          const newImages = imageObjects.filter(img => !orderedNames.includes(img.name));
+          setImages([...sortedImages, ...newImages].slice(0, 5));
+        } catch (e) {
+          console.error("Error parsing order file, using default order", e);
+          setImages(imageObjects.slice(0, 5));
+        }
       }
       setLoading(false);
     };
@@ -46,7 +65,7 @@ export const Hero = () => {
 
   useEffect(() => {
     setIsMounted(true);
-    if (images.length > 0) {
+    if (images.length > 1) {
       const timer = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
       }, 5000);
