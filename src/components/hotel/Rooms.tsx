@@ -97,7 +97,7 @@ export function Rooms() {
                   <div className="relative h-96 [transform-style:preserve-3d] transition-transform duration-500" style={{ transform: flippedCardId === room.id ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
                     {/* Front of the card */}
                     <div className="absolute w-full h-full [backface-visibility:hidden] flex flex-col">
-                      <CardHeader className="relative p-0 h-56">
+                      <CardHeader className="relative p-0 h-56 overflow-hidden">
                         {room.imageUrl ? (
                           <img src={room.imageUrl} alt={room.name} className="w-full h-full object-cover" />
                         ) : (
@@ -105,6 +105,20 @@ export function Rooms() {
                             <BedDouble className="h-16 w-16 text-gray-400" />
                           </div>
                         )}
+                        <CardFooter className="absolute bottom-0 left-0 right-0 p-6 bg-gray-50/90 backdrop-blur-sm flex justify-between items-center transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out">
+                          <Button 
+                            variant="outline" 
+                            onClick={() => setSelectedRoom(room)}
+                          >
+                            Ver Detalhes
+                          </Button>
+                          <Button 
+                            className="bg-blue-800 hover:bg-blue-900"
+                            onClick={() => setFlippedCardId(room.id)}
+                          >
+                            Reservar Agora
+                          </Button>
+                        </CardFooter>
                       </CardHeader>
                       <CardContent className="p-6 flex-grow flex flex-col">
                         <CardTitle className="text-xl font-semibold text-gray-800 mb-2">{room.name}</CardTitle>
@@ -113,20 +127,6 @@ export function Rooms() {
                           {renderDetails(room.details)}
                         </div>
                       </CardContent>
-                      <CardFooter className="absolute bottom-0 left-0 right-0 p-6 bg-gray-50/90 backdrop-blur-sm flex justify-between items-center transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out">
-                        <Button 
-                          variant="outline" 
-                          onClick={() => setSelectedRoom(room)}
-                        >
-                          Ver Detalhes
-                        </Button>
-                        <Button 
-                          className="bg-blue-800 hover:bg-blue-900"
-                          onClick={() => setFlippedCardId(room.id)}
-                        >
-                          Reservar Agora
-                        </Button>
-                      </CardFooter>
                     </div>
                     {/* Back of the card */}
                     <div className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
