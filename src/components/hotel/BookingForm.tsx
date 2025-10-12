@@ -54,7 +54,7 @@ export function BookingForm() {
     const baseUrl = "https://vhomeflathotel.motordereservas.com.br/novareserva";
     const finalUrl = `${baseUrl}?inicio=${checkin}&fim=${checkout}&adultos=${adults}&idquartoCategoria=${categoryId}`;
 
-    window.location.href = finalUrl;
+    window.open(finalUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
