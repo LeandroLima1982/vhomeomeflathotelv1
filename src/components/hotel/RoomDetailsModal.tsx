@@ -151,7 +151,7 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
                     <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 text-slate-800 flex items-center justify-between">
                       <span>Sobre o Quarto</span>
                       {room.special_name && (
-                        <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300 rounded-full px-2 py-1 text-xs sm:text-sm font-medium">
+                        <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0 rounded-full px-3 py-1 text-xs sm:text-sm font-semibold shadow-md">
                           {room.special_name}
                         </Badge>
                       )}
