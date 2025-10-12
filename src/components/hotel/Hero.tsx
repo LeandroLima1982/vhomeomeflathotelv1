@@ -35,7 +35,11 @@ export default function Hero() {
       if (data) {
         const imageUrls = data
           .filter(file => file.name !== '.emptyFolderPlaceholder')
-          .map(file => supabase.storage.from('gallery').getPublicUrl(`hero/${file.name}`).data.publicUrl);
+          .map(file => {
+            const publicUrlData = supabase.storage.from('gallery').getPublicUrl(`hero/${file.name}`);
+            // Adiciona um timestamp para evitar problemas de cache do navegador
+            return `${publicUrlData.data.publicUrl}?t=${new Date().getTime()}`;
+          });
         setImages(imageUrls);
       }
       setLoading(false);
