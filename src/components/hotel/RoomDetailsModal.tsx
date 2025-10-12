@@ -1,163 +1,169 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { X, Loader2, Star } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
-import { RoomBookingForm } from "./RoomBookingForm";
-import { Logo } from "./Logo";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import Image from 'next/image';
+import FeatureListDisplay from './FeatureListDisplay'; // Importando o novo componente
 
 interface RoomDetailsModalProps {
-  room: any;
+  isOpen: boolean;
   onClose: () => void;
+  room: {
+    id: string;
+    name: string;
+    description: string;
+    images: string[];
+    price: number;
+    capacity: number;
+    beds: number;
+    bathrooms: number;
+    amenities: string[];
+  };
 }
 
-const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) => {
-  const [images, setImages] = useState<string[]>([]);
-  const [loadingImages, setLoadingImages] = useState(true);
+const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ isOpen, onClose, room }) => {
+  if (!isOpen) return null;
 
-  useEffect(() => {
-    if (room) {
-      const fetchImages = async () => {
-        setLoadingImages(true);
-        const folder = `rooms/${room.id}/gallery`;
-        const { data: files, error } = await supabase.storage.from('gallery').list(folder, {
-          limit: 100,
-          offset: 0,
-          sortBy: { column: 'created_at', order: 'desc' },
-        });
-
-        if (error) {
-          console.error("Erro ao carregar imagens:", error);
-          setImages([]);
-        } else {
-          const imageFiles = files.filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json');
-          const imageUrls = imageFiles.map(file => {
-            const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(`${folder}/${file.name}`);
-            return publicUrl;
-          });
-          setImages(imageUrls);
-        }
-        setLoadingImages(false);
-      };
-
-      fetchImages();
-    }
-  }, [room]);
-
-  const renderDetails = (details: Record<string, string | null>) => {
-    console.log('DEBUG (RoomDetailsModal.tsx): Renderizando detalhes para o modal:', details);
-    if (typeof details !== 'object' || details === null) {
-      console.error('DEBUG (RoomDetailsModal.tsx): O objeto details não é válido:', details);
-      return null;
-    }
-    return Object.entries(details)
-      .filter(([key, value]) => value && value.trim() !== '' && key !== 'description')
-      .map(([key, value]) => (
-        <Badge key={key} variant="secondary" className="font-normal bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors">
-          {value}
-        </Badge>
-      ));
-  };
-
-  const renderStars = (rating: number) => {
-    return Array.from({ length: rating }, (_, i) => (
-      <Star
-        key={i}
-        className="h-5 w-5 text-yellow-500 fill-current"
-      />
-    ));
-  };
-
-  if (!room) return null;
+  // Dados de exemplo para as características adicionais, similar à imagem
+  const roomFeatures = [
+    {
+      title: "Na sua cozinha privativa:",
+      items: [
+        { text: "Geladeira" },
+        { text: "Utensílios de cozinha" },
+        { text: "Fogão" },
+        { text: "Mesa de jantar" },
+        { text: "Micro-ondas" },
+        { text: "Forno" },
+        { text: "Área para refeições" },
+      ],
+    },
+    {
+      title: "No seu banheiro privativo:",
+      items: [
+        { text: "Produtos de higiene pessoal gratuitos" },
+        { text: "Chuveiro" },
+        { text: "Vaso sanitário" },
+        { text: "Secador de cabelo" },
+        { text: "Papel higiênico" },
+      ],
+    },
+    {
+      title: "Vista:",
+      items: [
+        { text: "Vista do mar" },
+      ],
+    },
+    {
+      title: "Comodidades dos quartos:",
+      items: [
+        { text: "Estojo para notebook" },
+        { text: "Mesa de trabalho" },
+        { text: "Protetores de tomadas" },
+        { text: "Cofre" },
+        { text: "Mesa de jantar" },
+        { text: "Andares superiores acessíveis por elevador" },
+        { text: "TV de tela plana" },
+        { text: "Forno" },
+        { text: "Acesso ao Lounge Executivo" },
+        { text: "Canais pay-per-view" },
+        { text: "Serviço de despertar" },
+        { text: "Toalhas" },
+        { text: "Tomada perto da cama" },
+        { text: "Micro-ondas" },
+        { text: "TV" },
+        { text: "Geladeira" },
+        { text: "Roupa de cama" },
+        { text: "Fogão" },
+        { text: "Piso de mármore/azulejo" },
+        { text: "Utensílios de cozinha" },
+        { text: "Cozinha" },
+        { text: "Aquecimento" },
+        { text: "Canais a cabo" },
+        { text: "Guarda-roupa ou armário" },
+        { text: "Canais via satélite" },
+        { text: "Ar-condicionado" },
+        { text: "Área para refeições" },
+      ],
+    },
+  ];
 
   return (
-    <Dialog open={!!room} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-full sm:max-w-5xl lg:max-w-7xl h-[95vh] flex flex-col p-0 overflow-hidden bg-white shadow-2xl rounded-2xl">
-        <DialogHeader className="p-6 pb-4 border-b border-gray-100 flex-shrink-0 bg-gradient-to-r from-blue-50 to-white">
-          <div className="flex justify-between items-start">
-            <div className="flex items-center gap-4">
-              <Logo isScrolled={true} /> {/* Corrigido: passando isScrolled={true} */}
-              <div className="space-y-2">
-                <DialogTitle className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">{room.name}</DialogTitle>
-                <div className="flex items-center gap-4">
-                  {room.special_name && (
-                    <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full shadow-lg font-semibold text-sm uppercase tracking-wide">
-                      {room.special_name}
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1">
-                    {renderStars(4)}
-                    <span className="text-sm font-medium text-gray-600 ml-2">4 Estrelas</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[800px] h-[90vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>{room.name}</DialogTitle>
+          <DialogDescription>
+            Detalhes e informações sobre o quarto.
+          </DialogDescription>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto">
           <Tabs defaultValue="details" className="w-full h-full">
             <TabsList className="grid w-full grid-cols-2 mx-6 mt-4 bg-gray-100 rounded-lg p-1">
               <TabsTrigger value="details" className="rounded-md font-medium transition-all">Detalhes</TabsTrigger>
-              <TabsTrigger value="booking" className="rounded-md font-medium transition-all">Reservar</TabsTrigger>
+              <TabsTrigger value="photos" className="rounded-md font-medium transition-all">Fotos</TabsTrigger>
             </TabsList>
-            <TabsContent value="details" className="mt-6 px-6 pb-6 h-full">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
-                <div className="lg:col-span-2 flex flex-col">
-                  {loadingImages ? (
-                    <div className="flex justify-center items-center h-64 lg:h-96 bg-gray-100 rounded-xl">
-                      <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
-                    </div>
-                  ) : images.length > 0 ? (
-                    <Carousel className="w-full">
-                      <CarouselContent>
-                        {images.map((image, index) => (
-                          <CarouselItem key={index}>
-                            <div className="relative h-64 lg:h-96 rounded-xl overflow-hidden shadow-lg">
-                              <img
-                                src={image}
-                                alt={`Imagem ${index + 1} de ${room.name}`}
-                                className="w-full h-full object-cover"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                            </div>
-                          </CarouselItem>
-                        ))}
-                      </CarouselContent>
-                      <CarouselPrevious className="left-4 bg-white/90 hover:bg-white shadow-lg" />
-                      <CarouselNext className="right-4 bg-white/90 hover:bg-white shadow-lg" />
-                    </Carousel>
-                  ) : (
-                    <div className="flex justify-center items-center h-64 lg:h-96 bg-gray-100 rounded-xl">
-                      <p className="text-gray-500 font-medium">Nenhuma imagem disponível</p>
-                    </div>
-                  )}
+            <TabsContent value="details" className="p-6 pt-4">
+              <h2 className="text-xl font-bold mb-4">Sobre o Quarto</h2>
+              <p className="text-gray-700 mb-6">{room.description}</p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div className="flex items-center">
+                  <span className="font-medium mr-2">Capacidade:</span>
+                  <span>{room.capacity} pessoas</span>
                 </div>
-                <div className="lg:col-span-1 flex flex-col space-y-6">
-                  <div className="bg-gray-50 p-6 rounded-xl shadow-sm">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Sobre esta acomodação</h3>
-                    <p className="text-gray-700 leading-relaxed">{room.description}</p>
-                  </div>
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h4 className="text-md font-semibold text-gray-900 mb-4">Diferenciais</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {renderDetails(room.details)}
-                    </div>
-                  </div>
+                <div className="flex items-center">
+                  <span className="font-medium mr-2">Camas:</span>
+                  <span>{room.beds}</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="font-medium mr-2">Banheiros:</span>
+                  <span>{room.bathrooms}</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="font-medium mr-2">Preço por noite:</span>
+                  <span>R$ {room.price.toFixed(2)}</span>
                 </div>
               </div>
+
+              <h3 className="text-lg font-bold mb-3">Comodidades:</h3>
+              <ul className="list-disc list-inside text-gray-700 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1">
+                {room.amenities.map((amenity, index) => (
+                  <li key={index}>{amenity}</li>
+                ))}
+              </ul>
+
+              {/* Nova seção de descrição adicional */}
+              <h3 className="text-lg font-bold mb-3">Descrição Adicional:</h3>
+              <FeatureListDisplay features={roomFeatures} /> {/* Usando o novo componente aqui */}
+              {/* Fim da nova seção */}
+
             </TabsContent>
-            <TabsContent value="booking" className="mt-6 px-6 pb-6 h-full">
-              <div className="max-w-md mx-auto">
-                <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">Faça sua reserva</h3>
-                  <RoomBookingForm roomId={room.id} onCancel={() => {}} />
-                </div>
-              </div>
+            <TabsContent value="photos" className="p-6 pt-4">
+              <Carousel className="w-full max-w-full mx-auto">
+                <CarouselContent>
+                  {room.images.map((image, index) => (
+                    <CarouselItem key={index}>
+                      <div className="p-1">
+                        <div className="flex aspect-video items-center justify-center p-6">
+                          <Image
+                            src={image}
+                            alt={`Room image ${index + 1}`}
+                            width={700}
+                            height={400}
+                            objectFit="cover"
+                            className="rounded-md"
+                          />
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious />
+                <CarouselNext />
+              </Carousel>
             </TabsContent>
           </Tabs>
         </div>
