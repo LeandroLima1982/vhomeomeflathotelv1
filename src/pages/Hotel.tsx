@@ -9,6 +9,7 @@ import { Footer } from "@/components/hotel/Footer";
 import Contact from "@/components/hotel/Contact";
 import { useState } from "react";
 import { AvailabilityResults } from "@/components/hotel/AvailabilityResults";
+import { Rooms } from "@/components/hotel/Rooms";
 
 const Hotel = () => {
   const [loading, setLoading] = useState(false);
@@ -32,6 +33,7 @@ const Hotel = () => {
           results={availabilityResults}
         />
         <About />
+        <Rooms />
         <Amenities />
         <Nearby />
         <Gallery />

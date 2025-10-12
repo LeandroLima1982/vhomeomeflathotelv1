@@ -12,10 +12,11 @@ const Admin = () => {
         </p>
         
         <Tabs defaultValue="gallery" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="gallery">Galeria Principal</TabsTrigger>
             <TabsTrigger value="hero">Banner Principal (Hero)</TabsTrigger>
             <TabsTrigger value="about">Seção "Sobre"</TabsTrigger>
+            <TabsTrigger value="rooms">Acomodações</TabsTrigger>
             <TabsTrigger value="logo">Logo</TabsTrigger>
           </TabsList>
           <TabsContent value="gallery" className="mt-6">
@@ -37,6 +38,13 @@ const Admin = () => {
               folder="about"
               title="Seção Sobre"
               description="Imagens para o carrossel da seção 'Bem-vindo ao V-Home'. Adicione 2 ou 3 imagens que mostrem o hotel."
+            />
+          </TabsContent>
+          <TabsContent value="rooms" className="mt-6">
+            <ImageManager 
+              folder="rooms"
+              title="Imagens das Acomodações"
+              description="Envie uma imagem para cada tipo de quarto. O nome do arquivo DEVE ser o ID da categoria do quarto (ex: '1.jpg', '2.png'). Isso garante que a imagem correta apareça no card do quarto correspondente."
             />
           </TabsContent>
           <TabsContent value="logo" className="mt-6">
