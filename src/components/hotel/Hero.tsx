@@ -40,7 +40,10 @@ export default function Hero() {
       if (data) {
         const imageUrls = data
           .filter(file => file.name !== '.emptyFolderPlaceholder')
-          .map(file => supabase.storage.from('gallery').getPublicUrl(`hero/${file.name}`).data.publicUrl);
+          .map(file => {
+            const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(`hero/${file.name}`);
+            return `${publicUrl}?t=${new Date().getTime()}`;
+          });
         
         console.log("URLs das imagens construídas:", imageUrls);
         setImages(imageUrls);

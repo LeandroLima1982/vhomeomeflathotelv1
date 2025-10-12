@@ -26,7 +26,7 @@ export function Logo({ isScrolled, isFooter }: LogoProps) {
 
       if (listData && listData.length > 0) {
         const { data } = supabase.storage.from('gallery').getPublicUrl(LOGO_PATH);
-        setLogoUrl(data.publicUrl);
+        setLogoUrl(`${data.publicUrl}?t=${new Date().getTime()}`);
       } else {
         setLogoUrl(null); // Nenhum logo encontrado
       }
