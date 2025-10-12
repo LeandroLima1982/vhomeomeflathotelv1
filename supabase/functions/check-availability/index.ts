@@ -4,7 +4,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts"
 const FACILITY_API_URL = 'https://vhomeflathotel.facilityhotel.com.br/integracao/vhomeflathotel/retornadisponibilidade';
 
 // Token de autorização
-const FACILITY_API_TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbnRlZ3Jhw6fDo28iLCJyb2xlcyI6WyJJTlRFR1JBVElPTiJdLCJpc3MiOiJodHRwczovL3d3dy5hcGkubW9otb3JkZXJlc2VydmFzLmNvbS5iciIsImNyZWF0ZSI6MTc1OTgzOTMxN30.3K_d_-hFLBPs0jrOluAN0axwC62CBoZB8XLsZSXt8DU';
+const FACILITY_API_TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIJIUzI1NiJ9.eyJzdWIiOiJpbnRlZ3Jhw6fDo28iLCJyb2xlcyI6WyJJTlRFR1JBVElPTiJdLCJpc3MiOiJodHRwczovL3d3dy5hcGkubW9otb3JkZXJlc2VydmFzLmNvbS5iciIsImNyZWF0ZSI6MTc1OTgzOTMxN30.3K_d_-hFLBPs0jrOluAN0axwC62CBoZB8XLsZSXt8DU';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -19,13 +19,26 @@ serve(async (req) => {
   try {
     const payload = await req.json();
 
-    const response = await fetch(FACILITY_API_URL, {
-      method: 'POST',
+    // Constrói os parâmetros da URL para a requisição GET
+    const params = new URLSearchParams();
+    params.append('inicio[dia]', payload.inicio.dia);
+    params.append('inicio[mes]', payload.inicio.mes);
+    params.append('inicio[ano]', payload.inicio.ano);
+    params.append('fim[dia]', payload.fim.dia);
+    params.append('fim[mes]', payload.fim.mes);
+    params.append('fim[ano]', payload.fim.ano);
+    params.append('numeroAdultos', payload.numeroAdultos.toString());
+    params.append('numeroCriancas1', payload.numeroCriancas1.toString());
+    params.append('numeroCriancas2', payload.numeroCriancas2.toString());
+
+    const requestUrl = `${FACILITY_API_URL}?${params.toString()}`;
+
+    const response = await fetch(requestUrl, {
+      method: 'GET', // CORRIGIDO: Usando GET conforme a documentação
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${FACILITY_API_TOKEN}`,
       },
-      body: JSON.stringify(payload),
+      // REMOVIDO: GET não tem corpo (body)
     });
 
     const contentType = response.headers.get('content-type');
