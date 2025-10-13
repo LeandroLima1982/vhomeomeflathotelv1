@@ -25,6 +25,8 @@ interface RoomDetailsModalProps {
 const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
+  if (!room) return null;
+
   const getFeatureIcon = (feature: string) => {
     const iconMap: { [key: string]: React.ComponentType<any> } = {
       'Wi-Fi': Wifi,
