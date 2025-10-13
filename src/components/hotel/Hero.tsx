@@ -122,17 +122,17 @@ export const Hero = () => {
           </div>
 
           {/* Main Heading */}
-          <h1 className="text-white">
+          <h1 className="text-white text-center">
             <span className="block text-5xl font-light tracking-wide md:text-7xl lg:text-8xl">
               Seu Flat Hotel
             </span>
-            <span className="mt-2 block text-3xl font-extralight tracking-widest text-white/90 md:text-4xl lg:text-5xl">
+            <span className="mt-2 block text-3xl font-extralight tracking-widest text-white/90 md:text-4xl lg:text-5xl text-right">
               à Beira Mar
             </span>
           </h1>
 
           {/* Subtitle */}
-          <p className="mt-8 text-lg font-light tracking-wide text-white/95 md:text-xl lg:text-2xl">
+          <p className="mt-8 text-lg font-light tracking-wide text-white/95 md:text-xl lg:text-2xl text-center">
             Onde Conforto, Sofisticação e Natureza se Entrelaçam
           </p>
 
