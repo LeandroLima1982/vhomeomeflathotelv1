@@ -78,10 +78,10 @@ export const Hero = () => {
   return (
     <div className={`relative h-screen w-full overflow-hidden ${loading ? 'bg-white' : 'bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900'}`}>
       {loading ? (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center animate-in fade-in duration-500">
           <div className="text-center text-gray-600">
-            <Skeleton className="h-16 w-16 rounded-full mx-auto mb-4 bg-gray-200" />
-            <p className="text-lg font-medium">Carregando...</p>
+            <Skeleton className="h-16 w-16 rounded-full mx-auto mb-4 bg-gray-200 animate-pulse" />
+            <p className="text-lg font-medium animate-pulse">Carregando...</p>
           </div>
         </div>
       ) : images.length > 0 ? (
