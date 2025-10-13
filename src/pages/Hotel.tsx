@@ -24,18 +24,26 @@ const Hotel = () => {
         return;
       }
 
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("rooms")
-        .select("*")
-        .order("id");
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from("rooms")
+          .select("*")
+          .order("id");
 
-      if (error) {
-        console.error("Erro ao carregar acomodações:", error);
-      } else {
-        setRooms(data || []);
+        if (error) {
+          console.error("Erro ao carregar acomodações:", error);
+          setRooms([]);
+        } else {
+          console.log("Rooms loaded:", data);
+          setRooms(data || []);
+        }
+      } catch (err) {
+        console.error("Unexpected error loading rooms:", err);
+        setRooms([]);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchRooms();

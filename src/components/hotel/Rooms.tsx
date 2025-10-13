@@ -8,10 +8,10 @@ interface Room {
   name: string;
   special_name: string | null;
   booking_url: string | null;
-  details: string[];
+  details: Record<string, string | null>;
   description: string | null;
   custom_description: string | null;
-  additional_features: string[];
+  additional_features: any;
 }
 
 interface RoomsProps {
@@ -19,6 +19,8 @@ interface RoomsProps {
 }
 
 export default function Rooms({ rooms = [] }: RoomsProps) {
+  console.log("Rooms component rendering with:", rooms);
+
   if (!rooms || rooms.length === 0) {
     return (
       <div className="text-center py-12">
@@ -30,9 +32,25 @@ export default function Rooms({ rooms = [] }: RoomsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {rooms.map((room) => {
-        const details = Array.isArray(room.details) ? room.details : [];
-        const additionalFeatures = Array.isArray(room.additional_features) ? room.additional_features : [];
-        const allTags = [...details, ...additionalFeatures];
+        // Extrair detalhes do objeto details
+        const detailsObj = room.details || {};
+        const detailsArray = Object.entries(detailsObj)
+          .filter(([key, value]) => value && key !== 'description')
+          .map(([_, value]) => value as string);
+        
+        // Processar additional_features
+        let additionalFeaturesArray: string[] = [];
+        if (room.additional_features && Array.isArray(room.additional_features)) {
+          // Se for um array de categorias com items
+          additionalFeaturesArray = room.additional_features.flatMap((category: any) => {
+            if (category.items && Array.isArray(category.items)) {
+              return category.items.map((item: any) => item.text || item);
+            }
+            return [];
+          });
+        }
+        
+        const allTags = [...detailsArray, ...additionalFeaturesArray];
         
         return (
           <Card key={room.id} className="flex flex-col">
