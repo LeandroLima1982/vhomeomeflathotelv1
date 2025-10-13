@@ -18,11 +18,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, Users } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Input } from "../ui/input";
 import {
   Select,
   SelectContent,
@@ -56,26 +55,26 @@ export function BookingForm() {
   }
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">
+    <div className="p-4 bg-black/20 backdrop-blur-lg rounded-xl shadow-2xl border border-white/20">
+      <h2 className="text-xl font-bold mb-4 text-white text-center">
         Reserve seu Quarto
       </h2>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <FormField
               control={form.control}
               name="checkin"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Check-in</FormLabel>
+                  <FormLabel className="text-white">Check-in</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
                           variant={"outline"}
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
+                            "w-full pl-3 text-left font-normal bg-transparent text-white border-white/50 hover:bg-white/10 hover:text-white",
                             !field.value && "text-muted-foreground"
                           )}
                         >
@@ -107,14 +106,14 @@ export function BookingForm() {
               name="checkout"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Check-out</FormLabel>
+                  <FormLabel className="text-white">Check-out</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
                           variant={"outline"}
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
+                            "w-full pl-3 text-left font-normal bg-transparent text-white border-white/50 hover:bg-white/10 hover:text-white",
                             !field.value && "text-muted-foreground"
                           )}
                         >
@@ -142,19 +141,19 @@ export function BookingForm() {
               )}
             />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <FormField
               control={form.control}
               name="adults"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Adultos</FormLabel>
+                  <FormLabel className="text-white">Adultos</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-transparent text-white border-white/50">
                         <SelectValue placeholder="Número de adultos" />
                       </SelectTrigger>
                     </FormControl>
@@ -175,13 +174,13 @@ export function BookingForm() {
               name="children"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Crianças</FormLabel>
+                  <FormLabel className="text-white">Crianças</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-transparent text-white border-white/50">
                         <SelectValue placeholder="Número de crianças" />
                       </SelectTrigger>
                     </FormControl>
