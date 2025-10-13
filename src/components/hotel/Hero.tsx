@@ -76,7 +76,8 @@ export const Hero = () => {
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-gray-800">
-      {!loading && images.length > 0 ? (
+      {/* Renderiza as imagens se carregadas. Se não houver imagens, o bg-gray-800 do div pai será o fundo. */}
+      {!loading && images.length > 0 && (
         images.map((image, index) => (
           <div
             key={index}
@@ -88,10 +89,10 @@ export const Hero = () => {
             aria-label={image.alt}
           />
         ))
-      ) : (
-        <div className="absolute inset-0 bg-black bg-opacity-20" /> {/* Ajustado para opacidade 20% */}
       )}
-      <div className="absolute inset-0 bg-black bg-opacity-20" /> {/* Ajustado para opacidade 20% */}
+      
+      {/* Este é o overlay consistente para todos os casos, agora com opacidade 20% */}
+      <div className="absolute inset-0 bg-black bg-opacity-20" /> 
 
       <div className="relative z-10 flex h-full items-center justify-center p-4 text-center text-white">
         <div className={`transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
