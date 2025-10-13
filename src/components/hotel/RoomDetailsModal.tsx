@@ -1,11 +1,12 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { X, MapPin, Users, Wifi, Car, Coffee, Dumbbell, Waves, Star, Calendar, Clock } from 'lucide-react';
-import { useState } from 'react';
+import { X, MapPin, Users, Wifi, Car, Coffee, Dumbbell, Waves, Star, Calendar, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { supabase } from '@/lib/supabaseClient';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface RoomDetailsModalProps {
   room: any;
@@ -15,10 +16,65 @@ interface RoomDetailsModalProps {
 
 const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, isOpen, onClose }) => {
   const [selectedImage, setSelectedImage] = useState(0);
+  const [images, setImages] = useState<string[]>([]);
+  const [loadingImages, setLoadingImages] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && room) {
+      fetchRoomImages();
+    }
+  }, [isOpen, room]);
+
+  const fetchRoomImages = async () => {
+    if (!room) return;
+    setLoadingImages(true);
+    const folder = `rooms/${room.id}/gallery`;
+    const { data: files, error } = await supabase.storage.from('gallery').list(folder, {
+      limit: 100,
+      sortBy: { column: 'created_at', order: 'desc' },
+    });
+
+    if (error) {
+      console.error("Error fetching room images:", error);
+      setImages([]);
+    } else {
+      const imageFiles = files.filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json');
+      const imageUrls = imageFiles.map(file => ({
+        name: file.name,
+        url: supabase.storage.from('gallery').getPublicUrl(`${folder}/${file.name}`).data.publicUrl,
+      }));
+
+      // Check for order file
+      const { data: orderFileData } = await supabase.storage.from('gallery').download(`${folder}/_order.json`);
+      if (orderFileData) {
+        try {
+          const orderJson = await orderFileData.text();
+          const orderedNames = JSON.parse(orderJson) as string[];
+          const imageMap = new Map(imageUrls.map(img => [img.name, img.url]));
+          const sortedUrls = orderedNames.map(name => imageMap.get(name)).filter((url): url is string => !!url);
+          const newUrls = imageUrls.filter(img => !orderedNames.includes(img.name)).map(img => img.url);
+          setImages([...sortedUrls, ...newUrls]);
+        } catch (e) {
+          console.error("Error parsing order file, using default order", e);
+          setImages(imageUrls.map(img => img.url));
+        }
+      } else {
+        setImages(imageUrls.map(img => img.url));
+      }
+    }
+    setLoadingImages(false);
+  };
+
+  const nextImage = () => {
+    setSelectedImage((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = () => {
+    setSelectedImage((prev) => (prev - 1 + images.length) % images.length);
+  };
 
   if (!room) return null;
 
-  const images = room.details?.images || [];
   const features = room.additional_features ? room.additional_features.flatMap((cat: any) => cat.items.map((item: any) => item.text)) : [];
 
   const featureIcons: { [key: string]: React.ComponentType<any> } = {
@@ -69,10 +125,13 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, isOpen, onClo
           </div>
         </DialogHeader>
 
-        {/* Rest of the component remains unchanged */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
           {/* Image gallery */}
-          {images.length > 0 && (
+          {loadingImages ? (
+            <div className="mb-6">
+              <Skeleton className="aspect-video w-full rounded-xl" />
+            </div>
+          ) : images.length > 0 ? (
             <div className="mb-6">
               <div className="relative aspect-video rounded-xl overflow-hidden mb-4">
                 <img
@@ -80,10 +139,30 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, isOpen, onClo
                   alt={room.name}
                   className="w-full h-full object-cover"
                 />
+                {images.length > 1 && (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={prevImage}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
+                    >
+                      <ChevronLeft className="h-6 w-6" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={nextImage}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
+                    >
+                      <ChevronRight className="h-6 w-6" />
+                    </Button>
+                  </>
+                )}
               </div>
               {images.length > 1 && (
                 <div className="flex gap-2 overflow-x-auto pb-2">
-                  {images.map((img: string, index: number) => (
+                  {images.map((img, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
@@ -96,6 +175,12 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, isOpen, onClo
                   ))}
                 </div>
               )}
+            </div>
+          ) : (
+            <div className="mb-6">
+              <div className="aspect-video rounded-xl bg-gray-200 flex items-center justify-center">
+                <p className="text-gray-500">Nenhuma imagem disponível</p>
+              </div>
             </div>
           )}
 
