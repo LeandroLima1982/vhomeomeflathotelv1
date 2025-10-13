@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import Logo from '@/components/Logo';
 
 interface RoomDetailsModalProps {
   room: {
@@ -96,19 +97,27 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
               onLoad={() => setIsImageLoaded(true)}
             />
             <div className="absolute inset-0 bg-black/20"></div>
+            
+            {/* Título e nome especial */}
+            <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+              <div className="relative z-10 flex items-center justify-between w-full">
+                {/* Logo à esquerda com fundo elegante */}
+                <div className="flex-shrink-0 bg-white/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-white/20">
+                  <Logo isScrolled={false} isModal={true} />
+                </div>
+                <div className="text-right">
+                  <h2 className="text-2xl md:text-3xl font-bold mb-2">{room.name}</h2>
+                  {room.special_name && (
+                    <p className="text-lg md:text-xl opacity-90">{room.special_name}</p>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Conteúdo */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-320px)]">
-          {/* Título e nome especial */}
-          <div className="mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold mb-2">{room.name}</h2>
-            {room.special_name && (
-              <p className="text-lg md:text-xl text-gray-600">{room.special_name}</p>
-            )}
-          </div>
-
           {/* Descrição */}
           <div className="mb-6">
             <h3 className="text-xl font-semibold mb-3">Sobre este quarto</h3>
