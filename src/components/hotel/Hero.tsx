@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
 interface HeroImage {
@@ -89,9 +89,9 @@ export const Hero = () => {
           />
         ))
       ) : (
-        <div className="absolute inset-0 bg-black bg-opacity-50" />
+        <div className="absolute inset-0 bg-black bg-opacity-20" /> {/* Ajustado para opacidade 20% */}
       )}
-      <div className="absolute inset-0 bg-black bg-opacity-50" />
+      <div className="absolute inset-0 bg-black bg-opacity-20" /> {/* Ajustado para opacidade 20% */}
 
       <div className="relative z-10 flex h-full items-center justify-center p-4 text-center text-white">
         <div className={`transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
