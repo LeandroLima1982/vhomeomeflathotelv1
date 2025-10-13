@@ -105,33 +105,6 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 lg:px-10 py-4 sm:py-6 md:py-8">
-          {/* Informações principais */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 shadow-sm border border-blue-100/50">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 sm:p-2.5 bg-blue-500 rounded-lg sm:rounded-xl">
-                  <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </div>
-                <h3 className="text-base sm:text-lg font-semibold text-slate-800">Capacidade</h3>
-              </div>
-              <p className="text-2xl sm:text-3xl font-bold text-blue-600 ml-11 sm:ml-12">
-                {room.details?.capacity || 'N/A'} {room.details?.capacity === 1 ? 'pessoa' : 'pessoas'}
-              </p>
-            </div>
-
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 shadow-sm border border-purple-100/50">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 sm:p-2.5 bg-purple-500 rounded-lg sm:rounded-xl">
-                  <Bed className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </div>
-                <h3 className="text-base sm:text-lg font-semibold text-slate-800">Tipo de Cama</h3>
-              </div>
-              <p className="text-xl sm:text-2xl font-bold text-purple-600 ml-11 sm:ml-12">
-                {room.details?.bed_type || 'N/A'}
-              </p>
-            </div>
-          </div>
-
           {/* Descrição */}
           {(room.custom_description || room.description) && (
             <div className="mb-6 sm:mb-8">
