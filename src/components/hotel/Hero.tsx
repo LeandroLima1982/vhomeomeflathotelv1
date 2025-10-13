@@ -77,7 +77,7 @@ export const Hero = () => {
     setLoading(false);
   };
 
-  const defaultImage = "url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80')";
+  const defaultImage = "url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto-format&fit=crop&q=80')";
 
   return (
     <div className="relative h-screen w-full overflow-hidden">
@@ -96,7 +96,7 @@ export const Hero = () => {
                   className="relative w-full h-screen bg-cover bg-center bg-no-repeat"
                   style={{ backgroundImage: `url(${src})` }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/80" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
                 </div>
               </CarouselItem>
             ))}
@@ -107,7 +107,7 @@ export const Hero = () => {
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: defaultImage }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
         </div>
       )}
 
