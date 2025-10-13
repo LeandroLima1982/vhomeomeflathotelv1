@@ -1,28 +1,14 @@
 import React from 'react';
-import { BedDouble } from 'lucide-react';
 
-const Rooms = ({ rooms }) => {
+export default function Rooms() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {rooms.map((room) => (
-        <div key={room.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-          <div className="h-64">
-            {room.imageUrl ? (
-              <img src={room.imageUrl} alt={room.name} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <BedDouble className="h-16 w-16 text-gray-400" />
-              </div>
-            )}
-          </div>
-          <div className="p-6">
-            <h3 className="text-xl font-semibold mb-2">{room.name}</h3>
-            <p className="text-gray-600 leading-relaxed">{room.description}</p>
-          </div>
+    <section id="rooms" className="py-20 bg-gray-50">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-gray-800">Nossas Acomodações</h2>
+          <p className="text-gray-600 mt-2">Em breve</p>
         </div>
-      ))}
-    </div>
+      </div>
+    </section>
   );
-};
-
-export default Rooms;
+}
