@@ -19,7 +19,7 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, isOpen, onClo
   if (!room) return null;
 
   const images = room.details?.images || [];
-  const features = room.additional_features || [];
+  const features = room.additional_features ? room.additional_features.flatMap((cat: any) => cat.items.map((item: any) => item.text)) : [];
 
   const featureIcons: { [key: string]: React.ComponentType<any> } = {
     wifi: Wifi,
