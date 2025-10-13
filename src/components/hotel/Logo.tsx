@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { Loader2, Star } from 'lucide-react'; // Importando o ícone Star
+import { Loader2, Star } from 'lucide-react';
 
 interface LogoProps {
   isScrolled?: boolean;
@@ -12,7 +12,7 @@ interface LogoProps {
 }
 
 const BUCKET_NAME = 'gallery';
-const LOGO_PATH = 'logo/logo.png'; // Caminho fixo para o logo no Supabase Storage
+const LOGO_PATH = 'logo/logo.png';
 
 const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className }) => {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -27,17 +27,15 @@ const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className })
         return;
       }
 
-      // Verifica se o arquivo de logo existe
       const { data: listData } = await supabase.storage.from(BUCKET_NAME).list('logo', {
           search: 'logo.png'
       });
 
       if (listData && listData.length > 0) {
           const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(LOGO_PATH);
-          // Adiciona um timestamp para evitar problemas de cache do navegador
           setLogoUrl(`${data.publicUrl}?t=${new Date().getTime()}`);
       } else {
-          setLogoUrl(null); // Nenhuma logo encontrada
+          setLogoUrl(null);
       }
       setLoading(false);
     };
@@ -45,10 +43,8 @@ const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className })
     fetchLogo();
   }, []);
 
-  // Ajustando o tamanho da logo para ser maior (h-16 = 64px)
   const logoImageClasses = `h-16 w-auto ${className || ''}`;
 
-  // Determine text color based on props
   const textColor = isFooter || isModal ? "text-white" : (isScrolled ? "text-gray-800" : "text-white");
   const starColor = isFooter || isModal ? "text-yellow-400" : (isScrolled ? "text-yellow-500" : "text-yellow-400");
 
@@ -56,8 +52,8 @@ const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className })
   if (loading) {
     return (
       <div className="flex items-center space-x-3">
-        <Loader2 className="h-10 w-10 animate-spin text-gray-400" /> {/* Aumentado para h-10 */}
-        <span className={`text-2xl font-semibold ${textColor}`}>Carregando...</span> {/* Aumentado para text-2xl */}
+        <Loader2 className="h-10 w-10 animate-spin text-gray-400" />
+        <span className={`text-2xl font-semibold ${textColor}`}>Carregando...</span>
       </div>
     );
   }
@@ -69,19 +65,19 @@ const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className })
           src={logoUrl}
           alt="Flat Hotel Logo"
           className={logoImageClasses}
-          width="64" // Ajustado para corresponder a h-16
-          height="64" // Ajustado para corresponder a h-16
+          width="64"
+          height="64"
         />
       ) : (
-        <div className={`h-16 w-16 flex items-center justify-center bg-gray-200 rounded ${className || ''}`}> {/* Aumentado para h-16 w-16 */}
-          <span className="text-sm text-gray-500">Logo</span> {/* Aumentado para text-sm */}
+        <div className={`h-16 w-16 flex items-center justify-center bg-gray-200 rounded ${className || ''}`}>
+          <span className="text-sm text-gray-500">Logo</span>
         </div>
       )}
       <div className="flex flex-col">
-        <span className={`text-2xl font-semibold ${textColor}`}>Flat Hotel</span> {/* Aumentado para text-2xl */}
+        <span className={`text-2xl font-semibold ${textColor}`}>Flat Hotel</span>
         <div className="flex items-center gap-0.5">
           {[...Array(4)].map((_, i) => (
-            <Star key={i} className={`h-5 w-5 fill-current ${starColor}`} /> {/* Aumentado para h-5 w-5 */}
+            <Star key={i} className={`h-5 w-5 fill-current ${starColor}`} />
           ))}
         </div>
       </div>
