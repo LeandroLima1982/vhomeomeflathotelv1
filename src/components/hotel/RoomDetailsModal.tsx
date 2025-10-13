@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import Logo from '@/components/Logo';
+import Logo from '@/components/hotel/Logo';
 
 interface RoomDetailsModalProps {
   room: {
