@@ -79,20 +79,54 @@ export function About() {
     <section id="about" className="py-20 bg-white">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <p className="text-gray-600 mb-4">
-              Localizado na deslumbrante Av. Atlântica em Macaé, o V-Home Flat Hotel oferece uma experiência única de hospedagem à beira-mar. 
-              Nosso hotel 4 estrelas combina conforto moderno com a beleza natural da costa brasileira.
-            </p>
-            <p className="text-gray-600 mb-4">
-              Com apartamentos totalmente equipados, comodidades de primeira classe e uma equipe dedicada, 
-              garantimos que sua estadia seja memorável, seja a negócios ou lazer.
-            </p>
-            <p className="text-gray-600">
-              Desfrute de nossas instalações premium, incluindo piscina aquecida, Wi-Fi gratuito, 
-              estacionamento seguro e muito mais. Estamos aqui para tornar sua visita a Macaé inesquecível.
-            </p>
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                Sobre o V-Home
+              </h2>
+            </div>
+            
+            <div className="space-y-4">
+              <p className="text-lg text-gray-700 leading-relaxed">
+                Localizado na deslumbrante <span className="font-semibold text-gray-900">Av. Atlântica em Macaé</span>, o V-Home Flat Hotel oferece uma experiência única de hospedagem à beira-mar. 
+                Nosso hotel 4 estrelas combina conforto moderno com a beleza natural da costa brasileira.
+              </p>
+              
+              <p className="text-lg text-gray-700 leading-relaxed">
+                Com apartamentos totalmente equipados, comodidades de primeira classe e uma equipe dedicada, 
+                garantimos que sua estadia seja memorável, seja a negócios ou lazer.
+              </p>
+              
+              <div className="pt-4">
+                <p className="text-lg text-gray-700 leading-relaxed">
+                  Desfrute de nossas instalações premium:
+                </p>
+                <ul className="mt-3 space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="text-blue-600 mr-2">•</span>
+                    <span>Piscina aquecida</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-blue-600 mr-2">•</span>
+                    <span>Wi-Fi gratuito de alta velocidade</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-blue-600 mr-2">•</span>
+                    <span>Estacionamento seguro</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-blue-600 mr-2">•</span>
+                    <span>E muito mais</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <p className="text-lg text-gray-800 font-medium pt-2">
+                Estamos aqui para tornar sua visita a Macaé inesquecível.
+              </p>
+            </div>
           </div>
+          
           <div className="relative">
             {loading ? (
               <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
