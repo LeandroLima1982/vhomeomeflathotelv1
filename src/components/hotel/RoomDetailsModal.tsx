@@ -1,5 +1,5 @@
 import React from 'react';
-import Logo from '../Logo'; // Ajuste o caminho se necessário
+import Logo from './Logo';
 
 const RoomDetailsModal = ({ isOpen, onClose, room }) => {
   if (!isOpen) return null;
