@@ -93,7 +93,7 @@ export const Hero = () => {
             {images.map((src, index) => (
               <CarouselItem key={index} className="p-0">
                 <div
-                  className="w-full h-screen bg-cover bg-center bg-no-repeat"
+                  className="relative w-full h-screen bg-cover bg-center bg-no-repeat"
                   style={{ backgroundImage: `url(${src})` }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/80" />
