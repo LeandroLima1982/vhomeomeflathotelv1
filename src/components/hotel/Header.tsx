@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import Logo from "./Logo";
 import { Nav } from "./Nav";
 import MobileNav from "./MobileNav";
@@ -56,9 +57,9 @@ export default function Header() {
   return (
     <header className={headerClasses}>
       <div className="container mx-auto px-4 flex justify-between items-center">
-        <a href="#">
+        <Link to="/">
           <Logo isScrolled={isScrolled} />
-        </a>
+        </Link>
         <div className="flex items-center gap-4">
           <Nav isScrolled={isScrolled} />
           <Button
