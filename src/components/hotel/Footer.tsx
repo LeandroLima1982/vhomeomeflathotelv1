@@ -1,8 +1,8 @@
-import Logo from "./Logo"; // Corrigido para default import
+import Logo from "./Logo";
 import { Mail, Phone, Facebook, Instagram } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export function Footer() {
+export default function Footer() {
   return (
     <footer id="contato" className="bg-blue-900 text-white">
       <div className="container mx-auto px-4 py-12">
