@@ -20,8 +20,8 @@ const Hotel = () => {
         <About />
         <Rooms />
         <Amenities />
-        <Nearby />
         <Gallery />
+        <Nearby />
         <Contact />
       </main>
       <Footer />
