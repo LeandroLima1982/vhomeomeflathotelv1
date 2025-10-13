@@ -1,112 +1,69 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { Skeleton } from "@/components/ui/skeleton";
+import React, { useEffect, useState } from 'react';
 
-interface HeroImage {
-  name: string;
-  src: string;
-  alt: string;
-}
-
-const BUCKET_NAME = 'gallery';
-const FOLDER = 'hero';
-const ORDER_FILE_NAME = '_order.json';
-
-export const Hero = () => {
-  const [images, setImages] = useState<HeroImage[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+const Hero = () => {
   const [isMounted, setIsMounted] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchImages = async () => {
-      setLoading(true);
-      const { data: files, error: listError } = await supabase.storage.from(BUCKET_NAME).list(FOLDER, {
-        limit: 100,
-        offset: 0,
-        sortBy: { column: 'created_at', order: 'desc' },
-      });
-
-      if (listError) {
-        console.error("Error fetching hero images:", listError);
-        setLoading(false);
-        return;
-      }
-
-      const imageFiles = files.filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== ORDER_FILE_NAME);
-      const imageObjects = imageFiles.map(file => ({
-        name: file.name,
-        src: supabase.storage.from(BUCKET_NAME).getPublicUrl(`${FOLDER}/${file.name}`).data.publicUrl,
-        alt: `Imagem do banner principal ${file.name}`
-      }));
-
-      const { data: orderFileData } = await supabase.storage.from(BUCKET_NAME).download(`${FOLDER}/${ORDER_FILE_NAME}`);
-
-      if (!orderFileData) {
-        setImages(imageObjects.slice(0, 5));
-      } else {
-        const orderJson = await orderFileData.text();
-        try {
-          const orderedNames = JSON.parse(orderJson) as string[];
-          const imageMap = new Map(imageObjects.map(img => [img.name, img]));
-          const sortedImages = orderedNames.map(name => imageMap.get(name)).filter((img): img is HeroImage => !!img);
-          const newImages = imageObjects.filter(img => !orderedNames.includes(img.name));
-          setImages([...sortedImages, ...newImages].slice(0, 5));
-        } catch (e) {
-          console.error("Error parsing order file, using default order", e);
-          setImages(imageObjects.slice(0, 5));
-        }
-      }
-      setLoading(false);
-    };
-
-    fetchImages();
-  }, []);
 
   useEffect(() => {
     setIsMounted(true);
-    if (images.length > 1) {
-      const timer = setInterval(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-      }, 5000);
-      return () => clearInterval(timer);
-    }
-  }, [images]);
+  }, []);
 
   return (
-    <div className={`relative h-screen w-full overflow-hidden ${loading ? 'bg-white' : 'bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900'}`}>
-      {loading ? (
-        <div className="absolute inset-0 flex items-center justify-center animate-in fade-in duration-500">
-          <div className="text-center text-gray-600">
-            <Skeleton className="h-16 w-16 rounded-full mx-auto mb-4 bg-gray-200 animate-pulse" />
-            <p className="text-lg font-medium animate-pulse">Carregando...</p>
+    <div className="relative h-screen w-full overflow-hidden">
+      {/* Background Image with Overlay */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: "url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80')",
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 flex h-full items-center justify-center px-4">
+        <div className={`max-w-5xl transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+          {/* Decorative Line */}
+          <div className="mb-8 flex items-center justify-center gap-4">
+            <div className="h-px w-12 bg-white/60" />
+            <div className="h-1.5 w-1.5 rotate-45 bg-white/60" />
+            <div className="h-px w-12 bg-white/60" />
+          </div>
+
+          {/* Main Heading */}
+          <h1 className="text-white">
+            <span className="block text-5xl font-light tracking-wide md:text-7xl lg:text-8xl">
+              Seu Flat Hotel
+            </span>
+            <span className="mt-2 block text-3xl font-extralight tracking-widest text-white/90 md:text-4xl lg:text-5xl">
+              à Beira Mar
+            </span>
+          </h1>
+
+          {/* Subtitle */}
+          <p className="mt-8 text-lg font-light tracking-wide text-white/95 md:text-xl lg:text-2xl">
+            Onde Conforto, Sofisticação e Natureza se Entrelaçam
+          </p>
+
+          {/* Decorative Bottom Line */}
+          <div className="mt-12 flex items-center justify-center gap-4">
+            <div className="h-px w-16 bg-white/40" />
+            <div className="h-1 w-1 rounded-full bg-white/40" />
+            <div className="h-px w-16 bg-white/40" />
           </div>
         </div>
-      ) : images.length > 0 ? (
-        images.map((image, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 h-full w-full bg-cover bg-center transition-opacity duration-1000 ${
-              index === currentIndex ? "opacity-100" : "opacity-0"
-            }`}
-            style={{ backgroundImage: `url(${image.src})` }}
-            role="img"
-            aria-label={image.alt}
-          />
-        ))
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900" />
-      )}
-      {!loading && <div className="absolute inset-0 bg-black bg-opacity-40" />}
+      </div>
 
-      <div className="relative z-10 flex h-full items-center justify-center p-4 text-center text-white">
-        <div className={`transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-          <h1 className="text-4xl font-bold md:text-6xl">Seu Flat Hotel à Beira Mar</h1>
-          <p className="mt-4 text-lg md:text-xl">Onde Conforto, Sofisticação e Natureza se Entrelaçam</p>
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-bounce">
+        <div className="flex flex-col items-center gap-2 text-white/80">
+          <span className="text-xs font-light tracking-widest">SCROLL</span>
+          <div className="h-8 w-px bg-white/60" />
         </div>
       </div>
     </div>
   );
 };
+
+export default Hero;
