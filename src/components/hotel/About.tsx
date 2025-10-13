@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
-import { ChefHat, ChevronUp, ChevronDown } from 'lucide-react';
+import { ChefHat } from 'lucide-react';
 
 const BUCKET_NAME = 'gallery';
 const FOLDER = 'about';
@@ -153,15 +153,14 @@ export function About() {
                   align: "start",
                   loop: true,
                 }}
-                orientation="vertical"
                 plugins={[plugin.current]}
                 className="w-full"
                 onMouseEnter={plugin.current.stop}
                 onMouseLeave={plugin.current.reset}
               >
-                <CarouselContent className="-mt-4 h-[600px]">
+                <CarouselContent className="h-[600px]">
                   {images.map((src, index) => (
-                    <CarouselItem key={index} className="pt-4 basis-full">
+                    <CarouselItem key={index} className="basis-full">
                       <div className="relative h-full rounded-lg overflow-hidden shadow-xl">
                         <img
                           src={src}
@@ -172,14 +171,8 @@ export function About() {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="absolute top-4 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                  <ChevronUp className="h-4 w-4" />
-                  <span className="sr-only">Previous slide</span>
-                </CarouselPrevious>
-                <CarouselNext className="absolute bottom-4 left-1/2 -translate-x-1/2 translate-y-1/2">
-                  <ChevronDown className="h-4 w-4" />
-                  <span className="sr-only">Next slide</span>
-                </CarouselNext>
+                <CarouselPrevious className="left-4" />
+                <CarouselNext className="right-4" />
               </Carousel>
             ) : (
               <div className="relative h-[600px] rounded-lg overflow-hidden shadow-xl">
