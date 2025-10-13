@@ -8,6 +8,7 @@ import Hotel from "./pages/Hotel";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import SupabaseProvider from "./components/SupabaseProvider";
+import Institutional from "./pages/Institutional";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Hotel />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/institucional" element={<Institutional />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

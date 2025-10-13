@@ -1,5 +1,6 @@
 import Logo from "./Logo"; // Corrigido para default import
 import { Mail, Phone, Facebook, Instagram } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function Footer() {
   return (
@@ -23,10 +24,10 @@ export function Footer() {
           <div>
             <h3 className="font-bold text-lg text-white">Links Rápidos</h3>
             <ul className="mt-4 space-y-2">
-              <li><a href="#sobre" className="text-gray-300 hover:text-white">Sobre</a></li>
-              <li><a href="#galeria" className="text-gray-300 hover:text-white">Galeria</a></li>
-              <li><a href="#comodidades" className="text-gray-300 hover:text-white">Comodidades</a></li>
-              <li><a href="#reservas" className="text-gray-300 hover:text-white">Reservas</a></li>
+              <li><a href="/#about" className="text-gray-300 hover:text-white">Sobre</a></li>
+              <li><a href="/#galeria" className="text-gray-300 hover:text-white">Galeria</a></li>
+              <li><a href="/#comodidades" className="text-gray-300 hover:text-white">Comodidades</a></li>
+              <li><a href="/#rooms" className="text-gray-300 hover:text-white">Acomodações</a></li>
             </ul>
           </div>
           <div>
@@ -45,6 +46,9 @@ export function Footer() {
         </div>
         <div className="border-t border-blue-800 mt-8 pt-8 text-center text-gray-300">
           <p>&copy; 2025 V-Home Flat Hotel. Todos os direitos reservados.</p>
+          <p className="mt-2 text-sm">
+            Um empreendimento <Link to="/institucional" className="underline hover:text-white">VERY Construtora</Link>.
+          </p>
         </div>
       </div>
     </footer>
