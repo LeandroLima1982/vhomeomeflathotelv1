@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 
-const Hero = () => {
+export const Hero = () => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -65,5 +65,3 @@ const Hero = () => {
     </div>
   );
 };
-
-export default Hero;
