@@ -17,7 +17,7 @@ interface BookingFormProps {
   onSubmit: (data: any) => void;
 }
 
-const BookingForm: React.FC<BookingFormProps> = ({ roomId, onSubmit }) => {
+export const BookingForm: React.FC<BookingFormProps> = ({ roomId, onSubmit }) => {
   const [checkIn, setCheckIn] = useState<Date | undefined>();
   const [checkOut, setCheckOut] = useState<Date | undefined>();
   const [guests, setGuests] = useState<string>('');
@@ -149,5 +149,3 @@ const BookingForm: React.FC<BookingFormProps> = ({ roomId, onSubmit }) => {
     </form>
   );
 };
-
-export default BookingForm;
