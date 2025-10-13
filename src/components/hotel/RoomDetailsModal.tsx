@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import FeatureListDisplay, { FeatureCategory } from './FeatureListDisplay';
 import { supabase } from '@/lib/supabaseClient';
+import { RoomBookingForm } from './RoomBookingForm';
 
 interface RoomDetailsModalProps {
   room: any;
@@ -38,6 +39,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
   const [roomImages, setRoomImages] = useState<string[]>([]);
   const [loadingImages, setLoadingImages] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showBookingForm, setShowBookingForm] = useState(false);
 
   useEffect(() => {
     const fetchRoomImages = async () => {
@@ -362,11 +364,15 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                 </div>
               </div>
 
-              {/* Botão de reserva moderno */}
-              {room.booking_url && (
+              {/* Sistema de reserva igual ao do card */}
+              {showBookingForm ? (
+                <div className="pt-6 border-t border-slate-200/60">
+                  <RoomBookingForm roomId={room.id} onCancel={() => setShowBookingForm(false)} />
+                </div>
+              ) : (
                 <div className="flex justify-center pt-6 border-t border-slate-200/60">
                   <Button
-                    onClick={() => window.open(room.booking_url, '_blank')}
+                    onClick={() => setShowBookingForm(true)}
                     size="lg"
                     className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold px-8 sm:px-12 py-4 sm:py-5 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-base sm:text-lg transform hover:scale-105"
                   >
