@@ -1,86 +1,38 @@
-import { Dumbbell, Wifi, Utensils, ParkingCircle, Tv, Wind, Sun, ShoppingBag, Briefcase, Archive, Paintbrush2, Waves } from 'lucide-react';
+"use client";
+
+import { Wifi, Car, UtensilsCrossed, Tv, Wind, Clock, ConciergeBell, Waves, KeyRound, Coffee, BedDouble, Sparkles } from "lucide-react";
 
 const amenities = [
-  {
-    icon: <Dumbbell size={48} className="text-blue-500" />,
-    title: 'Academia',
-    description: 'Mantenha-se em forma com nossos equipamentos modernos.',
-  },
-  {
-    icon: <Wifi size={48} className="text-blue-500" />,
-    title: 'Wi-Fi Grátis',
-    description: 'Conexão de alta velocidade em todas as áreas do hotel.',
-  },
-  {
-    icon: <Utensils size={48} className="text-blue-500" />,
-    title: 'Restaurante no Local',
-    description: 'Saboreie pratos deliciosos sem sair do hotel.',
-  },
-  {
-    icon: <ParkingCircle size={48} className="text-blue-500" />,
-    title: 'Estacionamento',
-    description: 'Estacionamento seguro e conveniente para os hóspedes.',
-  },
-  {
-    icon: <Tv size={48} className="text-blue-500" />,
-    title: 'TV de Tela Plana',
-    description: 'Desfrute de uma variedade de canais e entretenimento.',
-  },
-  {
-    icon: <Wind size={48} className="text-blue-500" />,
-    title: 'Ar Condicionado',
-    description: 'Ambiente sempre agradável e climatizado.',
-  },
-  {
-    icon: <Sun size={48} className="text-blue-500" />,
-    title: 'Piscina ao Ar Livre',
-    description: 'Relaxe e aproveite o sol em nossa piscina.',
-  },
-  {
-    icon: <ShoppingBag size={48} className="text-blue-500" />,
-    title: 'Próximo a Comércios',
-    description: 'Fácil acesso a lojas, restaurantes e entretenimento.',
-  },
-  {
-    icon: <Briefcase size={48} className="text-blue-500" />,
-    title: 'Home Office',
-    description: 'Espaço em seu apartamento projetado para o trabalho.',
-  },
-  {
-    icon: <Waves size={48} className="text-blue-500" />,
-    title: 'Final de semana?',
-    description: 'Shopping próximo, restaurantes e as principais praias.',
-  },
-  {
-    icon: <Archive size={48} className="text-blue-500" />,
-    title: 'Móveis Planejados',
-    description: 'Espaçosos armários que oferecem bastante espaço de armazenamento.',
-  },
-  {
-    icon: <Paintbrush2 size={48} className="text-blue-500" />,
-    title: 'Decoração elegante',
-    description: 'Ambientes sofisticado e acolhedor.',
-  },
+  { icon: <Waves className="h-8 w-8 text-blue-700" />, name: "Piscina Spa Aquecida ao Ar Livre", description: "Piscina com vista panorâmica do mar" },
+  { icon: <Car className="h-8 w-8 text-blue-700" />, name: "Estacionamento Seguro", description: "Estacionamento privativo e monitorado. Consulte disponibilidade." },
+  { icon: <Wifi className="h-8 w-8 text-blue-700" />, name: "Wi-Fi Gratuito", description: "Trabalhe de forma eficiente com Internet de alta velocidade" },
+  { icon: <Coffee className="h-8 w-8 text-blue-700" />, name: "Café da Manhã", description: "Buffet e opções americanas" },
+  { icon: <UtensilsCrossed className="h-8 w-8 text-blue-700" />, name: "Cozinha Equipada", description: "Geladeira, micro-ondas, forno e cooktop para suas necessidades culinárias" },
+  { icon: <Wind className="h-8 w-8 text-blue-700" />, name: "Ar-Condicionado", description: "Climatização individual" },
+  { icon: <Tv className="h-8 w-8 text-blue-700" />, name: "TV a Cabo", description: "Canais via satélite" },
+  { icon: <KeyRound className="h-8 w-8 text-blue-700" />, name: "Cofre nos Apartamentos", description: "Segurança para seus pertences" },
+  { icon: <Clock className="h-8 w-8 text-blue-700" />, name: "Recepção 24h", description: "Atendimento a qualquer hora" },
+  { icon: <ConciergeBell className="h-8 w-8 text-blue-700" />, name: "Serviço de Concierge", description: "Assistência personalizada" },
+  { icon: <BedDouble className="h-8 w-8 text-blue-700" />, name: "Enxoval Completo", description: "Cama, mesa e banho. Conforto em cada detalhe" },
+  { icon: <Sparkles className="h-8 w-8 text-blue-700" />, name: "Serviço de Camareira", description: "Você não precisa se preocupar com tarefas domésticas" },
 ];
 
-const Amenities = () => {
+export function Amenities() {
   return (
-    <section id="amenities" className="py-20 bg-gray-50">
-      <div className="container mx-auto text-center">
-        <h2 className="text-4xl font-bold">Comodidades</h2>
+    <section id="comodidades" className="py-20 bg-gray-50">
+      <div className="container mx-auto px-4 text-center">
+        <h2 className="text-3xl font-bold text-gray-800">Comodidades</h2>
         <p className="text-gray-600 mt-2 mb-12">Tudo para o seu conforto</p>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {amenities.map((amenity, index) => (
             <div key={index} className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow text-center">
               <div className="flex justify-center mb-4">{amenity.icon}</div>
-              <h3 className="text-xl font-semibold">{amenity.title}</h3>
-              <p className="text-gray-500 mt-2">{amenity.description}</p>
+              <h3 className="font-semibold text-lg text-gray-800">{amenity.name}</h3>
+              <p className="text-sm text-gray-500 mt-1">{amenity.description}</p>
             </div>
           ))}
         </div>
       </div>
     </section>
   );
-};
-
-export default Amenities;
+}
