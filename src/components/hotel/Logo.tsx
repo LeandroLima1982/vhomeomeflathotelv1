@@ -45,8 +45,8 @@ const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className })
     fetchLogo();
   }, []);
 
-  // Ajustando o tamanho da logo para ser maior (h-12 = 48px)
-  const logoImageClasses = `h-12 w-auto ${className || ''}`;
+  // Ajustando o tamanho da logo para ser maior (h-16 = 64px)
+  const logoImageClasses = `h-16 w-auto ${className || ''}`;
 
   // Determine text color based on props
   const textColor = isFooter || isModal ? "text-white" : (isScrolled ? "text-gray-800" : "text-white");
@@ -56,8 +56,8 @@ const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className })
   if (loading) {
     return (
       <div className="flex items-center space-x-3">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-        <span className={`text-xl font-semibold ${textColor}`}>Carregando...</span>
+        <Loader2 className="h-10 w-10 animate-spin text-gray-400" /> {/* Aumentado para h-10 */}
+        <span className={`text-2xl font-semibold ${textColor}`}>Carregando...</span> {/* Aumentado para text-2xl */}
       </div>
     );
   }
@@ -69,19 +69,19 @@ const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className })
           src={logoUrl}
           alt="Flat Hotel Logo"
           className={logoImageClasses}
-          width="48" // Ajustado para corresponder a h-12
-          height="48" // Ajustado para corresponder a h-12
+          width="64" // Ajustado para corresponder a h-16
+          height="64" // Ajustado para corresponder a h-16
         />
       ) : (
-        <div className={`h-12 w-12 flex items-center justify-center bg-gray-200 rounded ${className || ''}`}>
-          <span className="text-xs text-gray-500">Logo</span>
+        <div className={`h-16 w-16 flex items-center justify-center bg-gray-200 rounded ${className || ''}`}> {/* Aumentado para h-16 w-16 */}
+          <span className="text-sm text-gray-500">Logo</span> {/* Aumentado para text-sm */}
         </div>
       )}
       <div className="flex flex-col">
-        <span className={`text-xl font-semibold ${textColor}`}>Flat Hotel</span>
+        <span className={`text-2xl font-semibold ${textColor}`}>Flat Hotel</span> {/* Aumentado para text-2xl */}
         <div className="flex items-center gap-0.5">
           {[...Array(4)].map((_, i) => (
-            <Star key={i} className={`h-4 w-4 fill-current ${starColor}`} />
+            <Star key={i} className={`h-5 w-5 fill-current ${starColor}`} /> {/* Aumentado para h-5 w-5 */}
           ))}
         </div>
       </div>
