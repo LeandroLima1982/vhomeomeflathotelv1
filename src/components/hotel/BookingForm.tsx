@@ -157,7 +157,7 @@ export function BookingForm() {
 
             {/* Submit Button */}
             <div>
-              <Button type="submit" className="w-full font-bold bg-blue-700 hover:bg-blue-300 text-white">
+              <Button type="submit" className="w-full font-bold bg-blue-700 hover:bg-blue-950 text-white">
                 Verificar
               </Button>
             </div>
