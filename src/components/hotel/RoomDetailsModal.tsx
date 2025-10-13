@@ -213,6 +213,27 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
             </div>
           </div>
 
+          {/* Sistema de reserva acima do carousel */}
+          {showBookingForm ? (
+            <div className="px-6 sm:px-8 lg:px-10 py-6 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200/60">
+              <RoomBookingForm roomId={room.id} onCancel={() => setShowBookingForm(false)} />
+            </div>
+          ) : (
+            <div className="px-6 sm:px-8 lg:px-10 py-6 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200/60">
+              <div className="flex justify-center">
+                <Button
+                  onClick={() => setShowBookingForm(true)}
+                  size="lg"
+                  className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold px-8 sm:px-12 py-4 sm:py-5 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-base sm:text-lg transform hover:scale-105"
+                >
+                  <Calendar className="w-5 h-5 sm:w-6 sm:h-6 mr-3" />
+                  Reservar Agora
+                  <ExternalLink className="w-5 h-5 sm:w-6 sm:h-6 ml-3" />
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Carousel de Imagens Moderno */}
           <div className="relative w-full h-64 sm:h-80 lg:h-[400px] bg-slate-100 overflow-hidden">
             {loadingImages ? (
@@ -363,25 +384,6 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                   <p className="text-sm text-slate-600">Av. Atlântica<br />Praia Campista</p>
                 </div>
               </div>
-
-              {/* Sistema de reserva igual ao do card */}
-              {showBookingForm ? (
-                <div className="pt-6 border-t border-slate-200/60">
-                  <RoomBookingForm roomId={room.id} onCancel={() => setShowBookingForm(false)} />
-                </div>
-              ) : (
-                <div className="flex justify-center pt-6 border-t border-slate-200/60">
-                  <Button
-                    onClick={() => setShowBookingForm(true)}
-                    size="lg"
-                    className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold px-8 sm:px-12 py-4 sm:py-5 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-base sm:text-lg transform hover:scale-105"
-                  >
-                    <Calendar className="w-5 h-5 sm:w-6 sm:h-6 mr-3" />
-                    Reservar Agora
-                    <ExternalLink className="w-5 h-5 sm:w-6 sm:h-6 ml-3" />
-                  </Button>
-                </div>
-              )}
             </div>
           </div>
         </div>
