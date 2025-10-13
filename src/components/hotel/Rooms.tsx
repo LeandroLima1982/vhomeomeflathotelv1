@@ -13,10 +13,10 @@ interface Room {
   name: string;
   special_name: string | null;
   booking_url: string | null;
-  details: string[];
+  details: Record<string, string | null>;
   description: string | null;
   custom_description: string | null;
-  additional_features: string[];
+  additional_features: any;
 }
 
 const BUCKET_NAME = 'gallery';
@@ -55,16 +55,10 @@ export default function Rooms() {
       return;
     }
 
-    const roomsData = data.map(room => ({
-      ...room,
-      details: Array.isArray(room.details) ? room.details : [],
-      additional_features: Array.isArray(room.additional_features) ? room.additional_features : [],
-    }));
-
-    setRooms(roomsData);
+    setRooms(data as Room[]);
 
     const imagesMap: Record<number, string[]> = {};
-    for (const room of roomsData) {
+    for (const room of data) {
       const images = await fetchRoomImages(room.id);
       imagesMap[room.id] = images;
     }
@@ -137,10 +131,15 @@ export default function Rooms() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {rooms.map((room) => {
             const images = roomImages[room.id] || [];
-            const details = room.details || [];
             const displayName = room.special_name || room.name;
             const description = room.custom_description || room.description || '';
-            const additionalFeatures = room.additional_features || [];
+            
+            // Extract details from object
+            const detailsArray = room.details && typeof room.details === 'object' 
+              ? Object.entries(room.details)
+                  .filter(([key, value]) => value && typeof value === 'string' && value.trim() !== '' && key !== 'description')
+                  .map(([_, value]) => value as string)
+              : [];
 
             return (
               <Card key={room.id} className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -183,10 +182,10 @@ export default function Rooms() {
                   )}
                 </CardHeader>
                 <CardContent>
-                  {details.length > 0 && (
+                  {detailsArray.length > 0 && (
                     <div className="mb-4">
                       <div className="flex flex-wrap gap-2 max-h-[4.5rem] overflow-hidden">
-                        {details.slice(0, 8).map((detail, index) => (
+                        {detailsArray.slice(0, 8).map((detail, index) => (
                           <Badge 
                             key={index}
                             variant="secondary"
@@ -196,24 +195,11 @@ export default function Rooms() {
                           </Badge>
                         ))}
                       </div>
-                      {details.length > 8 && (
+                      {detailsArray.length > 8 && (
                         <p className="text-xs text-gray-500 mt-2">
-                          +{details.length - 8} mais diferenciais
+                          +{detailsArray.length - 8} mais diferenciais
                         </p>
                       )}
-                    </div>
-                  )}
-                  {additionalFeatures.length > 0 && (
-                    <div>
-                      <h4 className="font-semibold mb-2 text-sm">Recursos Adicionais:</h4>
-                      <ul className="space-y-1">
-                        {additionalFeatures.map((feature, index) => (
-                          <li key={index} className="text-sm text-gray-600 flex items-start">
-                            <span className="text-blue-600 mr-2">•</span>
-                            <span>{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
                     </div>
                   )}
                 </CardContent>
