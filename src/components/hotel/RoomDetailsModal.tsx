@@ -1,4 +1,167 @@
-return (
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { 
+  Users, 
+  Bed, 
+  Wifi, 
+  Coffee, 
+  Tv, 
+  Wind, 
+  Droplets,
+  X,
+  ExternalLink,
+  Sparkles,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Image as ImageIcon,
+  Star,
+  MapPin,
+  Calendar,
+  Clock
+} from 'lucide-react';
+import FeatureListDisplay, { FeatureCategory } from './FeatureListDisplay';
+import { supabase } from '@/lib/supabaseClient';
+
+interface RoomDetailsModalProps {
+  room: any;
+  onClose: () => void;
+}
+
+const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [roomImages, setRoomImages] = useState<string[]>([]);
+  const [loadingImages, setLoadingImages] = useState(true);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  useEffect(() => {
+    const fetchRoomImages = async () => {
+      if (!room?.id) return;
+
+      setLoadingImages(true);
+      const { data: files, error: listError } = await supabase.storage.from('gallery').list(`rooms/${room.id}/gallery`, {
+        limit: 100,
+        offset: 0,
+        sortBy: { column: 'created_at', order: 'desc' },
+      });
+
+      if (listError) {
+        console.error("Erro ao carregar imagens do quarto:", listError);
+        setRoomImages([]);
+        setLoadingImages(false);
+        return;
+      }
+
+      const imageFiles = files.filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json');
+      const imageUrls = imageFiles.map(file => ({
+        name: file.name,
+        url: supabase.storage.from('gallery').getPublicUrl(`rooms/${room.id}/gallery/${file.name}`).data.publicUrl,
+      }));
+
+      const { data: orderFileData } = await supabase.storage.from('gallery').download(`rooms/${room.id}/gallery/_order.json`);
+
+      if (!orderFileData) {
+        setRoomImages(imageUrls.map(img => img.url).slice(0, 10));
+      } else {
+        const orderJson = await orderFileData.text();
+        try {
+          const orderedNames = JSON.parse(orderJson) as string[];
+          const imageMap = new Map(imageUrls.map(img => [img.name, img.url]));
+          const sortedUrls = orderedNames.map(name => imageMap.get(name)).filter((url): url is string => !!url);
+          const newImageUrls = imageUrls.filter(img => !orderedNames.includes(img.name)).map(img => img.url);
+          setRoomImages([...sortedUrls, ...newImageUrls].slice(0, 10));
+        } catch (e) {
+          console.error("Erro ao analisar arquivo de ordem das imagens:", e);
+          setRoomImages(imageUrls.map(img => img.url).slice(0, 10));
+        }
+      }
+      setLoadingImages(false);
+    };
+
+    if (room) {
+      fetchRoomImages();
+    }
+  }, [room]);
+
+  if (!room) return null;
+
+  const nextImage = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentImageIndex((prev) => (prev + 1) % roomImages.length);
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
+
+  const prevImage = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentImageIndex((prev) => (prev - 1 + roomImages.length) % roomImages.length);
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
+
+  const goToImage = (index: number) => {
+    if (isTransitioning || index === currentImageIndex) return;
+    setIsTransitioning(true);
+    setCurrentImageIndex(index);
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
+
+  const getFeatureIcon = (feature: string) => {
+    const lowerFeature = feature.toLowerCase();
+    if (lowerFeature.includes('wifi') || lowerFeature.includes('internet')) return <Wifi className="w-5 h-5" />;
+    if (lowerFeature.includes('café') || lowerFeature.includes('coffee')) return <Coffee className="w-5 h-5" />;
+    if (lowerFeature.includes('tv')) return <Tv className="w-5 h-5" />;
+    if (lowerFeature.includes('ar') || lowerFeature.includes('condicionado')) return <Wind className="w-5 h-5" />;
+    if (lowerFeature.includes('banheiro') || lowerFeature.includes('banho')) return <Droplets className="w-5 h-5" />;
+    return <Sparkles className="w-5 h-5" />;
+  };
+
+  // Renderizar detalhes como badges modernos
+  const renderDetails = () => {
+    if (!room.details || typeof room.details !== 'object') return null;
+    
+    const detailEntries = Object.entries(room.details)
+      .filter(([key, value]) => 
+        value && 
+        typeof value === 'string' && 
+        value.trim() !== '' && 
+        key !== 'description' &&
+        key !== 'capacity' &&
+        key !== 'bed_type' &&
+        key !== 'amenities' &&
+        key !== 'images'
+      )
+      .map(([_, value]) => value as string);
+    
+    if (detailEntries.length === 0) return null;
+
+    return (
+      <div className="mb-8 sm:mb-10">
+        <div className="flex items-center gap-3 mb-4 sm:mb-6">
+          <div className="w-1 h-8 bg-gradient-to-b from-emerald-400 to-teal-500 rounded-full"></div>
+          <h3 className="text-xl sm:text-2xl font-bold text-slate-800">Destaques</h3>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          {detailEntries.map((detail, index) => (
+            <Badge 
+              key={index}
+              variant="secondary"
+              className="px-4 py-2 text-sm bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border border-emerald-200/60 hover:from-emerald-100 hover:to-teal-100 transition-all duration-200 font-medium shadow-sm"
+            >
+              {detail}
+            </Badge>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  return (
     <Dialog open={!!room} onOpenChange={onClose}>
       <DialogContent className="max-w-[100vw] sm:max-w-[95vw] md:max-w-[90vw] lg:max-w-[1100px] max-h-[95vh] w-full p-0 bg-white border-0 shadow-2xl overflow-hidden">
         {/* Container com scroll para o modal inteiro */}
@@ -219,3 +382,6 @@ return (
       </DialogContent>
     </Dialog>
   );
+};
+
+export default RoomDetailsModal;
