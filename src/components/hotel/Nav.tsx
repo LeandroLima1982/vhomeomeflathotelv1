@@ -1,12 +1,6 @@
 "use client";
 
-const navLinks = [
-  { name: "Sobre", href: "#about" },
-  { name: "Acomodações", href: "#rooms" },
-  { name: "Comodidades", href: "#comodidades" },
-  { name: "Galeria", href: "#galeria" },
-  { name: "Contato", href: "#contato" },
-];
+import NavLinks from "./NavLinks";
 
 type NavProps = {
   isScrolled: boolean;
@@ -18,15 +12,9 @@ export function Nav({ isScrolled }: NavProps) {
     ${isScrolled ? "text-gray-800" : "text-white"}
   `;
 
-  const hoverClasses = isScrolled ? "hover:text-gray-600" : "hover:text-gray-300";
-
   return (
     <nav className={linkClasses}>
-      {navLinks.map((link) => (
-        <a key={link.name} href={link.href} className={`transition-colors ${hoverClasses}`}>
-          {link.name}
-        </a>
-      ))}
+      <NavLinks isScrolled={isScrolled} />
     </nav>
   );
 }
