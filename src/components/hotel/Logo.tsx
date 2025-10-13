@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabaseClient';
-import { Loader2, Star } from 'lucide-react';
+import React from 'react';
+import { Star } from 'lucide-react';
 
 interface LogoProps {
   isScrolled?: boolean;
@@ -11,70 +10,26 @@ interface LogoProps {
   className?: string;
 }
 
-const BUCKET_NAME = 'gallery';
-const LOGO_PATH = 'logo/logo.png';
+// URL estática para o logo, construída com as informações do projeto.
+const LOGO_URL = 'https://hvlycmbcvcftathcnzdr.supabase.co/storage/v1/object/public/gallery/logo/logo.png';
 
 const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className }) => {
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchLogo = async () => {
-      setLoading(true);
-      if (!supabase) {
-        console.error("Supabase client not initialized.");
-        setLoading(false);
-        return;
-      }
-
-      const { data: listData } = await supabase.storage.from(BUCKET_NAME).list('logo', {
-          search: 'logo.png'
-      });
-
-      if (listData && listData.length > 0) {
-          const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(LOGO_PATH);
-          setLogoUrl(`${data.publicUrl}?t=${new Date().getTime()}`);
-      } else {
-          setLogoUrl(null);
-      }
-      setLoading(false);
-    };
-
-    fetchLogo();
-  }, []);
-
   const logoImageClasses = `h-16 w-auto ${className || ''}`;
 
   const textColor = isFooter || isModal ? "text-white" : (isScrolled ? "text-gray-800" : "text-white");
   const starColor = isFooter || isModal ? "text-yellow-400" : (isScrolled ? "text-yellow-500" : "text-yellow-400");
 
-
-  if (loading) {
-    return (
-      <div className="flex items-center space-x-3">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-        <span className={`text-xl font-medium ${textColor}`}>Carregando...</span>
-      </div>
-    );
-  }
-
   return (
     <div className="flex items-center space-x-3">
-      {logoUrl ? (
-        <img
-          src={logoUrl}
-          alt="Flat Hotel Logo"
-          className={logoImageClasses}
-          width="64"
-          height="64"
-        />
-      ) : (
-        <div className={`h-16 w-16 flex items-center justify-center bg-gray-200 rounded ${className || ''}`}>
-          <span className="text-xs text-gray-500">Logo</span>
-        </div>
-      )}
+      <img
+        src={LOGO_URL}
+        alt="Flat Hotel Logo"
+        className={logoImageClasses}
+        width="64"
+        height="64"
+      />
       <div className="flex flex-col">
-        <span className={`text-xl font-bold ${textColor}`}>Flat Hotel</span> {/* Alterado para font-bold */}
+        <span className={`text-xl font-bold ${textColor}`}>Flat Hotel</span>
         <div className="flex items-center gap-0.5">
           {[...Array(4)].map((_, i) => (
             <Star key={i} className={`h-4 w-4 fill-current ${starColor}`} />
