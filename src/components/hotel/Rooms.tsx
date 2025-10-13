@@ -22,7 +22,7 @@ interface Room {
 const BUCKET_NAME = 'gallery';
 const ORDER_FILE_NAME = '_order.json';
 
-export function Rooms() {
+export default function Rooms() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [roomImages, setRoomImages] = useState<Record<number, string[]>>({});
   const [loading, setLoading] = useState(true);
