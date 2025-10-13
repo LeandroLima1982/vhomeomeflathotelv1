@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { MapPin, Wifi, Coffee, Car, Snowflake, Tv, Utensils, ShowerHead, BedSingle, SquareParking, PawPrint, Accessibility, CalendarDays } from 'lucide-react';
-import Image from 'next/image';
+// import Image from 'next/image'; // Removido, pois não é um projeto Next.js
 
 const featureIcons = {
   wifi: <Wifi className="h-5 w-5 text-blue-600" />,
@@ -59,12 +59,10 @@ const RoomDetailsModal = ({ room, onClose }) => {
               <div>
                 {details.image_url && (
                   <div className="relative w-full h-64 sm:h-80 md:h-96 rounded-xl overflow-hidden shadow-lg mb-6">
-                    <Image
+                    <img
                       src={details.image_url}
                       alt={room.name}
-                      layout="fill"
-                      objectFit="cover"
-                      className="transition-transform duration-300 hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                     />
                   </div>
                 )}
