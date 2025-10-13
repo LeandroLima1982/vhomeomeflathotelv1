@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Logo from "./Logo"; // Corrigido para default import
+import Logo from "./Logo";
 import { Nav } from "./Nav";
-import { MobileNav } from "./MobileNav";
+import MobileNav from "./MobileNav";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -72,7 +72,7 @@ export default function Header() {
           >
             Reservar Agora
           </Button>
-          <MobileNav isScrolled={isScrolled} />
+          <MobileNav />
         </div>
       </div>
     </header>
