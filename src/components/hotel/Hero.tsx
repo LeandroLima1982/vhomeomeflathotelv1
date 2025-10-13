@@ -2,8 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
-import Autoplay from 'embla-carousel-autoplay';
 
 const BUCKET_NAME = 'gallery';
 const FOLDER = 'hero';
@@ -13,10 +11,7 @@ export const Hero = () => {
   const [isMounted, setIsMounted] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const plugin = React.useRef(
-    Autoplay({ delay: 5000, stopOnInteraction: false })
-  );
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     setIsMounted(true);
@@ -77,35 +72,39 @@ export const Hero = () => {
     setLoading(false);
   };
 
-  const defaultImage = "url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto-format&fit=crop&q=80')";
+  useEffect(() => {
+    if (images.length > 1) {
+      const timer = setTimeout(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+      }, 5000); // Change image every 5 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [currentIndex, images.length]);
+
+  const defaultImage = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto-format&fit=crop&q=80";
 
   return (
     <div className="relative h-screen w-full overflow-hidden">
-      {/* Background Carousel or Default Image */}
+      {/* Background Images */}
       {loading ? (
         <div className="absolute inset-0 bg-gray-900" />
       ) : images.length > 0 ? (
-        <Carousel
-          plugins={[plugin.current]}
-          className="absolute inset-0 w-full h-full"
-        >
-          <CarouselContent>
-            {images.map((src, index) => (
-              <CarouselItem key={index} className="p-0">
-                <div
-                  className="relative w-full h-screen bg-cover bg-center bg-no-repeat"
-                  style={{ backgroundImage: `url(${src})` }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
+        images.map((src, index) => (
+          <div
+            key={index}
+            className="absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out"
+            style={{
+              backgroundImage: `url(${src})`,
+              opacity: index === currentIndex ? 1 : 0,
+            }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
+          </div>
+        ))
       ) : (
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: defaultImage }}
+          style={{ backgroundImage: `url(${defaultImage})` }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
         </div>
