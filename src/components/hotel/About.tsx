@@ -1,54 +1,141 @@
 "use client";
 
-import React from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+import { Star, MapPin, Waves, Wifi, Car, Coffee } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export const About = () => {
+const features = [
+    { icon: Star, text: "Hotel 4 Estrelas" },
+    { icon: MapPin, text: "Localização Privilegiada" },
+    { icon: Waves, text: "Beira-Mar" },
+    { icon: Wifi, text: "Wi-Fi Grátis" },
+    { icon: Car, text: "Estacionamento Grátis" },
+    { icon: Coffee, text: "Café da Manhã Incluso" },
+];
+
+const BUCKET_NAME = 'gallery';
+const FOLDER = 'about';
+const ORDER_FILE_NAME = '_order.json';
+
+export function About() {
+  const plugin = React.useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: true })
+  );
+  const [images, setImages] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      setLoading(true);
+      const { data: files, error: listError } = await supabase.storage.from(BUCKET_NAME).list(FOLDER, {
+        limit: 100,
+        offset: 0,
+        sortBy: { column: 'created_at', order: 'desc' },
+      });
+
+      if (listError) {
+        console.error("Error fetching about images:", listError);
+        setLoading(false);
+        return;
+      }
+
+      const imageFiles = files.filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== ORDER_FILE_NAME);
+      const imageUrls = imageFiles.map(file => ({
+        name: file.name,
+        url: supabase.storage.from(BUCKET_NAME).getPublicUrl(`${FOLDER}/${file.name}`).data.publicUrl,
+      }));
+
+      const { data: orderFileData } = await supabase.storage.from(BUCKET_NAME).download(`${FOLDER}/${ORDER_FILE_NAME}`);
+
+      if (!orderFileData) {
+        setImages(imageUrls.map(img => img.url).slice(0, 5));
+      } else {
+        const orderJson = await orderFileData.text();
+        try {
+          const orderedNames = JSON.parse(orderJson) as string[];
+          const imageMap = new Map(imageUrls.map(img => [img.name, img.url]));
+          const sortedUrls = orderedNames.map(name => imageMap.get(name)).filter((url): url is string => !!url);
+          const newImageUrls = imageUrls.filter(img => !orderedNames.includes(img.name)).map(img => img.url);
+          setImages([...sortedUrls, ...newImageUrls].slice(0, 5));
+        } catch (e) {
+          console.error("Error parsing order file, using default order", e);
+          setImages(imageUrls.map(img => img.url).slice(0, 5));
+        }
+      }
+      setLoading(false);
+    };
+
+    fetchImages();
+  }, []);
+
   return (
-    <section id="about" className="py-16 md:py-24 bg-white">
+    <section id="about" className="py-16 md:py-24 bg-gray-50">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          {/* Text Content */}
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+          <div className="relative">
+            <Carousel
+              plugins={[plugin.current]}
+              className="w-full"
+              onMouseEnter={plugin.current.stop}
+              onMouseLeave={plugin.current.reset}
+            >
+              <CarouselContent>
+                {loading ? (
+                  Array.from({ length: 3 }).map((_, index) => (
+                    <CarouselItem key={index}>
+                      <div className="p-1">
+                        <Skeleton className="aspect-[4/3] w-full rounded-lg" />
+                      </div>
+                    </CarouselItem>
+                  ))
+                ) : (
+                  images.map((src, index) => (
+                    <CarouselItem key={index}>
+                      <div className="p-1">
+                        <Card className="overflow-hidden rounded-lg shadow-2xl">
+                          <CardContent className="flex aspect-[4/3] items-center justify-center p-0">
+                            <div
+                              className="w-full h-full bg-cover bg-center"
+                              style={{ backgroundImage: `url(${src})` }}
+                              role="img"
+                              aria-label={`Imagem do hotel ${index + 1}`}
+                            />
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </CarouselItem>
+                  ))
+                )}
+              </CarouselContent>
+              <CarouselPrevious className="absolute left-4" />
+              <CarouselNext className="absolute right-4" />
+            </Carousel>
+          </div>
           <div>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
               Bem-vindo ao V-Home
             </h2>
             <p className="text-gray-600 mb-4">
-              Descubra um refúgio de tranquilidade e luxo à beira-mar. No V-Home, cada detalhe é pensado para proporcionar uma experiência inesquecível, combinando o conforto de um lar com a sofisticação de um hotel boutique.
+              O V-Home Flat Hotel oferece acomodações modernas e sofisticadas em Macaé, com localização privilegiada na Av. Atlântica. Nosso hotel 4 estrelas combina conforto, estilo e comodidade para proporcionar uma experiência inesquecível.
             </p>
-            <p className="text-gray-600 mb-4">
-              Nossas instalações modernas e serviços personalizados garantem que sua estadia seja perfeita, seja para relaxar em nossas piscinas, desfrutar da culinária local ou explorar as belezas naturais da região.
+            <p className="text-gray-600 mb-8">
+              Cada apartamento conta com ar-condicionado, TV de tela plana, cozinha completa, e banheiro privativo. Desfrute de nossa piscina ao ar livre, terraço com vista, e serviço de concierge disponível 24 horas.
             </p>
-            <p className="text-gray-600">
-              Permita-se viver momentos únicos, onde o bem-estar e a exclusividade se encontram.
-            </p>
-          </div>
-
-          {/* Image Gallery */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="relative h-64 w-full overflow-hidden rounded-lg shadow-lg">
-              <img
-                src="https://images.unsplash.com/photo-1571896349882-3365919d6647?auto=format&fit=crop&q=80&w=1900&h=1900"
-                alt="Hotel Lobby"
-                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-              />
-            </div>
-            <div className="relative h-64 w-full overflow-hidden rounded-lg shadow-lg">
-              <img
-                src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1900&h=1900"
-                alt="Hotel Room"
-                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-              />
-            </div>
-            <div className="relative h-64 w-full overflow-hidden rounded-lg shadow-lg col-span-2">
-              <img
-                src="https://images.unsplash.com/photo-1542314831-068cd1dbf26e?auto=format&fit=crop&q=80&w=1900&h=1900"
-                alt="Hotel Pool"
-                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {features.map((feature, index) => (
+                <div key={index} className="bg-white p-4 rounded-lg shadow-sm flex items-center gap-3 border border-gray-100">
+                  <feature.icon className="h-6 w-6 text-blue-800" />
+                  <span className="text-gray-700 font-medium">{feature.text}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
     </section>
   );
-};
+}
