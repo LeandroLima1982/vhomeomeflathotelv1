@@ -146,7 +146,7 @@ export default function Rooms() {
         key !== 'description'
       )
       .map(([_, value]) => value as string)
-      .slice(0, 4); // Limita a 4 detalhes para não sobrecarregar o card
+      .slice(0, 9); // Limita a 9 detalhes para não sobrecarregar o card
   };
 
   if (loading) {
