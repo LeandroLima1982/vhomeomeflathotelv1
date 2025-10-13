@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { Loader2 } from 'lucide-react'; // Para um indicador de carregamento
+import { Loader2, Star } from 'lucide-react'; // Importando o ícone Star
 
 interface LogoProps {
   isScrolled?: boolean;
@@ -50,7 +50,8 @@ const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className })
 
   // Determine text color based on props
   const textColor = isFooter || isModal ? "text-white" : (isScrolled ? "text-gray-800" : "text-white");
-  const subTextColor = isFooter || isModal ? "text-gray-300" : (isScrolled ? "text-gray-600" : "text-gray-200");
+  const starColor = isFooter || isModal ? "text-yellow-400" : (isScrolled ? "text-yellow-500" : "text-yellow-400");
+
 
   if (loading) {
     return (
@@ -78,7 +79,11 @@ const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className })
       )}
       <div className="flex flex-col">
         <span className={`text-xl font-semibold ${textColor}`}>Flat Hotel</span>
-        <span className={`text-sm ${subTextColor}`}>4 Estrelas</span>
+        <div className="flex items-center gap-0.5">
+          {[...Array(4)].map((_, i) => (
+            <Star key={i} className={`h-4 w-4 fill-current ${starColor}`} />
+          ))}
+        </div>
       </div>
     </div>
   );
