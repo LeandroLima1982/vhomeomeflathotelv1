@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Logo from "./Logo";
 import { Nav } from "./Nav";
 import MobileNav from "./MobileNav";
@@ -12,6 +12,8 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollY = useRef(0);
+  const location = useLocation();
+  const isLightPage = location.pathname === '/institucional';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,11 +46,13 @@ export default function Header() {
     }
   };
 
+  const useDarkTextAndSolidBg = isLightPage || isScrolled;
+
   const headerClasses = cn(
     "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
     {
-      "bg-white/20 backdrop-blur-md border-b border-white/20 shadow-lg py-2": isScrolled,
-      "bg-transparent py-4": !isScrolled,
+      "bg-white/20 backdrop-blur-md border-b border-white/20 shadow-lg py-2": useDarkTextAndSolidBg,
+      "bg-transparent py-4": !useDarkTextAndSolidBg,
       "-translate-y-full": !isVisible,
     }
   );
@@ -57,15 +61,15 @@ export default function Header() {
     <header className={headerClasses}>
       <div className="container mx-auto px-4 flex justify-between items-center">
         <Link to="/">
-          <Logo isScrolled={isScrolled} />
+          <Logo isScrolled={useDarkTextAndSolidBg} />
         </Link>
         <div className="flex items-center gap-4">
-          <Nav isScrolled={isScrolled} />
+          <Nav isScrolled={useDarkTextAndSolidBg} />
           <Button
             onClick={scrollToRooms}
             className={cn(
               "hidden md:inline-flex transition-colors",
-              isScrolled
+              useDarkTextAndSolidBg
                 ? "bg-blue-800 hover:bg-blue-900 text-white"
                 : "bg-white hover:bg-gray-200 text-gray-800"
             )}
