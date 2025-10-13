@@ -57,19 +57,63 @@ export default function Rooms() {
         const roomsWithImages = await Promise.all(
           roomData.map(async (room) => {
             try {
-              const { data: files } = await supabase.storage
+              // First, try to get the cover image from rooms folder
+              const { data: coverFiles } = await supabase.storage
                 .from('gallery')
-                .list(`rooms/${room.id}/gallery`, { limit: 1 });
+                .list('rooms', { search: `${room.id}.` });
 
-              let imageUrl = null;
-              if (files && files.length > 0 && files[0].name !== '.emptyFolderPlaceholder') {
+              if (coverFiles && coverFiles.length > 0) {
+                const coverFile = coverFiles[0];
                 const { data: { publicUrl } } = supabase.storage
                   .from('gallery')
-                  .getPublicUrl(`rooms/${room.id}/gallery/${files[0].name}`);
-                imageUrl = `${publicUrl}?t=${new Date().getTime()}`;
+                  .getPublicUrl(`rooms/${coverFile.name}`);
+                return { ...room, imageUrl: `${publicUrl}?t=${new Date().getTime()}` };
               }
 
-              return { ...room, imageUrl };
+              // If no cover image, try to get first image from gallery
+              const { data: galleryFiles } = await supabase.storage
+                .from('gallery')
+                .list(`rooms/${room.id}/gallery`, { 
+                  limit: 100,
+                  sortBy: { column: 'created_at', order: 'desc' }
+                });
+
+              if (galleryFiles && galleryFiles.length > 0) {
+                // Filter out placeholder and order files
+                const validFiles = galleryFiles.filter(
+                  file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json'
+                );
+
+                if (validFiles.length > 0) {
+                  // Try to get ordered images
+                  const { data: orderFileData } = await supabase.storage
+                    .from('gallery')
+                    .download(`rooms/${room.id}/gallery/_order.json`);
+
+                  let firstImageName = validFiles[0].name;
+
+                  if (orderFileData) {
+                    try {
+                      const orderJson = await orderFileData.text();
+                      const orderedNames = JSON.parse(orderJson) as string[];
+                      if (orderedNames.length > 0) {
+                        firstImageName = orderedNames[0];
+                      }
+                    } catch (e) {
+                      console.warn(`Could not parse order file for room ${room.id}`);
+                    }
+                  }
+
+                  const { data: { publicUrl } } = supabase.storage
+                    .from('gallery')
+                    .getPublicUrl(`rooms/${room.id}/gallery/${firstImageName}`);
+                  
+                  return { ...room, imageUrl: `${publicUrl}?t=${new Date().getTime()}` };
+                }
+              }
+
+              // No image found
+              return { ...room, imageUrl: null };
             } catch (error) {
               console.error(`Error fetching image for room ${room.id}:`, error);
               return { ...room, imageUrl: null };
@@ -77,6 +121,7 @@ export default function Rooms() {
           })
         );
 
+        console.log('Rooms with images:', roomsWithImages);
         setRooms(roomsWithImages);
       } catch (error) {
         console.error('Error in fetchRooms:', error);
@@ -152,6 +197,17 @@ export default function Rooms() {
                       src={room.imageUrl}
                       alt={room.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        console.error(`Failed to load image for room ${room.id}:`, room.imageUrl);
+                        e.currentTarget.style.display = 'none';
+                        const parent = e.currentTarget.parentElement;
+                        if (parent) {
+                          const placeholder = document.createElement('div');
+                          placeholder.className = 'w-full h-full bg-gray-200 flex items-center justify-center';
+                          placeholder.innerHTML = '<svg class="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>';
+                          parent.appendChild(placeholder);
+                        }
+                      }}
                     />
                   ) : (
                     <div className="w-full h-full bg-gray-200 flex items-center justify-center">
