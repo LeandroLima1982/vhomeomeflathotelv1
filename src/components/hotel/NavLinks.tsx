@@ -1,6 +1,7 @@
 "use client";
 
 import { SheetClose } from "@/components/ui/sheet";
+import { useLocation } from "react-router-dom";
 
 const navLinks = [
   { name: "Sobre", href: "#about" },
@@ -16,6 +17,13 @@ interface NavLinksProps {
 }
 
 const NavLinks = ({ isMobile, isScrolled }: NavLinksProps) => {
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
+
+  const getLinkHref = (href: string) => {
+    return isHomePage ? href : `/${href}`;
+  };
+
   if (isMobile) {
     return (
       <>
@@ -23,7 +31,7 @@ const NavLinks = ({ isMobile, isScrolled }: NavLinksProps) => {
           <li key={link.name}>
             <SheetClose asChild>
               <a
-                href={link.href}
+                href={getLinkHref(link.href)}
                 className="block text-lg text-gray-700 hover:text-blue-600 transition-colors"
               >
                 {link.name}
@@ -40,7 +48,7 @@ const NavLinks = ({ isMobile, isScrolled }: NavLinksProps) => {
   return (
     <>
       {navLinks.map((link) => (
-        <a key={link.name} href={link.href} className={`transition-colors ${hoverClasses}`}>
+        <a key={link.name} href={getLinkHref(link.href)} className={`transition-colors ${hoverClasses}`}>
           {link.name}
         </a>
       ))}

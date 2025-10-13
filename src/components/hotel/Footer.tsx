@@ -1,8 +1,15 @@
 import Logo from "./Logo";
 import { Mail, Phone, Facebook, Instagram } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export default function Footer() {
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
+
+  const getLinkHref = (href: string) => {
+    return isHomePage ? href : `/${href}`;
+  };
+
   return (
     <footer id="contato" className="bg-blue-900 text-white">
       <div className="container mx-auto px-4 py-12">
@@ -24,10 +31,10 @@ export default function Footer() {
           <div>
             <h3 className="font-bold text-lg text-white">Links Rápidos</h3>
             <ul className="mt-4 space-y-2">
-              <li><a href="/#about" className="text-gray-300 hover:text-white">Sobre</a></li>
-              <li><a href="/#galeria" className="text-gray-300 hover:text-white">Galeria</a></li>
-              <li><a href="/#comodidades" className="text-gray-300 hover:text-white">Comodidades</a></li>
-              <li><a href="/#rooms" className="text-gray-300 hover:text-white">Acomodações</a></li>
+              <li><a href={getLinkHref("#about")} className="text-gray-300 hover:text-white">Sobre</a></li>
+              <li><a href={getLinkHref("#galeria")} className="text-gray-300 hover:text-white">Galeria</a></li>
+              <li><a href={getLinkHref("#comodidades")} className="text-gray-300 hover:text-white">Comodidades</a></li>
+              <li><a href={getLinkHref("#rooms")} className="text-gray-300 hover:text-white">Acomodações</a></li>
             </ul>
           </div>
           <div>
