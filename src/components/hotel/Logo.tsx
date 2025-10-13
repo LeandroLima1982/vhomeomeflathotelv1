@@ -52,8 +52,8 @@ const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className })
   if (loading) {
     return (
       <div className="flex items-center space-x-3">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" /> {/* Reduzido para h-8 w-8 */}
-        <span className={`text-xl font-medium ${textColor}`}>Carregando...</span> {/* Reduzido para text-xl font-medium */}
+        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        <span className={`text-xl font-medium ${textColor}`}>Carregando...</span>
       </div>
     );
   }
@@ -70,14 +70,14 @@ const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className })
         />
       ) : (
         <div className={`h-16 w-16 flex items-center justify-center bg-gray-200 rounded ${className || ''}`}>
-          <span className="text-xs text-gray-500">Logo</span> {/* Reduzido para text-xs */}
+          <span className="text-xs text-gray-500">Logo</span>
         </div>
       )}
       <div className="flex flex-col">
-        <span className={`text-xl font-medium ${textColor}`}>Flat Hotel</span> {/* Reduzido para text-xl font-medium */}
+        <span className={`text-xl font-medium ${textColor}`}>Flat Hotel</span>
         <div className="flex items-center gap-0.5">
           {[...Array(4)].map((_, i) => (
-            <Star key={i} className={`h-4 w-4 fill-current ${starColor}`} /> {/* Reduzido para h-4 w-4 */}
+            <Star key={i} className={`h-4 w-4 fill-current ${starColor}`} />
           ))}
         </div>
       </div>
