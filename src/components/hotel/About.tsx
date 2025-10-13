@@ -9,16 +9,16 @@ export const About = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           {/* Text Content */}
           <div>
-            <h2 className="text-4xl lg:text-5xl font-semibold tracking-tight text-gray-800 mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
               Bem-vindo ao V-Home
             </h2>
-            <p className="text-lg md:text-xl text-gray-700 leading-relaxed mb-6">
+            <p className="text-gray-600 mb-4">
               Descubra um refúgio de tranquilidade e luxo à beira-mar. No V-Home, cada detalhe é pensado para proporcionar uma experiência inesquecível, combinando o conforto de um lar com a sofisticação de um hotel boutique.
             </p>
-            <p className="text-lg md:text-xl text-gray-700 leading-relaxed mb-6">
+            <p className="text-gray-600 mb-4">
               Nossas instalações modernas e serviços personalizados garantem que sua estadia seja perfeita, seja para relaxar em nossas piscinas, desfrutar da culinária local ou explorar as belezas naturais da região.
             </p>
-            <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
+            <p className="text-gray-600">
               Permita-se viver momentos únicos, onde o bem-estar e a exclusividade se encontram.
             </p>
           </div>
