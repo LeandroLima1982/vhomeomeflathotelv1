@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
+import { ChefHat } from 'lucide-react';
 
 const BUCKET_NAME = 'gallery';
 const FOLDER = 'about';
@@ -91,6 +92,20 @@ export function About() {
                 Localizado na deslumbrante <span className="font-semibold text-gray-900">Av. Atlântica em Macaé</span>, o V-Home Flat Hotel oferece uma experiência única de hospedagem à beira-mar. 
                 Nosso hotel 4 estrelas combina conforto moderno com a beleza natural da costa brasileira.
               </p>
+              
+              <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg">
+                <div className="flex items-start gap-3">
+                  <ChefHat className="text-blue-600 mt-1 flex-shrink-0" size={24} />
+                  <div>
+                    <p className="text-lg font-semibold text-gray-900 mb-1">
+                      Cozinha Completa em Todos os Apartamentos
+                    </p>
+                    <p className="text-gray-700">
+                      Prepare suas próprias refeições com total comodidade e liberdade, como se estivesse em casa.
+                    </p>
+                  </div>
+                </div>
+              </div>
               
               <p className="text-lg text-gray-700 leading-relaxed">
                 Com apartamentos totalmente equipados, comodidades de primeira classe e uma equipe dedicada, 
