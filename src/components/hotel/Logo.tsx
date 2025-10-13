@@ -45,7 +45,8 @@ const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className })
 
   const logoImageClasses = `h-16 w-auto ${className || ''}`;
 
-  const textColor = isFooter || isModal ? "text-white" : (isScrolled ? "text-gray-800" : "text-white");
+  // Lógica corrigida para garantir contraste
+  const textColor = (isFooter || isModal) ? "text-white" : "text-gray-800";
   const starColor = isFooter || isModal ? "text-yellow-400" : (isScrolled ? "text-yellow-500" : "text-yellow-400");
 
 
@@ -74,7 +75,7 @@ const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className })
         </div>
       )}
       <div className="flex flex-col">
-        <span className={`text-xl font-bold ${textColor}`}>Flat Hotel</span> {/* Alterado para font-bold */}
+        <span className={`text-xl font-bold ${textColor}`}>Flat Hotel</span>
         <div className="flex items-center gap-0.5">
           {[...Array(4)].map((_, i) => (
             <Star key={i} className={`h-4 w-4 fill-current ${starColor}`} />
