@@ -98,46 +98,46 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
             />
             <div className="absolute inset-0 bg-black/20"></div>
             
-            {/* Título e nome especial - ajustado para mobile */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-white">
-              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-1 md:mb-2">{room.name}</h2>
+            {/* Título e nome especial */}
+            <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+              <h2 className="text-2xl md:text-3xl font-bold mb-2">{room.name}</h2>
               {room.special_name && (
-                <p className="text-base md:text-lg lg:text-xl opacity-90">{room.special_name}</p>
+                <p className="text-lg md:text-xl opacity-90">{room.special_name}</p>
               )}
             </div>
           </div>
         </div>
 
-        {/* Conteúdo - ajustado para mobile */}
-        <div className="p-4 md:p-6 overflow-y-auto max-h-[calc(90vh-280px)] md:max-h-[calc(90vh-320px)]">
+        {/* Conteúdo */}
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-320px)]">
           {/* Descrição */}
-          <div className="mb-4 md:mb-6">
-            <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3">Sobre este quarto</h3>
-            <p className="text-gray-700 leading-relaxed text-sm md:text-base">
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold mb-3">Sobre este quarto</h3>
+            <p className="text-gray-700 leading-relaxed">
               {room.custom_description || room.description || 'Descrição não disponível.'}
             </p>
           </div>
 
           {/* Detalhes */}
           {room.details && (
-            <div className="mb-4 md:mb-6">
-              <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3">Detalhes</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold mb-3">Detalhes</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {room.details.capacity && (
                   <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                    <Users className="w-5 h-5 text-blue-600" />
                     <span className="text-sm">Capacidade: {room.details.capacity} pessoas</span>
                   </div>
                 )}
                 {room.details.size && (
                   <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                    <MapPin className="w-5 h-5 text-blue-600" />
                     <span className="text-sm">Tamanho: {room.details.size}</span>
                   </div>
                 )}
                 {room.details.view && (
                   <div className="flex items-center gap-2">
-                    <Star className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                    <Star className="w-5 h-5 text-blue-600" />
                     <span className="text-sm">Vista: {room.details.view}</span>
                   </div>
                 )}
@@ -147,9 +147,9 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
 
           {/* Características */}
           {(room.details?.features || room.additional_features) && (
-            <div className="mb-4 md:mb-6">
-              <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3">Características</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold mb-3">Características</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {renderFeatures(room.details?.features)}
                 {renderAdditionalFeatures(room.additional_features)}
               </div>
@@ -158,13 +158,13 @@ const RoomDetailsModal: React.FC<RoomDetailsModalProps> = ({ room, onClose }) =>
 
           {/* Botão de reserva */}
           {room.booking_url && (
-            <div className="mt-4 md:mt-6">
+            <div className="mt-6">
               <Button
                 asChild
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-base md:text-lg font-semibold"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold"
               >
                 <a href={room.booking_url} target="_blank" rel="noopener noreferrer">
-                  <Calendar className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                  <Calendar className="w-5 h-5 mr-2" />
                   Reservar Agora
                 </a>
               </Button>
