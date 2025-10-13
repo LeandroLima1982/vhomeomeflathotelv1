@@ -173,7 +173,7 @@ export function Rooms() {
               ))}
         </div>
       </div>
-      <RoomDetailsModal room={selectedRoom} onClose={() => setSelectedRoom(null)} />
+      <RoomDetailsModal room={selectedRoom} isOpen={!!selectedRoom} onClose={() => setSelectedRoom(null)} />
     </section>
   );
 }
