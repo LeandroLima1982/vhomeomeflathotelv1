@@ -1,23 +1,28 @@
-import { About } from "@/components/hotel/About";
-import { Amenities } from "@/components/hotel/Amenities";
-import Contact from "@/components/hotel/Contact";
-import { Footer } from "@/components/hotel/Footer";
-import { Gallery } from "@/components/hotel/Gallery";
-import Header from "@/components/hotel/Header";
-import { Hero } from "@/components/hotel/Hero";
+import React from 'react';
+import Header from '@/components/hotel/Header';
+import Hero from '@/components/hotel/Hero';
+import About from '@/components/hotel/About';
+import Rooms from '@/components/hotel/Rooms';
+import Gallery from '@/components/hotel/Gallery';
+import Nearby from '@/components/hotel/Nearby';
+import Contact from '@/components/hotel/Contact';
+import Footer from '@/components/hotel/Footer';
 
-export default function Index() {
+const Index: React.FC = () => {
   return (
-    <div className="bg-gray-50 text-gray-800">
+    <div className="bg-white">
       <Header />
       <main>
         <Hero />
         <About />
+        <Rooms />
         <Gallery />
-        <Amenities />
+        <Nearby />
         <Contact />
       </main>
       <Footer />
     </div>
   );
-}
+};
+
+export default Index;
