@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +22,7 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import FeatureListDisplay, { FeatureCategory } from './FeatureListDisplay';
+import { supabase } from '@/lib/supabaseClient';
 
 interface RoomDetailsModalProps {
   room: any;
@@ -30,16 +31,59 @@ interface RoomDetailsModalProps {
 
 const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [roomImages, setRoomImages] = useState<string[]>([]);
+  const [loadingImages, setLoadingImages] = useState(true);
+
+  useEffect(() => {
+    const fetchRoomImages = async () => {
+      if (!room?.id) return;
+
+      setLoadingImages(true);
+      const { data: files, error: listError } = await supabase.storage.from('gallery').list(`rooms/${room.id}/gallery`, {
+        limit: 100,
+        offset: 0,
+        sortBy: { column: 'created_at', order: 'desc' },
+      });
+
+      if (listError) {
+        console.error("Erro ao carregar imagens do quarto:", listError);
+        setRoomImages([]);
+        setLoadingImages(false);
+        return;
+      }
+
+      const imageFiles = files.filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json');
+      const imageUrls = imageFiles.map(file => ({
+        name: file.name,
+        url: supabase.storage.from('gallery').getPublicUrl(`rooms/${room.id}/gallery/${file.name}`).data.publicUrl,
+      }));
+
+      const { data: orderFileData } = await supabase.storage.from('gallery').download(`rooms/${room.id}/gallery/_order.json`);
+
+      if (!orderFileData) {
+        setRoomImages(imageUrls.map(img => img.url).slice(0, 10));
+      } else {
+        const orderJson = await orderFileData.text();
+        try {
+          const orderedNames = JSON.parse(orderJson) as string[];
+          const imageMap = new Map(imageUrls.map(img => [img.name, img.url]));
+          const sortedUrls = orderedNames.map(name => imageMap.get(name)).filter((url): url is string => !!url);
+          const newImageUrls = imageUrls.filter(img => !orderedNames.includes(img.name)).map(img => img.url);
+          setRoomImages([...sortedUrls, ...newImageUrls].slice(0, 10));
+        } catch (e) {
+          console.error("Erro ao analisar arquivo de ordem das imagens:", e);
+          setRoomImages(imageUrls.map(img => img.url).slice(0, 10));
+        }
+      }
+      setLoadingImages(false);
+    };
+
+    if (room) {
+      fetchRoomImages();
+    }
+  }, [room]);
 
   if (!room) return null;
-
-  // Imagens do quarto (usando dados do room ou placeholders)
-  const roomImages = room.details?.images || [
-    'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&h=600&fit=crop',
-    'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop',
-    'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&h=600&fit=crop',
-    'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800&h=600&fit=crop'
-  ];
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % roomImages.length);
@@ -104,55 +148,71 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
       <DialogContent className="max-w-[100vw] sm:max-w-[95vw] md:max-w-[90vw] lg:max-w-[1000px] max-h-[100vh] sm:max-h-[95vh] w-full p-0 bg-white/95 backdrop-blur-sm border-0 shadow-2xl sm:rounded-2xl overflow-hidden flex flex-col gap-0">
         {/* Carousel de Imagens */}
         <div className="relative w-full h-64 sm:h-80 md:h-96 bg-slate-100 overflow-hidden">
-          <div className="relative w-full h-full">
-            <img
-              src={roomImages[currentImageIndex]}
-              alt={`${room.name} - Imagem ${currentImageIndex + 1}`}
-              className="w-full h-full object-cover"
-            />
-            
-            {/* Overlay gradiente */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-            
-            {/* Botões de navegação */}
-            {roomImages.length > 1 && (
-              <>
-                <button
-                  onClick={prevImage}
-                  className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 p-2 sm:p-3 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all z-10"
-                >
-                  <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
-                </button>
-                <button
-                  onClick={nextImage}
-                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-2 sm:p-3 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all z-10"
-                >
-                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
-                </button>
-              </>
-            )}
-            
-            {/* Indicadores */}
-            {roomImages.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-                {roomImages.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentImageIndex(index)}
-                    className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all ${
-                      index === currentImageIndex ? 'bg-white' : 'bg-white/50'
-                    }`}
-                  />
-                ))}
+          {loadingImages ? (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="text-center text-slate-500">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-500 mx-auto mb-2"></div>
+                <p className="text-sm">Carregando imagens...</p>
               </div>
-            )}
-            
-            {/* Contador de imagens */}
-            <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-medium z-10">
-              <ImageIcon className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1" />
-              {currentImageIndex + 1}/{roomImages.length}
             </div>
-          </div>
+          ) : roomImages.length > 0 ? (
+            <div className="relative w-full h-full">
+              <img
+                src={roomImages[currentImageIndex]}
+                alt={`${room.name} - Imagem ${currentImageIndex + 1}`}
+                className="w-full h-full object-cover"
+              />
+              
+              {/* Overlay gradiente */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+              
+              {/* Botões de navegação */}
+              {roomImages.length > 1 && (
+                <>
+                  <button
+                    onClick={prevImage}
+                    className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 p-2 sm:p-3 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all z-10"
+                  >
+                    <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-2 sm:p-3 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all z-10"
+                  >
+                    <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
+                  </button>
+                </>
+              )}
+              
+              {/* Indicadores */}
+              {roomImages.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                  {roomImages.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all ${
+                        index === currentImageIndex ? 'bg-white' : 'bg-white/50'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+              
+              {/* Contador de imagens */}
+              <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-medium z-10">
+                <ImageIcon className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1" />
+                {currentImageIndex + 1}/{roomImages.length}
+              </div>
+            </div>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="text-center text-slate-500">
+                <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Nenhuma imagem disponível</p>
+              </div>
+            </div>
+          )}
         </div>
 
         <DialogHeader className="relative bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 px-4 sm:px-6 md:px-8 lg:px-10 py-4 sm:py-6 md:py-8 lg:py-10 border-b border-slate-200/50 flex-shrink-0 overflow-hidden">
