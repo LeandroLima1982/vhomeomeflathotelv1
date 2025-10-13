@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
-import { ChefHat } from 'lucide-react';
+import { ChefHat, ChevronUp, ChevronDown } from 'lucide-react';
 
 const BUCKET_NAME = 'gallery';
 const FOLDER = 'about';
@@ -144,38 +144,49 @@ export function About() {
           
           <div className="relative">
             {loading ? (
-              <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
+              <div className="w-full h-[600px] bg-gray-200 rounded-lg flex items-center justify-center">
                 <p className="text-gray-500">Carregando imagens...</p>
               </div>
             ) : images.length > 0 ? (
               <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                orientation="vertical"
                 plugins={[plugin.current]}
                 className="w-full"
                 onMouseEnter={plugin.current.stop}
                 onMouseLeave={plugin.current.reset}
               >
-                <CarouselContent>
+                <CarouselContent className="-mt-4 h-[600px]">
                   {images.map((src, index) => (
-                    <CarouselItem key={index}>
-                      <div className="relative h-96 rounded-lg overflow-hidden shadow-xl">
+                    <CarouselItem key={index} className="pt-4 basis-full">
+                      <div className="relative h-full rounded-lg overflow-hidden shadow-xl">
                         <img
                           src={src}
                           alt={`Sobre o hotel ${index + 1}`}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain"
                         />
                       </div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="left-4" />
-                <CarouselNext className="right-4" />
+                <CarouselPrevious className="absolute top-4 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                  <ChevronUp className="h-4 w-4" />
+                  <span className="sr-only">Previous slide</span>
+                </CarouselPrevious>
+                <CarouselNext className="absolute bottom-4 left-1/2 -translate-x-1/2 translate-y-1/2">
+                  <ChevronDown className="h-4 w-4" />
+                  <span className="sr-only">Next slide</span>
+                </CarouselNext>
               </Carousel>
             ) : (
-              <div className="relative h-96 rounded-lg overflow-hidden shadow-xl">
+              <div className="relative h-[600px] rounded-lg overflow-hidden shadow-xl">
                 <img
                   src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80"
                   alt="Hotel exterior"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               </div>
             )}
