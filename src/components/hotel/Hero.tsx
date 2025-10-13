@@ -76,11 +76,11 @@ export const Hero = () => {
   }, [images]);
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900">
+    <div className={`relative h-screen w-full overflow-hidden ${loading ? 'bg-white' : 'bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900'}`}>
       {loading ? (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center text-white">
-            <Skeleton className="h-16 w-16 rounded-full mx-auto mb-4 bg-white/20" />
+          <div className="text-center text-gray-600">
+            <Skeleton className="h-16 w-16 rounded-full mx-auto mb-4 bg-gray-200" />
             <p className="text-lg font-medium">Carregando...</p>
           </div>
         </div>
@@ -99,7 +99,7 @@ export const Hero = () => {
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900" />
       )}
-      <div className="absolute inset-0 bg-black bg-opacity-40" />
+      {!loading && <div className="absolute inset-0 bg-black bg-opacity-40" />}
 
       <div className="relative z-10 flex h-full items-center justify-center p-4 text-center text-white">
         <div className={`transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
