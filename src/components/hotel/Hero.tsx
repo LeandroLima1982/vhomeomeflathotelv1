@@ -144,14 +144,6 @@ export const Hero = () => {
           </div>
         </div>
       </div>
-
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-bounce">
-        <div className="flex flex-col items-center gap-2 text-white/80">
-          <span className="text-xs font-light tracking-widest">SCROLL</span>
-          <div className="h-8 w-px bg-white/60" />
-        </div>
-      </div>
     </div>
   );
 };
