@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { BedDouble } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import RoomDetailsModal from './RoomDetailsModal';
 
 interface Room {
@@ -134,6 +135,20 @@ export default function Rooms() {
     fetchRooms();
   }, []);
 
+  const getRoomDetails = (room: Room) => {
+    if (!room.details || typeof room.details !== 'object') return [];
+    
+    return Object.entries(room.details)
+      .filter(([key, value]) => 
+        value && 
+        typeof value === 'string' && 
+        value.trim() !== '' && 
+        key !== 'description'
+      )
+      .map(([_, value]) => value as string)
+      .slice(0, 4); // Limita a 4 detalhes para não sobrecarregar o card
+  };
+
   if (loading) {
     return (
       <section id="rooms" className="py-20 bg-gray-50">
@@ -185,57 +200,77 @@ export default function Rooms() {
             <p className="text-gray-600 mt-2">Escolha o quarto ideal para sua estadia</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {rooms.map((room) => (
-              <div
-                key={room.id}
-                className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group"
-                onClick={() => setSelectedRoom(room)}
-              >
-                <div className="h-64 relative overflow-hidden">
-                  {room.imageUrl ? (
-                    <img
-                      src={room.imageUrl}
-                      alt={room.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      onError={(e) => {
-                        console.error(`Failed to load image for room ${room.id}:`, room.imageUrl);
-                        e.currentTarget.style.display = 'none';
-                        const parent = e.currentTarget.parentElement;
-                        if (parent) {
-                          const placeholder = document.createElement('div');
-                          placeholder.className = 'w-full h-full bg-gray-200 flex items-center justify-center';
-                          placeholder.innerHTML = '<svg class="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>';
-                          parent.appendChild(placeholder);
-                        }
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <BedDouble className="h-16 w-16 text-gray-400" />
-                    </div>
-                  )}
-                  {room.special_name && (
-                    <div className="absolute top-4 left-4 bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-semibold">
-                      {room.special_name}
-                    </div>
-                  )}
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold mb-2 text-gray-800">{room.name}</h3>
-                  <p className="text-gray-600 leading-relaxed line-clamp-3">
-                    {room.custom_description || room.description || 'Descrição não disponível'}
-                  </p>
-                  <div className="mt-4 flex items-center justify-between">
-                    <span className="text-sm text-gray-500">Clique para ver detalhes</span>
-                    <div className="text-blue-600 group-hover:text-blue-800 transition-colors">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
+            {rooms.map((room) => {
+              const details = getRoomDetails(room);
+              
+              return (
+                <div
+                  key={room.id}
+                  className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group"
+                  onClick={() => setSelectedRoom(room)}
+                >
+                  <div className="h-64 relative overflow-hidden">
+                    {room.imageUrl ? (
+                      <img
+                        src={room.imageUrl}
+                        alt={room.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          console.error(`Failed to load image for room ${room.id}:`, room.imageUrl);
+                          e.currentTarget.style.display = 'none';
+                          const parent = e.currentTarget.parentElement;
+                          if (parent) {
+                            const placeholder = document.createElement('div');
+                            placeholder.className = 'w-full h-full bg-gray-200 flex items-center justify-center';
+                            placeholder.innerHTML = '<svg class="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>';
+                            parent.appendChild(placeholder);
+                          }
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <BedDouble className="h-16 w-16 text-gray-400" />
+                      </div>
+                    )}
+                    {room.special_name && (
+                      <div className="absolute top-4 left-4 bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-semibold">
+                        {room.special_name}
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold mb-2 text-gray-800">{room.name}</h3>
+                    <p className="text-gray-600 leading-relaxed line-clamp-2 mb-4 text-sm">
+                      {room.custom_description || room.description || 'Descrição não disponível'}
+                    </p>
+                    
+                    {/* Diferenciais/Detalhes do quarto */}
+                    {details.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {details.map((detail, index) => (
+                          <Badge 
+                            key={index}
+                            variant="secondary"
+                            className="text-xs bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100"
+                          >
+                            {detail}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <div className="mt-4 flex items-center justify-between">
+                      <span className="text-sm text-gray-500">Clique para ver detalhes</span>
+                      <div className="text-blue-600 group-hover:text-blue-800 transition-colors">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
