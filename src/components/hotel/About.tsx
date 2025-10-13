@@ -1,11 +1,10 @@
 "use client";
 
 import React from 'react';
-import Image from 'next/image';
 
 export const About = () => {
   return (
-    <section className="py-16 md:py-24 bg-white">
+    <section id="about" className="py-16 md:py-24 bg-white">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           {/* Text Content */}
@@ -27,30 +26,24 @@ export const About = () => {
           {/* Image Gallery */}
           <div className="grid grid-cols-2 gap-4">
             <div className="relative h-64 w-full overflow-hidden rounded-lg shadow-lg">
-              <Image
+              <img
                 src="https://images.unsplash.com/photo-1571896349882-3365919d6647?auto=format&fit=crop&q=80&w=1900&h=1900"
                 alt="Hotel Lobby"
-                layout="fill"
-                objectFit="cover"
-                className="transition-transform duration-500 hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
               />
             </div>
             <div className="relative h-64 w-full overflow-hidden rounded-lg shadow-lg">
-              <Image
+              <img
                 src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1900&h=1900"
                 alt="Hotel Room"
-                layout="fill"
-                objectFit="cover"
-                className="transition-transform duration-500 hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
               />
             </div>
             <div className="relative h-64 w-full overflow-hidden rounded-lg shadow-lg col-span-2">
-              <Image
+              <img
                 src="https://images.unsplash.com/photo-1542314831-068cd1dbf26e?auto=format&fit=crop&q=80&w=1900&h=1900"
                 alt="Hotel Pool"
-                layout="fill"
-                objectFit="cover"
-                className="transition-transform duration-500 hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
               />
             </div>
           </div>
