@@ -1,12 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase";
+import { supabase } from "@/lib/supabaseClient";
 import { useQuery } from "@tanstack/react-query";
 import { Room } from "@/types/room";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const fetchRooms = async (): Promise<Room[]> => {
+  if (!supabase) {
+    console.error("Supabase client not initialized.");
+    return [];
+  }
   const { data, error } = await supabase.from("rooms").select("*");
   if (error) {
     throw new Error(error.message);
@@ -22,6 +26,7 @@ const Rooms = () => {
   } = useQuery<Room[]>({
     queryKey: ["rooms"],
     queryFn: fetchRooms,
+    enabled: !!supabase,
   });
 
   if (isLoading) {
@@ -55,7 +60,9 @@ const Rooms = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {rooms?.map((room) => {
-        const details = room.details || [];
+        const details = room.details 
+          ? Object.values(room.details).filter((value): value is string => typeof value === 'string' && value.trim() !== '') 
+          : [];
         const description = room.custom_description || room.description || "No description available.";
 
         return (
