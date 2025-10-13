@@ -15,8 +15,10 @@ import {
   Droplets,
   X,
   ExternalLink,
-  Sparkles
+  Sparkles,
+  Check
 } from 'lucide-react';
+import FeatureListDisplay, { FeatureCategory } from './FeatureListDisplay';
 
 interface RoomDetailsModalProps {
   room: any;
@@ -34,6 +36,45 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
     if (lowerFeature.includes('ar') || lowerFeature.includes('condicionado')) return <Wind className="w-4 h-4" />;
     if (lowerFeature.includes('banheiro') || lowerFeature.includes('banho')) return <Droplets className="w-4 h-4" />;
     return <Sparkles className="w-4 h-4" />;
+  };
+
+  // Renderizar detalhes como badges
+  const renderDetails = () => {
+    if (!room.details || typeof room.details !== 'object') return null;
+    
+    const detailEntries = Object.entries(room.details)
+      .filter(([key, value]) => 
+        value && 
+        typeof value === 'string' && 
+        value.trim() !== '' && 
+        key !== 'description' &&
+        key !== 'capacity' &&
+        key !== 'bed_type' &&
+        key !== 'amenities'
+      )
+      .map(([_, value]) => value as string);
+    
+    if (detailEntries.length === 0) return null;
+
+    return (
+      <div className="mb-6 sm:mb-8">
+        <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 mb-3 sm:mb-4 flex items-center gap-2">
+          <div className="w-1 h-6 sm:h-7 bg-gradient-to-b from-green-500 to-emerald-500 rounded-full"></div>
+          Destaques
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          {detailEntries.map((detail, index) => (
+            <Badge 
+              key={index}
+              variant="secondary"
+              className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border border-green-200/50 hover:from-green-200 hover:to-emerald-200 transition-colors"
+            >
+              {detail}
+            </Badge>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -106,46 +147,18 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
             </div>
           )}
 
-          {/* Comodidades */}
-          {room.details?.amenities && room.details.amenities.length > 0 && (
-            <div className="mb-6 sm:mb-8">
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 mb-3 sm:mb-4 flex items-center gap-2">
-                <div className="w-1 h-6 sm:h-7 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"></div>
-                Comodidades
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                {room.details.amenities.map((amenity: string, index: number) => (
-                  <div 
-                    key={index}
-                    className="flex items-center gap-2 sm:gap-3 bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm border border-slate-200/50 hover:shadow-md transition-shadow"
-                  >
-                    <div className="p-1.5 sm:p-2 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg">
-                      {getFeatureIcon(amenity)}
-                    </div>
-                    <span className="text-sm sm:text-base text-slate-700 font-medium">{amenity}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* Destaques (outros detalhes) */}
+          {renderDetails()}
 
-          {/* Recursos Adicionais */}
-          {room.additional_features && room.additional_features.length > 0 && (
+          {/* Características Adicionais (usando o componente FeatureListDisplay) */}
+          {room.additional_features && Array.isArray(room.additional_features) && room.additional_features.length > 0 && (
             <div className="mb-6 sm:mb-8">
               <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 mb-3 sm:mb-4 flex items-center gap-2">
                 <div className="w-1 h-6 sm:h-7 bg-gradient-to-b from-indigo-500 to-blue-500 rounded-full"></div>
-                Recursos Adicionais
+                Características Adicionais
               </h3>
-              <div className="flex flex-wrap gap-2">
-                {room.additional_features.map((feature: string, index: number) => (
-                  <Badge 
-                    key={index}
-                    variant="secondary"
-                    className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-gradient-to-r from-indigo-100 to-blue-100 text-indigo-700 border border-indigo-200/50 hover:from-indigo-200 hover:to-blue-200 transition-colors"
-                  >
-                    {feature}
-                  </Badge>
-                ))}
+              <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/50 overflow-hidden">
+                <FeatureListDisplay features={room.additional_features as FeatureCategory[]} />
               </div>
             </div>
           )}
