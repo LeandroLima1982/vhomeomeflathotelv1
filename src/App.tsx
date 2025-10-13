@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import SupabaseProvider from "./components/SupabaseProvider";
 import Institutional from "./pages/Institutional";
+import ScrollToTopOnNavigate from "./components/ScrollToTopOnNavigate";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTopOnNavigate />
           <SupabaseProvider>
             <Routes>
               <Route path="/" element={<Hotel />} />
