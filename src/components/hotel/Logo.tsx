@@ -74,7 +74,7 @@ const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className })
         </div>
       )}
       <div className="flex flex-col">
-        <span className={`text-xl font-medium ${textColor}`}>Flat Hotel</span>
+        <span className={`text-xl font-bold ${textColor}`}>Flat Hotel</span> {/* Alterado para font-bold */}
         <div className="flex items-center gap-0.5">
           {[...Array(4)].map((_, i) => (
             <Star key={i} className={`h-4 w-4 fill-current ${starColor}`} />
