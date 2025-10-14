@@ -14,7 +14,7 @@ import {
   Users,
   ShowerHead,
   Sun,
-  Landmark,
+  Building2,
 } from 'lucide-react';
 
 interface DetailIconProps {
@@ -24,7 +24,7 @@ interface DetailIconProps {
 const iconMap: Record<string, React.ElementType> = {
   'tv': Tv,
   'mar': Waves,
-  'cidade': Landmark,
+  'cidade': Building2,
   'wi-fi': Wifi,
   'wifi': Wifi,
   'internet': Wifi,
