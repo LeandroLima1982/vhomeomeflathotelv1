@@ -45,7 +45,7 @@ serve(async (req) => {
     const response = await fetch(API_BASE_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiToken}`,
+        'token': apiToken,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestBody),
