@@ -126,12 +126,15 @@ export default function About() {
                     <CarouselItem key={index}>
                       <div className="p-1">
                         <Card>
-                          <CardContent className="flex aspect-square items-center justify-center p-0">
+                          <CardContent className="relative flex aspect-square items-center justify-center p-0 overflow-hidden rounded-lg">
                             <img
                               src={src}
                               alt={`V-Home Sobre ${index + 1}`}
-                              className="w-full h-full object-cover rounded-lg"
+                              className="w-full h-full object-cover"
                             />
+                            <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg">
+                              V-Home Flat Hotel
+                            </div>
                           </CardContent>
                         </Card>
                       </div>
