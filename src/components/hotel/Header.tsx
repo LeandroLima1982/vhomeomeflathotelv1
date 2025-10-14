@@ -51,7 +51,7 @@ export default function Header() {
   const headerClasses = cn(
     "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
     {
-      "bg-white/20 backdrop-blur-md border-b border-white/20 shadow-lg py-2": useDarkTextAndSolidBg,
+      "bg-white shadow-md py-2 border-b border-gray-200": useDarkTextAndSolidBg,
       "bg-transparent py-4": !useDarkTextAndSolidBg,
       "-translate-y-full": !isVisible,
     }
