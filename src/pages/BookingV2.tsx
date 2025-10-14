@@ -44,6 +44,7 @@ const BookingV2 = () => {
 
       const roomsWithImages = await Promise.all(
         roomData.map(async (room) => {
+          // 1. Tenta buscar a imagem de capa principal
           const { data: coverFiles } = await supabase.storage
             .from('gallery')
             .list('rooms', { search: `${room.id}.` });
@@ -54,6 +55,48 @@ const BookingV2 = () => {
               .getPublicUrl(`rooms/${coverFiles[0].name}`);
             return { ...room, imageUrl: `${publicUrl}?t=${new Date().getTime()}` };
           }
+
+          // 2. Fallback: Busca a primeira imagem da galeria do quarto
+          const { data: galleryFiles } = await supabase.storage
+            .from('gallery')
+            .list(`rooms/${room.id}/gallery`, { 
+              limit: 100,
+              sortBy: { column: 'created_at', order: 'desc' }
+            });
+
+          if (galleryFiles && galleryFiles.length > 0) {
+            const validFiles = galleryFiles.filter(
+              file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json'
+            );
+
+            if (validFiles.length > 0) {
+              const { data: orderFileData } = await supabase.storage
+                .from('gallery')
+                .download(`rooms/${room.id}/gallery/_order.json`);
+
+              let firstImageName = validFiles[0].name;
+
+              if (orderFileData) {
+                try {
+                  const orderJson = await orderFileData.text();
+                  const orderedNames = JSON.parse(orderJson) as string[];
+                  if (orderedNames.length > 0) {
+                    firstImageName = orderedNames[0];
+                  }
+                } catch (e) {
+                  console.warn(`Could not parse order file for room ${room.id}`);
+                }
+              }
+
+              const { data: { publicUrl } } = supabase.storage
+                .from('gallery')
+                .getPublicUrl(`rooms/${room.id}/gallery/${firstImageName}`);
+              
+              return { ...room, imageUrl: `${publicUrl}?t=${new Date().getTime()}` };
+            }
+          }
+
+          // 3. Se não encontrar nenhuma imagem
           return { ...room, imageUrl: null };
         })
       );
