@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { BedDouble } from 'lucide-react';
+import { BedDouble, Star } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
@@ -233,9 +233,20 @@ export default function Rooms() {
                       </div>
                     )}
                     {room.special_name && (
-                      <div className="absolute top-4 left-4 bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-semibold">
-                        {room.special_name}
-                      </div>
+                      <>
+                        <div className="absolute top-4 left-4 bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-semibold z-10">
+                          {room.special_name}
+                        </div>
+                        <div className="absolute top-12 left-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 z-10">
+                          {[...Array(4)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className="h-5 w-5 text-yellow-400 fill-current"
+                              style={{ filter: 'drop-shadow(0 0 4px rgba(251, 191, 36, 0.8))' }}
+                            />
+                          ))}
+                        </div>
+                      </>
                     )}
                   </div>
                   <div className="p-6">
