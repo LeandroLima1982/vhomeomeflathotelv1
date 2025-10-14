@@ -99,9 +99,9 @@ export default function About() {
                 proporcionar uma experiência inesquecível.
               </p>
               <p className="text-gray-600 leading-relaxed mt-4">
-                Cada apartamento conta com ar-condicionado, tv de tela plana,
+                Cada apartamento conta com ar-condicionado, Tv smart,
                 cozinha completa, e banheiro privativo. Desfrute de nossa
-                piscina ao ar livre, terraço com vista, e serviço de concierge
+                piscina SPA aquecida ao ar livre, terraço com vista pro mar, e serviço de concierge
                 disponível 24 horas.
               </p>
             </div>
