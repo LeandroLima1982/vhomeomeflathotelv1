@@ -120,7 +120,7 @@ export default function About() {
                 <Skeleton className="aspect-square w-full rounded-lg" />
               </div>
             ) : (
-              <Carousel className="w-full max-w-md mx-auto">
+              <Carousel className="w-full max-w-md mx-auto relative">
                 <CarouselContent>
                   {images.map((src, index) => (
                     <CarouselItem key={index}>
@@ -147,8 +147,8 @@ export default function About() {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
+                <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 z-10" />
+                <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 z-10" />
               </Carousel>
             )}
           </div>
