@@ -240,6 +240,10 @@ export default function Rooms() {
                       </div>
                     </div>
 
+                    <div className="absolute bottom-4 right-4 z-10 bg-black/20 backdrop-blur-sm rounded-md px-3 py-1 border border-white/10">
+                      <p className="text-white text-sm font-medium">Ver Detalhes</p>
+                    </div>
+
                     {room.special_name && (
                       <div className="absolute top-12 left-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 z-10">
                         {[...Array(4)].map((_, i) => (
