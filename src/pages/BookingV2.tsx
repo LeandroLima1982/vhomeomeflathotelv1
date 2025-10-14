@@ -5,6 +5,7 @@ import Footer from "@/components/hotel/Footer";
 import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
 import { Loader2, ServerCrash } from "lucide-react";
+import { AvailabilityResults } from "@/components/hotel/AvailabilityResults";
 
 interface AvailabilityResult {
   idQuarto: number;
@@ -91,12 +92,7 @@ const BookingV2 = () => {
               </div>
             )}
             {results && (
-              <div>
-                <h2 className="text-2xl font-bold text-center mb-6">Resultados da Busca</h2>
-                <pre className="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto">
-                  {JSON.stringify(results, null, 2)}
-                </pre>
-              </div>
+              <AvailabilityResults results={results} />
             )}
           </div>
         </div>
