@@ -42,11 +42,11 @@ export default function Footer() {
             <ul className="mt-4 space-y-2">
               <li className="flex items-center text-gray-300">
                 <Mail className="w-4 h-4 mr-2" />
-                contato@vhomeflathotel.com.br
+                contato@vhomeflathotel.com
               </li>
               <li className="flex items-center text-gray-300">
                 <Phone className="w-4 h-4 mr-2" />
-                (22) 1234-5678
+                (22) 2141-2091
               </li>
             </ul>
           </div>
