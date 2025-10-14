@@ -2,12 +2,6 @@
 
 import React from 'react';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import {
   Wifi,
   Wind,
   Tv,
@@ -57,20 +51,7 @@ const DetailIcon: React.FC<DetailIconProps> = ({ detailText }) => {
     }
   }
 
-  return (
-    <TooltipProvider delayDuration={100}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="p-2 bg-blue-50 text-blue-700 rounded-full border border-blue-200/60 hover:bg-blue-100 transition-colors cursor-pointer">
-            <IconComponent className="h-4 w-4" />
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{detailText}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
+  return <IconComponent className="h-5 w-5 text-blue-700 flex-shrink-0" />;
 };
 
 export default DetailIcon;

@@ -275,14 +275,17 @@ export default function Rooms() {
                     </p>
                     
                     {details.length > 0 && (
-                      <div className="flex flex-wrap items-center gap-3 mb-4">
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-3 mt-4 mb-4">
                         {details.map((detail, index) => (
-                          <DetailIcon key={index} detailText={detail} />
+                          <div key={index} className="flex items-center gap-2">
+                            <DetailIcon detailText={detail} />
+                            <span className="text-sm text-gray-600">{detail}</span>
+                          </div>
                         ))}
                       </div>
                     )}
                     
-                    <div className="mt-4 flex items-center justify-between">
+                    <div className="mt-4 flex items-center justify-between border-t pt-4">
                       <span className="text-sm text-gray-500">Clique para ver detalhes</span>
                       <div className="text-blue-600 group-hover:text-blue-800 transition-colors">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
