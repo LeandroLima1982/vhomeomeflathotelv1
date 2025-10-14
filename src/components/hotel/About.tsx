@@ -1,159 +1,80 @@
-"use client";
+import * as React from "react"
+import Autoplay from "embla-carousel-autoplay"
 
-import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card"
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Star, MapPin, Waves, Wifi, Car, Coffee } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
+} from "@/components/ui/carousel"
+import { Star } from "lucide-react"
 
-const features = [
-  { icon: Star, text: "Flat Hotel 4 Estrelas" },
-  { icon: MapPin, text: "Localização Privilegiada" },
-  { icon: Waves, text: "Beira-Mar" },
-  { icon: Wifi, text: "Wi-Fi Grátis" },
-  { icon: Car, text: "Estacionamento Grátis" },
-  { icon: Coffee, text: "Café da Manhã Incluso" },
-];
+const images = [
+  "/placeholder.svg",
+  "/placeholder.svg",
+  "/placeholder.svg",
+  "/placeholder.svg",
+  "/placeholder.svg",
+]
 
-export default function About() {
-  const [images, setImages] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchImages = async () => {
-      if (!supabase) {
-        console.error("Supabase client is not available.");
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoading(true);
-      const { data: files, error } = await supabase.storage
-        .from("gallery")
-        .list("about", {
-          limit: 10,
-          offset: 0,
-          sortBy: { column: "created_at", order: "desc" },
-        });
-
-      if (error) {
-        console.error("Error fetching images:", error);
-        setIsLoading(false);
-        return;
-      }
-
-      if (files) {
-        const imageFiles = files.filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json');
-        const imageUrls = imageFiles.map(file => ({
-            name: file.name,
-            url: supabase.storage.from("gallery").getPublicUrl(`about/${file.name}`).data.publicUrl,
-        }));
-
-        const { data: orderFileData } = await supabase.storage.from("gallery").download("about/_order.json");
-
-        if (!orderFileData) {
-            setImages(imageUrls.map(img => img.url));
-        } else {
-            const orderJson = await orderFileData.text();
-            try {
-                const orderedNames = JSON.parse(orderJson) as string[];
-                const imageMap = new Map(imageUrls.map(img => [img.name, img.url]));
-                const sortedUrls = orderedNames.map(name => imageMap.get(name)).filter((url): url is string => !!url);
-                const newImageUrls = imageUrls.filter(img => !orderedNames.includes(img.name)).map(img => img.url);
-                setImages([...sortedUrls, ...newImageUrls]);
-            } catch (e) {
-                console.error("Error parsing order file, using default order", e);
-                setImages(imageUrls.map(img => img.url));
-            }
-        }
-      }
-      setIsLoading(false);
-    };
-
-    fetchImages();
-  }, []);
+export function About() {
+  const plugin = React.useRef(
+    Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true })
+  )
 
   return (
-    <section id="about" className="py-16 md:py-24 bg-white">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                Bem-vindo ao V-Home
-              </h2>
-              <p className="text-xl text-gray-700 mb-6">
-                Seu Flat Hotel à Beira Mar
-              </p>
-              <p className="text-gray-600 leading-relaxed">
-                O V-Home Flat Hotel oferece acomodações modernas e sofisticadas
-                em Macaé, com localização privilegiada na Av. Atlântica. Nosso
-                hotel 4 estrelas combina conforto, estilo e comodidade para
-                proporcionar uma experiência inesquecível.
-              </p>
-              <p className="text-gray-600 leading-relaxed mt-4">
-                Cada apartamento conta com ar-condicionado, tv de tela plana,
-                cozinha completa, e banheiro privativo. Desfrute de nossa
-                piscina ao ar livre, terraço com vista, e serviço de concierge
-                disponível 24 horas.
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              {features.map((feature, index) => (
-                <div key={index} className="flex items-center space-x-3">
-                  <feature.icon className="w-6 h-6 text-blue-600" />
-                  <span className="text-gray-700">{feature.text}</span>
-                </div>
-              ))}
-            </div>
+    <section id="sobre" className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
+      <div className="container px-4 md:px-6">
+        <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
+          <div className="space-y-4">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-gray-900 dark:text-gray-50">
+              V-Home, o seu Flat Hotel à beira-mar de Piedade.
+            </h2>
+            <p className="max-w-[600px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
+              Viva uma experiência única de hospedagem com conforto, sofisticação e uma vista deslumbrante para o mar.
+            </p>
           </div>
-          <div>
-            {isLoading ? (
-              <div className="w-full max-w-md mx-auto">
-                <Skeleton className="aspect-square w-full rounded-lg" />
-              </div>
-            ) : (
-              <Carousel className="w-full max-w-md mx-auto">
-                <CarouselContent>
-                  {images.map((src, index) => (
-                    <CarouselItem key={index}>
-                      <div className="p-1">
-                        <Card>
-                          <CardContent className="relative flex aspect-square items-center justify-center p-0 overflow-hidden rounded-lg">
-                            <img
-                              src={src}
-                              alt={`V-Home Sobre ${index + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute bottom-4 right-4 bg-amber-500 text-gray-900 p-3 rounded-lg shadow-lg flex flex-col items-center">
-                              <div className="flex gap-0.5 mb-1">
-                                <Star className="w-4 h-4 fill-current" />
-                                <Star className="w-4 h-4 fill-current" />
-                                <Star className="w-4 h-4 fill-current" />
-                                <Star className="w-4 h-4 fill-current" />
-                              </div>
-                              <p className="text-xs font-semibold">Flat Hotel à Beira Mar</p>
+          <div className="flex justify-center">
+            <Carousel
+              plugins={[plugin.current]}
+              className="w-full max-w-md"
+              onMouseEnter={plugin.current.stop}
+              onMouseLeave={plugin.current.reset}
+            >
+              <CarouselContent>
+                {images.map((src, index) => (
+                  <CarouselItem key={index}>
+                    <div className="p-1">
+                      <Card>
+                        <CardContent className="relative flex aspect-square items-center justify-center p-0 overflow-hidden rounded-lg">
+                          <img
+                            src={src}
+                            alt={`V-Home Sobre ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute bottom-4 right-4 bg-amber-500 text-white px-4 py-2 rounded-md shadow-lg flex items-center gap-2">
+                            <div className="flex">
+                              <Star className="w-4 h-4 fill-white" />
+                              <Star className="w-4 h-4 fill-white" />
+                              <Star className="w-4 h-4 fill-white" />
+                              <Star className="w-4 h-4 fill-white" />
                             </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-              </Carousel>
-            )}
+                            <span className="font-semibold text-sm">Flat Hotel à Beira Mar</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
           </div>
         </div>
       </div>
     </section>
-  );
+  )
 }
