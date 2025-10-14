@@ -11,7 +11,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Star, MapPin, Waves, Wifi, Car, Coffee } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 
 const features = [
   { icon: Star, text: "Flat Hotel 4 Estrelas" },
@@ -28,13 +28,19 @@ export default function About() {
 
   useEffect(() => {
     const fetchImages = async () => {
+      if (!supabase) {
+        console.error("Supabase client is not available.");
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
       const { data: files, error } = await supabase.storage
         .from("gallery")
         .list("about", {
           limit: 10,
           offset: 0,
-          sortBy: { column: "name", order: "asc" },
+          sortBy: { column: "created_at", order: "desc" },
         });
 
       if (error) {
@@ -44,38 +50,28 @@ export default function About() {
       }
 
       if (files) {
-        const imageUrls = files
-          .filter((file) => file.name !== "_order.json")
-          .map((file) => {
-            const { data } = supabase.storage
-              .from("gallery")
-              .getPublicUrl(`about/${file.name}`);
-            return data.publicUrl;
-          });
+        const imageFiles = files.filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json');
+        const imageUrls = imageFiles.map(file => ({
+            name: file.name,
+            url: supabase.storage.from("gallery").getPublicUrl(`about/${file.name}`).data.publicUrl,
+        }));
 
-        const orderFile = files.find((file) => file.name === "_order.json");
-        if (orderFile) {
-          const { data: orderData, error: orderError } =
-            await supabase.storage
-              .from("gallery")
-              .download("about/_order.json");
-          if (orderError) {
-            console.error("Error downloading order file:", orderError);
-            setImages(imageUrls);
-          } else {
-            const orderJson = JSON.parse(await orderData.text());
-            const orderedUrls = orderJson.order
-              .map((fileName: string) => {
-                const fullUrl = imageUrls.find((url) =>
-                  url.endsWith(`/${fileName}`)
-                );
-                return fullUrl;
-              })
-              .filter(Boolean); // Filter out any undefined entries
-            setImages(orderedUrls as string[]);
-          }
+        const { data: orderFileData } = await supabase.storage.from("gallery").download("about/_order.json");
+
+        if (!orderFileData) {
+            setImages(imageUrls.map(img => img.url));
         } else {
-          setImages(imageUrls);
+            const orderJson = await orderFileData.text();
+            try {
+                const orderedNames = JSON.parse(orderJson) as string[];
+                const imageMap = new Map(imageUrls.map(img => [img.name, img.url]));
+                const sortedUrls = orderedNames.map(name => imageMap.get(name)).filter((url): url is string => !!url);
+                const newImageUrls = imageUrls.filter(img => !orderedNames.includes(img.name)).map(img => img.url);
+                setImages([...sortedUrls, ...newImageUrls]);
+            } catch (e) {
+                console.error("Error parsing order file, using default order", e);
+                setImages(imageUrls.map(img => img.url));
+            }
         }
       }
       setIsLoading(false);
@@ -85,7 +81,7 @@ export default function About() {
   }, []);
 
   return (
-    <section className="py-16 md:py-24 bg-white">
+    <section id="about" className="py-16 md:py-24 bg-white">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
