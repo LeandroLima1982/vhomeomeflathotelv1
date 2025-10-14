@@ -8,7 +8,6 @@ const corsHeaders = {
 const API_BASE_URL = 'https://vhomeflathotel.facilityhotel.com.br/integracao/hotelDoForte/retornadisponibilidade';
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -43,7 +42,19 @@ serve(async (req) => {
       headers: {
         'Authorization': `Bearer ${apiToken}`,
       },
+      redirect: 'manual', // Impede o Deno de seguir redirecionamentos automaticamente
     });
+
+    // Verifica se a resposta é um redirecionamento
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get('Location');
+      const errorMessage = `O sistema de reservas está causando um loop de redirecionamento. Destino: ${location || 'desconhecido'}`;
+      console.error(errorMessage);
+      return new Response(JSON.stringify({ error: errorMessage }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     if (!response.ok) {
       const errorBody = await response.text();
