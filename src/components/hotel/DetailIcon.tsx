@@ -22,6 +22,7 @@ interface DetailIconProps {
 }
 
 const iconMap: Record<string, React.ElementType> = {
+  'tv': Tv,
   'mar': Waves,
   'cidade': Landmark,
   'wi-fi': Wifi,
@@ -29,7 +30,6 @@ const iconMap: Record<string, React.ElementType> = {
   'internet': Wifi,
   'ar-condicionado': Wind,
   'ar condicionado': Wind,
-  'tv': Tv,
   'estacionamento': Car,
   'garagem': Car,
   'café da manhã': Coffee,
