@@ -7,7 +7,6 @@ const corsHeaders = {
 
 const API_BASE_URL = 'https://vhomeflathotel.facilityhotel.com.br/integracao/vhomeflathotel/retornadisponibilidade';
 
-// Função para converter a data de yyyyMMdd para o formato { dia, mes, ano }
 const parseDate = (dateString: string) => {
   return {
     ano: dateString.substring(0, 4),
@@ -32,22 +31,16 @@ serve(async (req) => {
     }
 
     const apiToken = Deno.env.get('API_RESERVAS_TOKEN');
-
     if (!apiToken) {
-      return new Response(JSON.stringify({ error: 'O segredo API_RESERVAS_TOKEN não foi configurado na Supabase.' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      throw new Error('O segredo API_RESERVAS_TOKEN não foi configurado na Supabase.');
     }
 
-    // Construindo o corpo da requisição conforme a documentação
     const requestBody = {
       inicio: parseDate(checkin),
       fim: parseDate(checkout),
       numeroAdultos: adults,
     };
 
-    // Realizando a chamada com POST e corpo JSON
     const response = await fetch(API_BASE_URL, {
       method: 'POST',
       headers: {
@@ -57,26 +50,27 @@ serve(async (req) => {
       body: JSON.stringify(requestBody),
     });
 
-    if (!response.ok) {
+    const contentType = response.headers.get("content-type");
+    if (!response.ok || !contentType || !contentType.includes("application/json")) {
       const errorBody = await response.text();
-      console.error(`Erro da API externa (${response.status}):`, errorBody);
-      // Tenta analisar o erro como JSON, se falhar, usa o texto bruto
-      try {
-        const errorJson = JSON.parse(errorBody);
-        throw new Error(errorJson.mensagem || `Falha ao comunicar com o sistema de reservas.`);
-      } catch {
-        throw new Error(`Falha ao comunicar com o sistema de reservas. Detalhe: ${errorBody}`);
-      }
+      console.error(`API externa retornou uma resposta inesperada (status: ${response.status}, tipo: ${contentType}):`, errorBody.substring(0, 500));
+      
+      const titleMatch = errorBody.match(/<title>(.*?)<\/title>/i);
+      const errorHint = titleMatch ? titleMatch[1] : 'A resposta não era um JSON válido.';
+
+      throw new Error(`O sistema de reservas retornou um erro: "${errorHint}". Verifique se o token da API está correto.`);
     }
 
     const data = await response.json();
 
-    // A API de resposta parece aninhar os resultados em 'categorias'
-    const results = data.categorias.map((categoria: any) => ({
+    if (data.codigoRetorno && data.codigoRetorno !== 0) {
+        throw new Error(data.mensagem || "O sistema de reservas retornou um erro desconhecido.");
+    }
+
+    const results = (data.categorias || []).map((categoria: any) => ({
       idQuarto: categoria.id,
       nomeQuarto: categoria.nome,
       disponibilidade: categoria.disponibilidade,
-      // Assumindo que queremos o valor da primeira tarifa disponível
       valorTotal: categoria.tarifas?.[0]?.valorTotalReserva || 0,
     }));
 
