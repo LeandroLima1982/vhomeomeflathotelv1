@@ -95,9 +95,7 @@ export const Hero = () => {
     <div className="relative h-screen w-full overflow-hidden">
       {/* Background Images */}
       {loading ? (
-        <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
-          <div className="w-16 h-16 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
-        </div>
+        <div className="absolute inset-0 bg-gray-100" />
       ) : images.length > 0 ? (
         images.map((src, index) => (
           <div
