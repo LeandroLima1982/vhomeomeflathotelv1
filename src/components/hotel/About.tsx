@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -6,7 +9,9 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Star, MapPin, Waves, Wifi, Car, Coffee } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const features = [
   { icon: Star, text: "Flat Hotel 4 Estrelas" },
@@ -17,15 +22,68 @@ const features = [
   { icon: Coffee, text: "Café da Manhã Incluso" },
 ];
 
-const images = [
-  "/placeholder.svg",
-  "/placeholder.svg",
-  "/placeholder.svg",
-  "/placeholder.svg",
-  "/placeholder.svg",
-];
-
 export default function About() {
+  const [images, setImages] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      setIsLoading(true);
+      const { data: files, error } = await supabase.storage
+        .from("gallery")
+        .list("about", {
+          limit: 10,
+          offset: 0,
+          sortBy: { column: "name", order: "asc" },
+        });
+
+      if (error) {
+        console.error("Error fetching images:", error);
+        setIsLoading(false);
+        return;
+      }
+
+      if (files) {
+        const imageUrls = files
+          .filter((file) => file.name !== "_order.json")
+          .map((file) => {
+            const { data } = supabase.storage
+              .from("gallery")
+              .getPublicUrl(`about/${file.name}`);
+            return data.publicUrl;
+          });
+
+        const orderFile = files.find((file) => file.name === "_order.json");
+        if (orderFile) {
+          const { data: orderData, error: orderError } =
+            await supabase.storage
+              .from("gallery")
+              .download("about/_order.json");
+          if (orderError) {
+            console.error("Error downloading order file:", orderError);
+            setImages(imageUrls);
+          } else {
+            const orderJson = JSON.parse(await orderData.text());
+            const orderedUrls = orderJson.order
+              .map((fileName: string) => {
+                const fullUrl = imageUrls.find((url) =>
+                  url.endsWith(`/${fileName}`)
+                );
+                return fullUrl;
+              })
+              .filter(Boolean); // Filter out any undefined entries
+            setImages(orderedUrls as string[]);
+          }
+        } else {
+          setImages(imageUrls);
+        }
+      }
+      setIsLoading(false);
+    };
+
+    fetchImages();
+  }, []);
+
   return (
     <section className="py-16 md:py-24 bg-white">
       <div className="container mx-auto px-4">
@@ -61,27 +119,33 @@ export default function About() {
             </div>
           </div>
           <div>
-            <Carousel className="w-full max-w-md mx-auto">
-              <CarouselContent>
-                {images.map((src, index) => (
-                  <CarouselItem key={index}>
-                    <div className="p-1">
-                      <Card>
-                        <CardContent className="flex aspect-square items-center justify-center p-0">
-                          <img
-                            src={src}
-                            alt={`V-Home Image ${index + 1}`}
-                            className="w-full h-full object-cover rounded-lg"
-                          />
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
-            </Carousel>
+            {isLoading ? (
+              <div className="w-full max-w-md mx-auto">
+                <Skeleton className="aspect-square w-full rounded-lg" />
+              </div>
+            ) : (
+              <Carousel className="w-full max-w-md mx-auto">
+                <CarouselContent>
+                  {images.map((src, index) => (
+                    <CarouselItem key={index}>
+                      <div className="p-1">
+                        <Card>
+                          <CardContent className="flex aspect-square items-center justify-center p-0">
+                            <img
+                              src={src}
+                              alt={`V-Home Sobre ${index + 1}`}
+                              className="w-full h-full object-cover rounded-lg"
+                            />
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious />
+                <CarouselNext />
+              </Carousel>
+            )}
           </div>
         </div>
       </div>
