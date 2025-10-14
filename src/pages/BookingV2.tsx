@@ -136,9 +136,25 @@ const BookingV2 = () => {
         throw new Error(data.error);
       }
 
+      const normalizeName = (name: string) => {
+        if (!name) return '';
+        return name
+          .trim()
+          .toLowerCase()
+          .replace(/[áàâã]/g, 'a')
+          .replace(/[éèê]/g, 'e')
+          .replace(/[íìî]/g, 'i')
+          .replace(/[óòôõ]/g, 'o')
+          .replace(/[úùû]/g, 'u')
+          .replace(/[ç]/g, 'c')
+          .replace(/[^a-z0-9\s]/g, '')
+          .replace(/\s+/g, ' ');
+      };
+
       const mergedResults = data.map((apiRoom: any) => {
+        const normalizedApiName = normalizeName(apiRoom.nomeQuarto);
         const localRoom = localRoomsData.find(lr => lr.id === apiRoom.idQuarto) || 
-                          localRoomsData.find(lr => lr.name.trim().toLowerCase() === apiRoom.nomeQuarto.trim().toLowerCase());
+                          localRoomsData.find(lr => normalizeName(lr.name) === normalizedApiName);
         return {
           ...apiRoom,
           imageUrl: localRoom ? localRoom.imageUrl : null,
