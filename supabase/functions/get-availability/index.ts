@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -35,8 +35,7 @@ serve(async (req) => {
     const url = new URL(API_BASE_URL);
     url.searchParams.append('inicio', checkin);
     url.searchParams.append('fim', checkout);
-    url.searchParams.append('adultos', adults);
-    // O id do hotel é fixo, conforme a documentação
+    url.searchParams.append('adultos', String(adults)); // Explicitly cast to string
     url.searchParams.append('idHotel', '1'); 
 
     const response = await fetch(url.toString(), {
