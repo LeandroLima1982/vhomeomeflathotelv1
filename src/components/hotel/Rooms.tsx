@@ -241,23 +241,23 @@ export default function Rooms() {
                     </div>
 
                     {room.special_name && (
-                      <>
-                        <div className="absolute top-4 left-4 bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-semibold z-10 transition-all duration-300 group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-800 group-hover:text-white">
-                          {room.special_name}
-                        </div>
-                        <div className="absolute top-12 left-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 z-10">
-                          {[...Array(4)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className="h-5 w-5 text-yellow-400 fill-current"
-                              style={{ filter: 'drop-shadow(0 0 4px rgba(251, 191, 36, 0.8))' }}
-                            />
-                          ))}
-                        </div>
-                      </>
+                      <div className="absolute top-12 left-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 z-10">
+                        {[...Array(4)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className="h-5 w-5 text-yellow-400 fill-current"
+                            style={{ filter: 'drop-shadow(0 0 4px rgba(251, 191, 36, 0.8))' }}
+                          />
+                        ))}
+                      </div>
                     )}
                   </div>
                   <div className="p-6">
+                    {room.special_name && (
+                      <div className="inline-block mb-2 bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-semibold transition-all duration-300 group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-800 group-hover:text-white">
+                        {room.special_name}
+                      </div>
+                    )}
                     <h3 className="text-xl font-semibold mb-2 text-gray-800">{room.name}</h3>
                     <p className="text-gray-600 leading-relaxed line-clamp-2 mb-4 text-sm">
                       {room.custom_description || room.description || 'Descrição não disponível'}
