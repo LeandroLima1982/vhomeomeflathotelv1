@@ -254,7 +254,7 @@ export default function Rooms() {
                   </div>
                   <div className="p-6">
                     {room.special_name && (
-                      <div className="inline-block mb-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white px-3 py-1 rounded-full text-sm font-semibold transition-all duration-300 group-hover:bg-yellow-500 group-hover:text-black">
+                      <div className="inline-block mb-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white px-3 py-1 rounded-full text-sm font-semibold transition-all duration-300 group-hover:bg-yellow-500">
                         {room.special_name}
                       </div>
                     )}
