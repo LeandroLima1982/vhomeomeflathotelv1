@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/hotel/Header";
 import { AvailabilitySearchForm } from "@/components/hotel/AvailabilitySearchForm";
 import Footer from "@/components/hotel/Footer";
@@ -7,11 +7,18 @@ import { showError } from "@/utils/toast";
 import { Loader2, ServerCrash } from "lucide-react";
 import { AvailabilityResults } from "@/components/hotel/AvailabilityResults";
 
+interface LocalRoom {
+  id: number;
+  name: string;
+  imageUrl: string | null;
+}
+
 interface AvailabilityResult {
   idQuarto: number;
   nomeQuarto: string;
   disponibilidade: number;
   valorTotal: number;
+  imageUrl: string | null;
   [key: string]: any;
 }
 
@@ -19,6 +26,42 @@ const BookingV2 = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<AvailabilityResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [localRoomsData, setLocalRoomsData] = useState<LocalRoom[]>([]);
+
+  useEffect(() => {
+    const fetchLocalRooms = async () => {
+      if (!supabase) return;
+      
+      const { data: roomData, error: roomError } = await supabase
+        .from('rooms')
+        .select('id, name')
+        .order('id');
+
+      if (roomError) {
+        console.error("Error fetching local rooms:", roomError);
+        return;
+      }
+
+      const roomsWithImages = await Promise.all(
+        roomData.map(async (room) => {
+          const { data: coverFiles } = await supabase.storage
+            .from('gallery')
+            .list('rooms', { search: `${room.id}.` });
+
+          if (coverFiles && coverFiles.length > 0) {
+            const { data: { publicUrl } } = supabase.storage
+              .from('gallery')
+              .getPublicUrl(`rooms/${coverFiles[0].name}`);
+            return { ...room, imageUrl: `${publicUrl}?t=${new Date().getTime()}` };
+          }
+          return { ...room, imageUrl: null };
+        })
+      );
+      setLocalRoomsData(roomsWithImages);
+    };
+
+    fetchLocalRooms();
+  }, []);
 
   const handleSearch = async (params: { checkin: string; checkout: string; adults: number }) => {
     setIsLoading(true);
@@ -39,12 +82,10 @@ const BookingV2 = () => {
       });
 
       if (functionError) {
-        // Extrai o corpo do erro da resposta da função
         const errorDetails = await functionError.context.json();
         if (errorDetails && errorDetails.error) {
           throw new Error(errorDetails.error);
         }
-        // Fallback para a mensagem de erro padrão
         throw new Error(functionError.message || "Erro na comunicação com a função.");
       }
       
@@ -52,7 +93,15 @@ const BookingV2 = () => {
         throw new Error(data.error);
       }
 
-      setResults(data);
+      const mergedResults = data.map((apiRoom: any) => {
+        const localRoom = localRoomsData.find(lr => lr.id === apiRoom.idQuarto);
+        return {
+          ...apiRoom,
+          imageUrl: localRoom ? localRoom.imageUrl : null,
+        };
+      });
+
+      setResults(mergedResults);
 
     } catch (e: any) {
       console.error("Erro ao buscar disponibilidade:", e);

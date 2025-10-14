@@ -9,6 +9,7 @@ interface RoomResult {
   nomeQuarto: string;
   disponibilidade: number;
   valorTotal: number;
+  imageUrl: string | null;
 }
 
 interface RoomResultCardProps {
@@ -23,9 +24,12 @@ export function RoomResultCard({ room }: RoomResultCardProps) {
 
   return (
     <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col md:flex-row">
-      <div className="md:w-1/3 bg-gray-200 flex items-center justify-center p-4 min-h-[150px]">
-        {/* Placeholder para a imagem do quarto */}
-        <BedDouble className="h-16 w-16 text-gray-400" />
+      <div className="md:w-1/3 bg-gray-200 flex items-center justify-center p-4 min-h-[200px] relative">
+        {room.imageUrl ? (
+          <img src={room.imageUrl} alt={room.nomeQuarto} className="absolute inset-0 w-full h-full object-cover" />
+        ) : (
+          <BedDouble className="h-16 w-16 text-gray-400" />
+        )}
       </div>
       <div className="flex-1 flex flex-col">
         <CardHeader>

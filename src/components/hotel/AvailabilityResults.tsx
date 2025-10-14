@@ -8,6 +8,7 @@ interface AvailabilityResult {
   nomeQuarto: string;
   disponibilidade: number;
   valorTotal: number;
+  imageUrl: string | null;
   [key: string]: any;
 }
 
