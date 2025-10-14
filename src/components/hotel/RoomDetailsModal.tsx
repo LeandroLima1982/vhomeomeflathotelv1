@@ -190,9 +190,9 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                     {room.name}
                   </h1>
                   {room.special_name && (
-                    <p className="text-sm sm:text-base text-slate-300 font-light italic">
-                      "{room.special_name}"
-                    </p>
+                    <div className="mt-2 inline-block bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
+                      {room.special_name}
+                    </div>
                   )}
                 </div>
                 
