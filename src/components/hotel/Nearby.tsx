@@ -20,9 +20,9 @@ const nearbyData = [
     category: "Restaurantes",
     icon: Utensils,
     places: [
-      { name: "Ilhote Sul", distance: "10 m" },
-      { name: "Durval", distance: "250 m" },
-      { name: "Go Go Wok culinária japonesa", distance: "2,3 km" },
+      { name: "Ilhote Sul", distance: "2,1 km" },
+      { name: "Durval", distance: "2,1 km" },
+      { name: "Go Go Wok culinária japonesa", distance: "2,6 km" },
     ],
   },
   {
