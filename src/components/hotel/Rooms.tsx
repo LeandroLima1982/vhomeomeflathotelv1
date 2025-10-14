@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { BedDouble, Star, MousePointer2 } from 'lucide-react';
+import { BedDouble, Star, MousePointerClick } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
@@ -236,7 +236,7 @@ export default function Rooms() {
                     {/* Overlay escuro e ícone animado que aparecem no hover */}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
                       <div className="p-3 bg-white/20 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-300 ease-in-out">
-                        <MousePointer2 className="h-6 w-6 text-white animate-click" />
+                        <MousePointerClick className="h-6 w-6 text-white animate-click" />
                       </div>
                     </div>
 
