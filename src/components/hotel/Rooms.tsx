@@ -242,7 +242,7 @@ export default function Rooms() {
 
                     {room.special_name && (
                       <>
-                        <div className="absolute top-4 left-4 bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-semibold z-10">
+                        <div className="absolute top-4 left-4 bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-semibold z-10 transition-all duration-300 group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-800 group-hover:text-white">
                           {room.special_name}
                         </div>
                         <div className="absolute top-12 left-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 z-10">
