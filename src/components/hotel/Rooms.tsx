@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { BedDouble, Star, MousePointerClick } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
 import RoomDetailsModal from './RoomDetailsModal';
+import DetailIcon from './DetailIcon';
 
 interface Room {
   id: number;
@@ -275,15 +275,9 @@ export default function Rooms() {
                     </p>
                     
                     {details.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="flex flex-wrap items-center gap-3 mb-4">
                         {details.map((detail, index) => (
-                          <Badge 
-                            key={index}
-                            variant="secondary"
-                            className="text-xs bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100"
-                          >
-                            {detail}
-                          </Badge>
+                          <DetailIcon key={index} detailText={detail} />
                         ))}
                       </div>
                     )}
