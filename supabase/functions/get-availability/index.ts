@@ -22,14 +22,8 @@ serve(async (req) => {
       });
     }
 
-    const apiToken = Deno.env.get('API_RESERVAS_TOKEN');
-    if (!apiToken) {
-      console.error('Secret API_RESERVAS_TOKEN não encontrado.');
-      return new Response(JSON.stringify({ error: 'Erro de configuração do servidor: Token da API não encontrado.' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    // Usando o token fornecido diretamente para teste
+    const apiToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbnRlZ3Jhw6fDo28iLCJyb2xlcyI6WyJJTlRFR1JBVElPTiJdLCJpc3MiOiJodHRwczovL3d3dy5hcGkubW90b3JkZXJlc2VydmFzLmNvbS5iciIsImNyZWF0ZSI6MTc1OTgzOTMxN30.3K_d_-hFLBPs0jrOluAN0axwC62CBoZB8XLsZSXt8DU';
 
     const url = new URL(API_BASE_URL);
     url.searchParams.append('inicio', checkin);
