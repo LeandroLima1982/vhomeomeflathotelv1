@@ -10,12 +10,12 @@ const contactInfo = [
   {
     icon: <Phone className="w-8 h-8 text-blue-600" />,
     title: 'Telefone',
-    text: '(22) 1234-5678',
+    text: '(22) 2141-2091',
   },
   {
     icon: <Mail className="w-8 h-8 text-blue-600" />,
     title: 'E-mail',
-    text: 'contato@vhomeflathotel.com.br',
+    text: 'contato@vhomeflathotel.com',
   },
   {
     icon: <Clock className="w-8 h-8 text-blue-600" />,
