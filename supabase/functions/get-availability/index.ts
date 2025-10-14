@@ -35,7 +35,7 @@ serve(async (req) => {
     const url = new URL(API_BASE_URL);
     url.searchParams.append('inicio', checkin);
     url.searchParams.append('fim', checkout);
-    url.searchParams.append('adultos', String(adults)); // Explicitly cast to string
+    url.searchParams.append('adultos', String(adults));
     url.searchParams.append('idHotel', '1'); 
 
     const response = await fetch(url.toString(), {
@@ -48,7 +48,6 @@ serve(async (req) => {
     if (!response.ok) {
       const errorBody = await response.text();
       console.error(`Erro da API externa (${response.status}):`, errorBody);
-      // Retorna o erro detalhado para o frontend
       return new Response(JSON.stringify({ error: `Falha ao comunicar com o sistema de reservas. Detalhe: ${errorBody}` }), {
         status: response.status,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -63,8 +62,8 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Erro inesperado na Edge Function:', error);
-    return new Response(JSON.stringify({ error: 'Ocorreu um erro inesperado na Edge Function.' }), {
+    console.error('Erro detalhado na Edge Function:', error.message);
+    return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
