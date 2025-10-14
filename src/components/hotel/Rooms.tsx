@@ -241,7 +241,7 @@ export default function Rooms() {
                     </div>
 
                     <div className="absolute bottom-4 right-4 z-10 bg-black/20 backdrop-blur-sm rounded-md px-3 py-1 border border-white/10">
-                      <p className="text-white text-sm font-medium">Ver Detalhes</p>
+                      <p className="text-white text-sm font-medium">Ver detalhes</p>
                     </div>
 
                     {room.special_name && (
