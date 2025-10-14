@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { cn } from '@/lib/utils';
 
 const BUCKET_NAME = 'gallery';
 const FOLDER = 'hero';
@@ -83,6 +84,13 @@ export const Hero = () => {
 
   const defaultImage = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto-format&fit=crop&q=80";
 
+  const animationClasses = (delay: string) =>
+    cn(
+      "transition-all duration-1000 ease-out",
+      isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10",
+      delay
+    );
+
   return (
     <div className="relative h-screen w-full overflow-hidden">
       {/* Background Images */}
@@ -114,9 +122,9 @@ export const Hero = () => {
 
       {/* Content */}
       <div className="relative z-10 flex h-full items-center justify-center px-4">
-        <div className={`max-w-5xl transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+        <div className="max-w-5xl">
           {/* Decorative Line */}
-          <div className="mb-8 flex items-center justify-center gap-4">
+          <div className={cn("mb-8 flex items-center justify-center gap-4", animationClasses("delay-300"))}>
             <div className="h-px w-12 bg-white/60" />
             <div className="h-1.5 w-1.5 rotate-45 bg-white/60" />
             <div className="h-px w-12 bg-white/60" />
@@ -124,21 +132,21 @@ export const Hero = () => {
 
           {/* Main Heading */}
           <h1 className="text-white text-center">
-            <span className="block text-5xl font-light tracking-wide md:text-7xl lg:text-8xl">
+            <span className={cn("block text-5xl font-light tracking-wide md:text-7xl lg:text-8xl", animationClasses("delay-500"))}>
               Seu Flat Hotel
             </span>
-            <span className="mt-2 block text-3xl font-extralight tracking-widest text-white/90 md:text-4xl lg:text-5xl text-right">
+            <span className={cn("mt-2 block text-3xl font-extralight tracking-widest text-white/90 md:text-4xl lg:text-5xl text-right", animationClasses("delay-700"))}>
               à Beira Mar
             </span>
           </h1>
 
           {/* Subtitle */}
-          <p className="mt-8 text-lg font-light tracking-wide text-white/95 md:text-xl lg:text-2xl text-center">
+          <p className={cn("mt-8 text-lg font-light tracking-wide text-white/95 md:text-xl lg:text-2xl text-center", animationClasses("delay-[900ms]"))}>
             Onde Conforto, Sofisticação e Natureza se Entrelaçam
           </p>
 
           {/* Decorative Bottom Line */}
-          <div className="mt-12 flex items-center justify-center gap-4">
+          <div className={cn("mt-12 flex items-center justify-center gap-4", animationClasses("delay-[1100ms]"))}>
             <div className="h-px w-16 bg-white/40" />
             <div className="h-1 w-1 rounded-full bg-white/40" />
             <div className="h-px w-16 bg-white/40" />
