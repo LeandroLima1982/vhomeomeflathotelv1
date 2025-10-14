@@ -8,10 +8,27 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Loader2, Save, Plus, X, Edit2, Trash2, ClipboardPaste } from 'lucide-react';
+import { Loader2, Save, Plus, X, Edit2, Trash2, ClipboardPaste, GripVertical } from 'lucide-react';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 import ImageManager from './ImageManager';
-import { FeatureCategory, FeatureItem } from '../hotel/FeatureListDisplay'; // Importando as interfaces
+import { FeatureCategory } from '../hotel/FeatureListDisplay';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface Room {
   id: number;
@@ -20,13 +37,102 @@ interface Room {
   booking_url: string | null;
   details: Record<string, string | null>;
   description: string | null;
-  additional_features: FeatureCategory[] | null; // Nova propriedade
+  additional_features: FeatureCategory[] | null;
+  details_order: string[] | null; // Nova propriedade
 }
 
 interface DetailItem {
-  id: string; // Unique ID for React keys and internal management
+  id: string;
   key: string;
   value: string;
+}
+
+function SortableDetailItem({
+  item,
+  onRemove,
+  onStartEditing,
+  isEditing,
+  onSaveEditing,
+  onCancelEditing,
+  editingKey,
+  setEditingKey,
+  editingValue,
+  setEditingValue,
+}: {
+  item: DetailItem;
+  onRemove: (id: string) => void;
+  onStartEditing: (id: string, key: string, value: string) => void;
+  isEditing: boolean;
+  onSaveEditing: () => void;
+  onCancelEditing: () => void;
+  editingKey: string;
+  setEditingKey: (key: string) => void;
+  editingValue: string;
+  setEditingValue: (value: string) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: item.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="flex flex-col sm:flex-row items-center gap-2 bg-blue-50 p-2 rounded-md touch-none">
+      <div {...attributes} {...listeners} className="cursor-grab p-2">
+        <GripVertical className="h-5 w-5 text-gray-400" />
+      </div>
+      {isEditing ? (
+        <>
+          <Input
+            value={editingKey}
+            onChange={(e) => setEditingKey(e.target.value)}
+            className="flex-1"
+            placeholder="Chave"
+          />
+          <Input
+            value={editingValue}
+            onChange={(e) => setEditingValue(e.target.value)}
+            className="flex-1"
+            placeholder="Valor"
+          />
+          <Button size="sm" onClick={onSaveEditing} disabled={!editingKey.trim() || !editingValue.trim()}>
+            Salvar
+          </Button>
+          <Button size="sm" variant="outline" onClick={onCancelEditing}>
+            Cancelar
+          </Button>
+        </>
+      ) : (
+        <>
+          <span className="font-semibold text-blue-800 w-24 flex-shrink-0">{item.key}:</span>
+          <span className="flex-1 text-gray-700">{item.value}</span>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => onStartEditing(item.id, item.key, item.value)}
+            className="h-8 w-8 p-0"
+          >
+            <Edit2 className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => onRemove(item.id)}
+            className="h-8 w-8 p-0 text-red-600 hover:text-red-800"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </>
+      )}
+    </div>
+  );
 }
 
 function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
@@ -40,7 +146,6 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
   const [editingDetailKey, setEditingDetailKey] = useState('');
   const [editingDetailValue, setEditingDetailValue] = useState('');
 
-  // State for additional features
   const [additionalFeatures, setAdditionalFeatures] = useState<FeatureCategory[]>([]);
   const [newCategoryTitle, setNewCategoryTitle] = useState('');
   const [newItemText, setNewItemText] = useState('');
@@ -48,27 +153,33 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
   const [editingCategoryTitle, setEditingCategoryTitle] = useState('');
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editingItemText, setEditingItemText] = useState('');
-
-  // State for raw text input
   const [rawAdditionalFeaturesText, setRawAdditionalFeaturesText] = useState('');
 
-
   useEffect(() => {
-    setFormData(room); // Ensure formData is updated when room prop changes
+    setFormData(room);
     if (room.details) {
       const items: DetailItem[] = Object.entries(room.details)
         .filter(([key, value]) => value !== null && value.trim() !== '' && key !== 'description')
         .map(([key, value]) => ({
-          id: key, // Using key as ID for now, assuming unique keys.
+          id: key,
           key: key,
           value: value as string,
         }));
-      setDetailItems(items);
+
+      if (room.details_order && Array.isArray(room.details_order)) {
+        const orderedItems = room.details_order
+          .map(key => items.find(item => item.key === key))
+          .filter((item): item is DetailItem => !!item);
+        
+        const newItems = items.filter(item => !room.details_order.includes(item.key));
+        setDetailItems([...orderedItems, ...newItems]);
+      } else {
+        setDetailItems(items);
+      }
     } else {
       setDetailItems([]);
     }
 
-    // Initialize additional features
     setAdditionalFeatures(room.additional_features || []);
   }, [room]);
 
@@ -105,7 +216,6 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
   const saveEditingDetail = () => {
     if (editingDetailId && editingDetailKey.trim() && editingDetailValue.trim()) {
       const trimmedKey = editingDetailKey.trim();
-      // Check for key uniqueness if the key is being changed
       if (trimmedKey !== editingDetailId && detailItems.some(item => item.key === trimmedKey && item.id !== editingDetailId)) {
         showError('A nova chave do detalhe já existe. Por favor, use uma chave única.');
         return;
@@ -128,7 +238,6 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
     setEditingDetailValue('');
   };
 
-  // Additional Features management
   const addCategory = () => {
     if (newCategoryTitle.trim()) {
       setAdditionalFeatures(prev => [...prev, { title: newCategoryTitle.trim(), items: [] }]);
@@ -143,7 +252,7 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
   };
 
   const startEditingCategory = (index: number, title: string) => {
-    setEditingCategoryId(String(index)); // Use index as ID for editing
+    setEditingCategoryId(String(index));
     setEditingCategoryTitle(title);
   };
 
@@ -215,14 +324,11 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
 
     lines.forEach(line => {
       if (line.endsWith(':')) {
-        // New category
         currentCategory = { title: line, items: [] };
         parsedFeatures.push(currentCategory);
       } else if (currentCategory) {
-        // Item for current category
         currentCategory.items.push({ text: line });
       } else {
-        // If items appear before any category, create a default one
         if (parsedFeatures.length === 0) {
           currentCategory = { title: "Geral", items: [] };
           parsedFeatures.push(currentCategory);
@@ -232,10 +338,9 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
     });
 
     setAdditionalFeatures(parsedFeatures);
-    setRawAdditionalFeaturesText(''); // Clear the textarea after applying
+    setRawAdditionalFeaturesText('');
     showSuccess('Texto analisado e aplicado com sucesso!');
   };
-
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -245,9 +350,11 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
     detailItems.forEach(item => {
       updatedDetails[item.key] = item.value;
     });
+    
+    const detailsOrder = detailItems.map(item => item.key);
 
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('rooms')
         .update({
           name: formData.name,
@@ -255,17 +362,17 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
           booking_url: formData.booking_url,
           description: formData.description,
           details: updatedDetails,
-          additional_features: additionalFeatures, // Salva as novas características adicionais
+          details_order: detailsOrder,
+          additional_features: additionalFeatures,
         })
-        .eq('id', room.id)
-        .select();
+        .eq('id', room.id);
 
       if (error) {
         console.error('Erro ao salvar acomodação no Supabase:', error);
         showError(`Erro ao salvar: ${error.message || 'Erro desconhecido'}`);
       } else {
         showSuccess('Acomodação atualizada com sucesso!');
-        onSave(); // Recarrega a lista
+        onSave();
       }
     } catch (error) {
       console.error('Erro inesperado ao salvar:', error);
@@ -275,6 +382,24 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
     dismissToast(toastId);
     setIsSaving(false);
   };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setDetailItems((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -312,7 +437,7 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
       <Card>
         <CardHeader>
           <CardTitle>Detalhes da Acomodação (Badges)</CardTitle>
-          <CardDescription>Adicione, edite ou remova os detalhes (tags) que aparecem nos cards e no modal da acomodação. Use chaves únicas para cada detalhe.</CardDescription>
+          <CardDescription>Adicione, edite ou remova os detalhes. Arraste e solte para reordenar.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -335,59 +460,30 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
               Adicionar Detalhe
             </Button>
           </div>
-          <div className="space-y-2">
-            {detailItems.map((item) => (
-              <div key={item.id} className="flex flex-col sm:flex-row items-center gap-2 bg-blue-50 p-2 rounded-md">
-                {editingDetailId === item.id ? (
-                  <>
-                    <Input
-                      value={editingDetailKey}
-                      onChange={(e) => setEditingDetailKey(e.target.value)}
-                      className="flex-1"
-                      placeholder="Chave"
-                    />
-                    <Input
-                      value={editingDetailValue}
-                      onChange={(e) => setEditingDetailValue(e.target.value)}
-                      className="flex-1"
-                      placeholder="Valor"
-                    />
-                    <Button size="sm" onClick={saveEditingDetail} disabled={!editingDetailKey.trim() || !editingDetailValue.trim()}>
-                      Salvar
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={cancelEditingDetail}>
-                      Cancelar
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <span className="font-semibold text-blue-800 w-24 flex-shrink-0">{item.key}:</span>
-                    <span className="flex-1 text-gray-700">{item.value}</span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => startEditingDetail(item.id, item.key, item.value)}
-                      className="h-8 w-8 p-0"
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => removeDetail(item.id)}
-                      className="h-8 w-8 p-0 text-red-600 hover:text-red-800"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </>
-                )}
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={detailItems} strategy={verticalListSortingStrategy}>
+              <div className="space-y-2">
+                {detailItems.map((item) => (
+                  <SortableDetailItem
+                    key={item.id}
+                    item={item}
+                    onRemove={removeDetail}
+                    onStartEditing={startEditingDetail}
+                    isEditing={editingDetailId === item.id}
+                    onSaveEditing={saveEditingDetail}
+                    onCancelEditing={cancelEditingDetail}
+                    editingKey={editingDetailKey}
+                    setEditingKey={setEditingDetailKey}
+                    editingValue={editingDetailValue}
+                    setEditingValue={setEditingDetailValue}
+                  />
+                ))}
               </div>
-            ))}
-          </div>
+            </SortableContext>
+          </DndContext>
         </CardContent>
       </Card>
 
-      {/* Nova seção para Descrição Adicional */}
       <Card>
         <CardHeader>
           <CardTitle>Descrição Adicional (Lista de Características)</CardTitle>
@@ -501,7 +597,6 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
           </div>
         </CardContent>
       </Card>
-      {/* Fim da nova seção para Descrição Adicional */}
 
       <Button onClick={handleSave} disabled={isSaving}>
         {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}

@@ -16,6 +16,7 @@ interface Room {
   description: string | null;
   custom_description: string | null;
   additional_features: any[] | null;
+  details_order: string[] | null; // Nova propriedade
   imageUrl?: string | null;
 }
 
@@ -54,11 +55,9 @@ export default function Rooms() {
           return;
         }
 
-        // Fetch images for each room
         const roomsWithImages = await Promise.all(
           roomData.map(async (room) => {
             try {
-              // First, try to get the cover image from rooms folder
               const { data: coverFiles } = await supabase.storage
                 .from('gallery')
                 .list('rooms', { search: `${room.id}.` });
@@ -71,7 +70,6 @@ export default function Rooms() {
                 return { ...room, imageUrl: `${publicUrl}?t=${new Date().getTime()}` };
               }
 
-              // If no cover image, try to get first image from gallery
               const { data: galleryFiles } = await supabase.storage
                 .from('gallery')
                 .list(`rooms/${room.id}/gallery`, { 
@@ -80,13 +78,11 @@ export default function Rooms() {
                 });
 
               if (galleryFiles && galleryFiles.length > 0) {
-                // Filter out placeholder and order files
                 const validFiles = galleryFiles.filter(
                   file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json'
                 );
 
                 if (validFiles.length > 0) {
-                  // Try to get ordered images
                   const { data: orderFileData } = await supabase.storage
                     .from('gallery')
                     .download(`rooms/${room.id}/gallery/_order.json`);
@@ -113,7 +109,6 @@ export default function Rooms() {
                 }
               }
 
-              // No image found
               return { ...room, imageUrl: null };
             } catch (error) {
               console.error(`Error fetching image for room ${room.id}:`, error);
@@ -122,7 +117,6 @@ export default function Rooms() {
           })
         );
 
-        console.log('Rooms with images:', roomsWithImages);
         setRooms(roomsWithImages);
       } catch (error) {
         console.error('Error in fetchRooms:', error);
@@ -137,16 +131,31 @@ export default function Rooms() {
 
   const getRoomDetails = (room: Room) => {
     if (!room.details || typeof room.details !== 'object') return [];
-    
-    return Object.entries(room.details)
-      .filter(([key, value]) => 
-        value && 
-        typeof value === 'string' && 
-        value.trim() !== '' && 
-        key !== 'description'
-      )
-      .map(([_, value]) => value as string)
-      .slice(0, 9); // Limita a 9 detalhes para não sobrecarregar o card
+  
+    const detailsObject = room.details;
+  
+    const validKeys = Object.keys(detailsObject).filter(key => {
+      const value = detailsObject[key];
+      return value && typeof value === 'string' && value.trim() !== '' && key !== 'description';
+    });
+  
+    if (room.details_order && Array.isArray(room.details_order)) {
+      const orderedDetails = room.details_order
+        .map(key => {
+          if (validKeys.includes(key)) {
+            return detailsObject[key];
+          }
+          return null;
+        })
+        .filter((value): value is string => value !== null);
+      
+      const unorderedKeys = validKeys.filter(key => !room.details_order.includes(key));
+      const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
+  
+      return [...orderedDetails, ...unorderedDetails].slice(0, 9);
+    }
+  
+    return validKeys.map(key => detailsObject[key] as string).slice(0, 9);
   };
 
   if (loading) {
@@ -216,7 +225,6 @@ export default function Rooms() {
                         alt={room.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         onError={(e) => {
-                          console.error(`Failed to load image for room ${room.id}:`, room.imageUrl);
                           e.currentTarget.style.display = 'none';
                           const parent = e.currentTarget.parentElement;
                           if (parent) {
@@ -233,7 +241,6 @@ export default function Rooms() {
                       </div>
                     )}
 
-                    {/* Overlay escuro e ícone animado que aparecem no hover */}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
                       <div className="p-3 bg-white/20 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-300 ease-in-out">
                         <MousePointerClick className="h-6 w-6 text-white animate-click" />
@@ -267,7 +274,6 @@ export default function Rooms() {
                       {room.custom_description || room.description || 'Descrição não disponível'}
                     </p>
                     
-                    {/* Diferenciais/Detalhes do quarto */}
                     {details.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-4">
                         {details.map((detail, index) => (
