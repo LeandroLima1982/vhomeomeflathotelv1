@@ -10,10 +10,10 @@ const nearbyData = [
     icon: Waves,
     places: [
       { name: "Praia Campista", distance: "0 m" },
-      { name: "Praia dos Cavaleiros", distance: "1,6 km" },
-      { name: "Praia de Imbetiba", distance: "2,4 km" },
-      { name: "Praia da Pecado", distance: "3 km" },
-      { name: "Mar do Norte", distance: "6,1 km" },
+      { name: "Praia dos Cavaleiros", distance: "1,8 km" },
+      { name: "Praia de Imbetiba", distance: "3,2 km" },
+      { name: "Praia da Pecado", distance: "4,3 km" },
+      { name: "Mar do Norte", distance: "16 km" },
     ],
   },
   {
@@ -29,31 +29,31 @@ const nearbyData = [
     category: "Parques",
     icon: Trees,
     places: [
-      { name: "Parque da Cidade", distance: "1,4 km" },
-      { name: "Parque Municipal", distance: "15 km" },
-      { name: "Restinga de Jurubatiba", distance: "16 km" },
+      { name: "Parque da Cidade", distance: "2,4 km" },
+      { name: "Parque Municipal", distance: "10 km" },
+      { name: "Restinga de Jurubatiba", distance: "9,8 km" },
     ],
   },
   {
     category: "Belezas Naturais",
     icon: Mountain,
     places: [
-      { name: "Lagoa de Imboássica", distance: "5 km" },
-      { name: "Cachoeira das Sete Quedas (Sana)", distance: "45 km" },
-      { name: "Cachoeira de Glicério", distance: "45 km" },
-      { name: "Pico do Frade", distance: "56 km" },
-      { name: "Cachoeira do Escorrega Bicuda Pequena", distance: "70 km" },
+      { name: "Lagoa de Imboássica", distance: "4,7 km" },
+      { name: "Cachoeira das Sete Quedas (Sana)", distance: "73 km" },
+      { name: "Cachoeira de Glicério", distance: "52 km" },
+      { name: "Pico do Frade", distance: "67 km" },
+      { name: "Cachoeira do Escorrega Bicuda Pequena", distance: "58 km" },
     ],
   },
   {
     category: "Aeroportos",
     icon: Plane,
     places: [
-      { name: "Aeroporto de Macaé", distance: "6 km" },
-      { name: "Aeroporto de Cabo Frio", distance: "77 km" },
+      { name: "Aeroporto de Macaé", distance: "9 km" },
+      { name: "Aeroporto de Cabo Frio", distance: "91 km" },
       { name: "Aeroporto de Arraial do Cabo", distance: "84 km" },
-      { name: "Aeroporto de Campos dos Goytacazes", distance: "106 km" },
-      { name: "Heliporto Farol de São Thomé", distance: "133 km" },
+      { name: "Aeroporto de Campos dos Goytacazes", distance: "118 km" },
+      { name: "Heliporto Farol de São Thomé", distance: "119 km" },
     ],
   },
   {
@@ -61,12 +61,12 @@ const nearbyData = [
     icon: Landmark,
     places: [
         { name: "Forte Marechal Hermes", distance: "4 km" },
-        { name: "Shopping Plaza", distance: "4,5 km" },
-        { name: "Localizza", distance: "3,5 km" },
-        { name: "Movida", distance: "4,5 km" },
-        { name: "Hospital Unimed", distance: "3,5 km" },
-        { name: "Hospital Rede D'or", distance: "4,7 km" },
-        { name: "Parque Natural Fazenda Atalaia", distance: "27 km" },
+        { name: "Shopping Plaza", distance: "6,2 km" },
+        { name: "Localiza", distance: "2,0 km" },
+        { name: "Movida", distance: "1,9 km" },
+        { name: "Hospital Unimed", distance: "3,8 km" },
+        { name: "Hospital Rede D'or", distance: "5,7 km" },
+        { name: "Centro de Macaé", distance: "4,2 km" },
     ]
   }
 ];
