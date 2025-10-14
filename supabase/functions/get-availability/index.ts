@@ -31,8 +31,14 @@ serve(async (req) => {
       });
     }
 
-    // Token de autorização mantido diretamente no código para teste
-    const apiToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbnRlZ3Jhw6fDo28iLCJyb2xlcyI6WyJJTlRFR1JBVElPTiJdLCJpc3MiOiJodHRwczovL3d3dy5hcGkubW90b3JkZXJlc2VydmFzLmNvbS5iciIsImNyZWF0ZSI6MTc1OTgzOTMxN30.3K_d_-hFLBPs0jrOluAN0axwC62CBoZB8XLsZSXt8DU';
+    const apiToken = Deno.env.get('API_RESERVAS_TOKEN');
+
+    if (!apiToken) {
+      return new Response(JSON.stringify({ error: 'O segredo API_RESERVAS_TOKEN não foi configurado na Supabase.' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // Construindo o corpo da requisição conforme a documentação
     const requestBody = {
