@@ -43,14 +43,14 @@ serve(async (req) => {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${apiToken}`,
-        'Content-Type': 'application/json',
       },
     });
 
     if (!response.ok) {
       const errorBody = await response.text();
       console.error(`Erro da API externa (${response.status}):`, errorBody);
-      return new Response(JSON.stringify({ error: `Falha ao comunicar com o sistema de reservas. Status: ${response.status}` }), {
+      // Retorna o erro detalhado para o frontend
+      return new Response(JSON.stringify({ error: `Falha ao comunicar com o sistema de reservas. Detalhe: ${errorBody}` }), {
         status: response.status,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -65,7 +65,7 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Erro inesperado na Edge Function:', error);
-    return new Response(JSON.stringify({ error: 'Ocorreu um erro inesperado.' }), {
+    return new Response(JSON.stringify({ error: 'Ocorreu um erro inesperado na Edge Function.' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

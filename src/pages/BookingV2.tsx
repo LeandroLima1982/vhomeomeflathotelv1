@@ -39,7 +39,13 @@ const BookingV2 = () => {
       });
 
       if (functionError) {
-        throw functionError;
+        // Extrai o corpo do erro da resposta da função
+        const errorDetails = await functionError.context.json();
+        if (errorDetails && errorDetails.error) {
+          throw new Error(errorDetails.error);
+        }
+        // Fallback para a mensagem de erro padrão
+        throw new Error(functionError.message || "Erro na comunicação com a função.");
       }
       
       if (data.error) {
