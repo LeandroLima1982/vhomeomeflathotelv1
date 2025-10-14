@@ -19,7 +19,7 @@ const images = [
   "/placeholder.svg",
 ]
 
-export function About() {
+export default function About() {
   const plugin = React.useRef(
     Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true })
   )
