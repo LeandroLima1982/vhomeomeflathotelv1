@@ -137,7 +137,8 @@ const BookingV2 = () => {
       }
 
       const mergedResults = data.map((apiRoom: any) => {
-        const localRoom = localRoomsData.find(lr => lr.id === apiRoom.idQuarto);
+        const localRoom = localRoomsData.find(lr => lr.id === apiRoom.idQuarto) || 
+                          localRoomsData.find(lr => lr.name.trim().toLowerCase() === apiRoom.nomeQuarto.trim().toLowerCase());
         return {
           ...apiRoom,
           imageUrl: localRoom ? localRoom.imageUrl : null,
