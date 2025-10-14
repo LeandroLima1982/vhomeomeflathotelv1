@@ -227,7 +227,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                   className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105"
                 >
                   <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                  Reservar Agora
+                  Consultar Valor
                   <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
                 </Button>
               </div>
