@@ -1,23 +1,23 @@
-"use client";
+import React from "react";
+import { cn } from "@/lib/utils";
 
-import React from 'react';
-import { Star } from 'lucide-react';
+const LOGO_URL = "https://i.imgur.com/J5O5W3s.png";
 
 interface LogoProps {
-  isScrolled?: boolean;
-  isFooter?: boolean;
-  isModal?: boolean;
+  size?: "small" | "medium" | "large";
   className?: string;
 }
 
-// URL estática para o logo, construída com as informações do projeto.
-const LOGO_URL = 'https://hvlycmbcvcftathcnzdr.supabase.co/storage/v1/object/public/gallery/logo/logo.png';
-
-const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className }) => {
-  const logoImageClasses = `h-16 w-auto ${className || ''}`;
-
-  const textColor = isFooter || isModal ? "text-white" : (isScrolled ? "text-gray-800" : "text-white");
-  const starColor = isFooter || isModal ? "text-yellow-400" : (isScrolled ? "text-yellow-500" : "text-yellow-400");
+const Logo: React.FC<LogoProps> = ({ size = "medium", className }) => {
+  const logoImageClasses = cn(
+    "object-contain",
+    {
+      "h-10 w-10": size === "small",
+      "h-12 w-12": size === "medium",
+      "h-14 w-14": size === "large",
+    },
+    className
+  );
 
   return (
     <div className="flex items-center space-x-3">
@@ -25,17 +25,8 @@ const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className })
         src={LOGO_URL}
         alt="Flat Hotel Logo"
         className={logoImageClasses}
-        width="64"
-        height="64"
       />
-      <div className="flex flex-col">
-        <span className={`text-xl font-bold ${textColor}`}>Flat Hotel</span>
-        <div className="flex items-center gap-0.5">
-          {[...Array(4)].map((_, i) => (
-            <Star key={i} className={`h-4 w-4 fill-current ${starColor}`} />
-          ))}
-        </div>
-      </div>
+      <span className="font-bold text-xl text-gray-800">Flat Hotel</span>
     </div>
   );
 };
