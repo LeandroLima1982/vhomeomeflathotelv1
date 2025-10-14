@@ -132,8 +132,14 @@ export default function About() {
                               alt={`V-Home Sobre ${index + 1}`}
                               className="w-full h-full object-cover"
                             />
-                            <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg">
-                              V-Home Flat Hotel
+                            <div className="absolute bottom-4 right-4 bg-amber-500 text-gray-900 p-3 rounded-lg shadow-lg flex flex-col items-center">
+                              <div className="flex gap-0.5 mb-1">
+                                <Star className="w-4 h-4 fill-current" />
+                                <Star className="w-4 h-4 fill-current" />
+                                <Star className="w-4 h-4 fill-current" />
+                                <Star className="w-4 h-4 fill-current" />
+                              </div>
+                              <p className="text-xs font-semibold">Flat Hotel à Beira Mar</p>
                             </div>
                           </CardContent>
                         </Card>
