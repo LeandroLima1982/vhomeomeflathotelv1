@@ -71,10 +71,10 @@ const BookingV2 = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-800 mb-4">
-              Nova Consulta de Disponibilidade (Teste)
+              Consulta de Disponibilidade
             </h1>
             <p className="text-gray-600">
-              Esta é uma página de desenvolvimento para a nova experiência de reserva.
+              Selecione as datas e o número de hóspedes para encontrar a acomodação perfeita para sua estadia.
             </p>
           </div>
 
