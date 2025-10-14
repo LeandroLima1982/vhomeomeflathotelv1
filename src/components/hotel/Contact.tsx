@@ -1,115 +1,74 @@
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { MapPin, Phone, Mail } from "lucide-react";
+import { MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
-const Contact = () => {
+const contactInfo = [
+  {
+    icon: <MapPin className="w-8 h-8 text-blue-600" />,
+    title: 'Endereço',
+    text: 'Av. Atlântica, 433, Macaé - RJ, CEP 27920-325',
+  },
+  {
+    icon: <Phone className="w-8 h-8 text-blue-600" />,
+    title: 'Telefone',
+    text: '(22) 2141-2091',
+  },
+  {
+    icon: <Mail className="w-8 h-8 text-blue-600" />,
+    title: 'E-mail',
+    text: 'contato@vhomeflathotel.com',
+  },
+  {
+    icon: <Clock className="w-8 h-8 text-blue-600" />,
+    title: 'Horário de Atendimento',
+    text: '24 horas por dia, 7 dias por semana',
+  },
+];
+
+export default function Contact() {
   return (
-    <section id="contact" className="py-20 bg-gray-50">
+    <section id="contato" className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-800">Entre em Contato</h2>
-          <p className="text-gray-600 mt-2">
-            Estamos aqui para ajudar. Envie-nos uma mensagem ou ligue para nós.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          {/* Contact Form */}
-          <div className="bg-white p-8 rounded-lg shadow-lg">
-            <h3 className="text-2xl font-semibold mb-6 text-gray-800">
-              Envie uma Mensagem
-            </h3>
-            <form className="space-y-6">
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Nome
-                </label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="Seu nome"
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Email
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="seu@email.com"
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="message"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Mensagem
-                </label>
-                <Textarea
-                  id="message"
-                  placeholder="Sua mensagem"
-                  className="mt-1"
-                  rows={5}
-                />
-              </div>
-            </form>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          <div>
+            <div className="mb-8">
+              <h2 className="text-4xl font-bold text-gray-800">Entre em Contato</h2>
+              <p className="text-gray-600 mt-2 text-lg">Estamos aqui para ajudá-lo</p>
+            </div>
+            <div className="space-y-6">
+              {contactInfo.map((item, index) => (
+                <div key={index} className="flex items-center p-6 bg-white rounded-lg shadow-sm border border-gray-200">
+                  <div className="flex-shrink-0 mr-6">
+                    {item.icon}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800">{item.title}</h3>
+                    <p className="text-gray-600">{item.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-8">
+              <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-6 px-8 rounded-lg text-base">
+                Enviar Mensagem
+              </Button>
+            </div>
           </div>
-
-          {/* Contact Info */}
-          <div className="space-y-8">
-            <div className="flex items-start">
-              <div className="flex-shrink-0">
-                <div className="bg-yellow-500 text-black p-3 rounded-full">
-                  <MapPin size={24} />
-                </div>
-              </div>
-              <div className="ml-4">
-                <h4 className="text-xl font-semibold text-gray-800">
-                  Endereço
-                </h4>
-                <p className="text-gray-600 mt-1">
-                  123 Avenida Principal, Cidade, Estado, 12345
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <div className="flex-shrink-0">
-                <div className="bg-yellow-500 text-black p-3 rounded-full">
-                  <Phone size={24} />
-                </div>
-              </div>
-              <div className="ml-4">
-                <h4 className="text-xl font-semibold text-gray-800">
-                  Telefone
-                </h4>
-                <p className="text-gray-600 mt-1">(12) 3456-7890</p>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <div className="flex-shrink-0">
-                <div className="bg-yellow-500 text-black p-3 rounded-full">
-                  <Mail size={24} />
-                </div>
-              </div>
-              <div className="ml-4">
-                <h4 className="text-xl font-semibold text-gray-800">Email</h4>
-                <p className="text-gray-600 mt-1">contato@hotel.com</p>
-              </div>
+          <div className="h-full min-h-[500px]">
+            <div className="rounded-lg overflow-hidden shadow-lg h-full">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3694.031489498118!2d-41.76609782470799!3d-22.31461997976391!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x963b2e00000001%3A0x1e9f5d5a5d5a5d5a!2sAv.%20Atl%C3%A2ntica%2C%20433%20-%20Praia%20Campista%2C%20Maca%C3%A9%20-%20RJ%2C%2027920-325!5e0!3m2!1sen!2sbr!4v1678886400000!5m2!1sen!2sbr"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen={true}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="w-full h-full"
+              ></iframe>
             </div>
           </div>
         </div>
       </div>
     </section>
   );
-};
-
-export default Contact;
+}
