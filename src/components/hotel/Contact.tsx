@@ -1,5 +1,4 @@
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 const contactInfo = [
   {
@@ -46,11 +45,6 @@ export default function Contact() {
                   </div>
                 </div>
               ))}
-            </div>
-            <div className="mt-8">
-              <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-6 px-8 rounded-lg text-base">
-                Enviar Mensagem
-              </Button>
             </div>
           </div>
           <div className="h-full min-h-[500px]">
