@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from '@/components/hotel/Header';
 import { Hero } from '@/components/hotel/Hero';
-import About from '@/components/hotel/About';
+import { About } from '@/components/hotel/About';
 import Rooms from '@/components/hotel/Rooms';
 import { Gallery } from '@/components/hotel/Gallery';
 import { Nearby } from '@/components/hotel/Nearby';
