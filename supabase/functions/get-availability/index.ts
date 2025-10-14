@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 
+// Headers CORS para permitir requisições do navegador
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -16,6 +17,7 @@ const parseDate = (dateString: string) => {
 };
 
 serve(async (req) => {
+  // Responde a requisições OPTIONS para o pre-flight do CORS
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
