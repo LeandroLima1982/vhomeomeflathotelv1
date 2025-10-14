@@ -99,3 +99,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  @keyframes click-animation {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(0.9) translate(1px, 1px);
+    }
+  }
+
+  .animate-click {
+    animation: click-animation 1.5s ease-in-out infinite;
+  }
+}
