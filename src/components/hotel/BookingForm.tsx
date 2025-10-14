@@ -26,6 +26,8 @@ export function BookingForm() {
   const [checkoutDate, setCheckoutDate] = useState<Date | undefined>();
   const [guests, setGuests] = useState(1);
   const [isMounted, setIsMounted] = useState(false);
+  const [isCheckinCalendarOpen, setIsCheckinCalendarOpen] = useState(false);
+  const [isCheckoutCalendarOpen, setIsCheckoutCalendarOpen] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -57,6 +59,16 @@ export function BookingForm() {
     window.open(finalUrl, '_blank', 'noopener,noreferrer');
   };
 
+  const handleCheckinSelect = (date: Date | undefined) => {
+    setCheckinDate(date);
+    setIsCheckinCalendarOpen(false);
+  };
+
+  const handleCheckoutSelect = (date: Date | undefined) => {
+    setCheckoutDate(date);
+    setIsCheckoutCalendarOpen(false);
+  };
+
   return (
     <div className="relative -mt-12 md:-mt-16 z-10">
       <div className="px-4">
@@ -68,7 +80,7 @@ export function BookingForm() {
                 <CalendarIcon className="h-4 w-4" />
                 Check-in
               </label>
-              <Popover>
+              <Popover open={isCheckinCalendarOpen} onOpenChange={setIsCheckinCalendarOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant={"outline"}
@@ -89,7 +101,7 @@ export function BookingForm() {
                   <Calendar
                     mode="single"
                     selected={checkinDate}
-                    onSelect={setCheckinDate}
+                    onSelect={handleCheckinSelect}
                     disabled={{ before: new Date() }}
                     initialFocus
                   />
@@ -103,7 +115,7 @@ export function BookingForm() {
                 <CalendarIcon className="h-4 w-4" />
                 Check-out
               </label>
-              <Popover>
+              <Popover open={isCheckoutCalendarOpen} onOpenChange={setIsCheckoutCalendarOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant={"outline"}
@@ -125,7 +137,7 @@ export function BookingForm() {
                   <Calendar
                     mode="single"
                     selected={checkoutDate}
-                    onSelect={setCheckoutDate}
+                    onSelect={handleCheckoutSelect}
                     disabled={(date) =>
                       !checkinDate || date <= checkinDate
                     }
