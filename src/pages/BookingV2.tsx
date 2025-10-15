@@ -11,6 +11,8 @@ interface LocalRoom {
   id: number;
   name: string;
   imageUrl: string | null;
+  details: Record<string, string | null> | null;
+  details_order: string[] | null;
 }
 
 interface AvailabilityResult {
@@ -19,6 +21,8 @@ interface AvailabilityResult {
   disponibilidade: number;
   valorTotal: number;
   imageUrl: string | null;
+  details: Record<string, string | null> | null;
+  details_order: string[] | null;
   [key: string]: any;
 }
 
@@ -41,7 +45,7 @@ const BookingV2 = () => {
       
       const { data: roomData, error: roomError } = await supabase
         .from('rooms')
-        .select('id, name')
+        .select('id, name, details, details_order')
         .order('id');
 
       if (roomError) {
@@ -166,6 +170,8 @@ const BookingV2 = () => {
         return {
           ...apiRoom,
           imageUrl: localRoom ? localRoom.imageUrl : null,
+          details: localRoom ? localRoom.details : null,
+          details_order: localRoom ? localRoom.details_order : null,
         };
       });
 

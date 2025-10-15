@@ -9,6 +9,8 @@ interface AvailabilityResult {
   disponibilidade: number;
   valorTotal: number;
   imageUrl: string | null;
+  details: Record<string, string | null> | null;
+  details_order: string[] | null;
   [key: string]: any;
 }
 
