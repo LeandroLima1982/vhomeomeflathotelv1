@@ -5,6 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { BedDouble, Tag } from "lucide-react";
 import DetailIcon from './DetailIcon';
+import { parse, differenceInDays } from "date-fns"; // Importando parse e differenceInDays
 
 interface RoomResult {
   idQuarto: number;
@@ -34,6 +35,11 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
     style: 'currency',
     currency: 'BRL',
   }).format(room.valorTotal);
+
+  // Calcular o número de diárias
+  const checkinDateObj = parse(searchParams.checkin, "yyyyMMdd", new Date());
+  const checkoutDateObj = parse(searchParams.checkout, "yyyyMMdd", new Date());
+  const numberOfNights = differenceInDays(checkoutDateObj, checkinDateObj);
 
   const handleSelectRoom = () => {
     navigate('/checkout', {
@@ -67,10 +73,10 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
       const unorderedKeys = validKeys.filter(key => !roomData.details_order.includes(key));
       const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
   
-      return [...orderedDetails, ...unorderedDetails]; // Removido .slice(0, 4)
+      return [...orderedDetails, ...unorderedDetails];
     }
   
-    return validKeys.map(key => detailsObject[key] as string); // Removido .slice(0, 4)
+    return validKeys.map(key => detailsObject[key] as string);
   };
 
   const details = getRoomDetails(room);
@@ -90,7 +96,7 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
         </CardHeader>
         <CardContent className="flex-grow">
           {details.length > 0 && (
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-4"> {/* Mantido grid para um layout organizado */}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-4">
               {details.map((detail, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <DetailIcon detailText={detail} />
@@ -106,12 +112,17 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
           </p>
         </CardContent>
         <CardFooter className="bg-gray-50 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-baseline gap-2">
+          <div className="flex flex-col items-start"> {/* Alterado para flex-col para empilhar os itens */}
             <span className="text-sm text-gray-600">Total para o período</span>
             <p className="text-2xl font-bold text-blue-800 flex items-center">
               <Tag className="h-5 w-5 mr-2 opacity-70" />
               {formattedPrice}
             </p>
+            {numberOfNights > 0 && ( // Exibe o número de diárias apenas se for maior que zero
+              <span className="text-xs text-gray-500 mt-1">
+                ({numberOfNights} diária{numberOfNights > 1 ? 's' : ''})
+              </span>
+            )}
           </div>
           <Button onClick={handleSelectRoom} className="w-full sm:w-auto bg-blue-700 hover:bg-blue-800">
             Selecionar
