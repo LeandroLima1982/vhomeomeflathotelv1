@@ -1,6 +1,6 @@
 "use client";
 
-import { Wifi, Car, UtensilsCrossed, Tv, Wind, Clock, ConciergeBell, Waves, KeyRound, Coffee, BedDouble, Briefcase, Sun, Sofa, Gem } from "lucide-react";
+import { Wifi, Car, UtensilsCrossed, Tv, Wind, Clock, ConciergeBell, Waves, KeyRound, Coffee, BedDouble, Briefcase, Sun, Sofa, Gem, Sparkles } from "lucide-react";
 
 const amenities = [
   { icon: <Waves className="h-8 w-8 text-blue-700" />, name: "Piscina Spa Aquecida ao Ar Livre", description: "Piscina com vista panorâmica do mar" },
@@ -14,6 +14,7 @@ const amenities = [
   { icon: <Clock className="h-8 w-8 text-blue-700" />, name: "Recepção 24h", description: "Atendimento a qualquer hora" },
   { icon: <ConciergeBell className="h-8 w-8 text-blue-700" />, name: "Serviço de Concierge", description: "Assistência personalizada" },
   { icon: <BedDouble className="h-8 w-8 text-blue-700" />, name: "Enxoval Completo", description: "Cama, mesa e banho. Conforto em cada detalhe" },
+  { icon: <Sparkles className="h-8 w-8 text-blue-700" />, name: "Serviço de Camareira", description: "Você não precisa se preocupar com tarefas domésticas" },
   { icon: <Briefcase className="h-8 w-8 text-blue-700" />, name: "Home Office", description: "Espaço dedicado e conectividade para suas necessidades de trabalho." },
   { icon: <Sun className="h-8 w-8 text-blue-700" />, name: "Final de Semana", description: "Aproveite momentos de lazer e relaxamento em um ambiente perfeito." },
   { icon: <Sofa className="h-8 w-8 text-blue-700" />, name: "Móveis Planejados", description: "Ambientes com design inteligente e funcionalidade otimizada." },
