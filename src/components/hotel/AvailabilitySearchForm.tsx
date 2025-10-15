@@ -53,8 +53,8 @@ export function AvailabilitySearchForm({ onSearch, isLoading }: AvailabilitySear
   return (
     <div className="relative z-10">
       <div className="px-4">
-        <div className={`max-w-4xl mx-auto bg-white/30 backdrop-blur-lg border border-white/50 p-4 md:p-6 rounded-xl shadow-xl transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-2 md:gap-4 md:grid-cols-4 md:items-end">
+        <div className={`max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-xl shadow-xl transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-4 md:items-end">
             {/* Check-in */}
             <div className="space-y-2 text-left">
               <label className="font-medium text-gray-800 flex items-center gap-2 text-sm pl-1">
@@ -66,6 +66,7 @@ export function AvailabilitySearchForm({ onSearch, isLoading }: AvailabilitySear
                 setDate={setCheckinDate}
                 disabled={{ before: new Date() }}
                 placeholder="Selecione a data"
+                className="bg-white"
               />
             </div>
 
@@ -81,6 +82,7 @@ export function AvailabilitySearchForm({ onSearch, isLoading }: AvailabilitySear
                 triggerDisabled={!checkinDate}
                 disabled={(date) => !checkinDate || date <= checkinDate}
                 placeholder="Selecione a data"
+                className="bg-white"
               />
             </div>
 
@@ -91,7 +93,7 @@ export function AvailabilitySearchForm({ onSearch, isLoading }: AvailabilitySear
                 Hóspedes
               </label>
               <Select onValueChange={(value) => setGuests(Number(value))} defaultValue="1">
-                <SelectTrigger id="guests" className="w-full bg-white/80 hover:bg-white">
+                <SelectTrigger id="guests" className="w-full bg-white">
                   <SelectValue placeholder="Número de hóspedes" />
                 </SelectTrigger>
                 <SelectContent>
