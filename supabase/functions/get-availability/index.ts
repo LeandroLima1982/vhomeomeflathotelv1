@@ -58,7 +58,7 @@ serve(async (req) => {
       console.error(`API externa retornou uma resposta inesperada (status: ${response.status}, tipo: ${contentType}):`, errorBody.substring(0, 500));
       
       const titleMatch = errorBody.match(/<title>(.*?)<\/title>/i);
-      const errorHint = titleMatch ? titleMatch[1] : 'A resposta não era um JSON válido.';
+      const errorHint = titleMatch ? titleHint[1] : 'A resposta não era um JSON válido.';
 
       throw new Error(`O sistema de reservas retornou um erro: "${errorHint}". Verifique se o token da API está correto.`);
     }
@@ -70,7 +70,7 @@ serve(async (req) => {
     }
 
     const results = (data.categorias || []).map((categoria: any) => ({
-      idQuarto: categoria.id,
+      idQuarto: categoria.idQuartoCategoria, // Usando idQuartoCategoria conforme sua sugestão
       nomeQuarto: categoria.nome,
       disponibilidade: categoria.disponibilidade,
       valorTotal: categoria.tarifas?.[0]?.valorTotalReserva || 0,
