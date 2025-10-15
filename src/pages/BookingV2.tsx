@@ -177,7 +177,8 @@ const BookingV2 = () => {
         };
       });
 
-      setResults(mergedResults);
+      const pricedResults = mergedResults.filter(room => room.valorTotal > 0);
+      setResults(pricedResults);
 
     } catch (e: any) {
       console.error("Erro ao buscar disponibilidade:", e);
