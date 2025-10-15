@@ -307,7 +307,7 @@ const BookingV2 = () => {
           <AvailabilitySearchForm onSearch={handleSearch} isLoading={isLoading} />
         </div>
 
-        <div id="results-container" className="container mx-auto px-4 max-w-5xl py-16">
+        <div id="results-container" className="container mx-auto px-4 max-w-5xl pt-4 pb-16">
           {isLoading && (
             <div className="flex flex-col items-center justify-center text-center p-10 bg-white rounded-lg shadow-md">
               <Loader2 className="h-12 w-12 animate-spin text-blue-600 mb-4" />
@@ -324,7 +324,7 @@ const BookingV2 = () => {
           )}
           {displayedResults && searchParams && (
             <>
-              <Card className="mb-8 shadow-md bg-white">
+              <Card className="mb-4 shadow-md bg-white">
                 <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-4 text-gray-700 text-sm flex-wrap justify-center sm:justify-start">
                     <div className="flex items-center gap-1">
@@ -348,10 +348,12 @@ const BookingV2 = () => {
                 </CardContent>
               </Card>
 
-              <div className="sticky z-20 bg-gray-50 pb-4 -mt-4" style={{ top: stickyFilterTop }}> {/* Ajustado para ser sticky */}
+              <div className="sticky z-20 bg-gray-50 pb-4" style={{ top: stickyFilterTop }}> {/* -mt-4 removido */}
                 <FilterControls sortOrder={sortOrder} onSortChange={setSortOrder} />
               </div>
-              <AvailabilityResults results={displayedResults} searchParams={searchParams} />
+              <div className="pt-8"> {/* Adicionado padding para empurrar os resultados para baixo */}
+                <AvailabilityResults results={displayedResults} searchParams={searchParams} />
+              </div>
             </>
           )}
         </div>
