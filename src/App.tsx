@@ -11,6 +11,7 @@ import SupabaseProvider from "./components/SupabaseProvider";
 import Institutional from "./pages/Institutional";
 import ScrollToTopOnNavigate from "./components/ScrollToTopOnNavigate";
 import BookingV2 from "./pages/BookingV2";
+import Checkout from "./pages/Checkout";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => {
               <Route path="/admin" element={<Admin />} />
               <Route path="/institucional" element={<Institutional />} />
               <Route path="/booking-v2" element={<BookingV2 />} />
+              <Route path="/checkout" element={<Checkout />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

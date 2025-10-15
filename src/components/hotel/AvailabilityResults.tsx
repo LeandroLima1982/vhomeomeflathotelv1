@@ -12,11 +12,18 @@ interface AvailabilityResult {
   [key: string]: any;
 }
 
-interface AvailabilityResultsProps {
-  results: AvailabilityResult[];
+interface SearchParams {
+  checkin: string;
+  checkout: string;
+  adults: number;
 }
 
-export function AvailabilityResults({ results }: AvailabilityResultsProps) {
+interface AvailabilityResultsProps {
+  results: AvailabilityResult[];
+  searchParams: SearchParams;
+}
+
+export function AvailabilityResults({ results, searchParams }: AvailabilityResultsProps) {
   const availableRooms = results.filter(room => room.disponibilidade > 0);
 
   if (availableRooms.length === 0) {
@@ -36,7 +43,7 @@ export function AvailabilityResults({ results }: AvailabilityResultsProps) {
       <h2 className="text-2xl font-bold text-center mb-8 text-gray-800">Acomodações Disponíveis</h2>
       <div className="space-y-6">
         {availableRooms.map((room) => (
-          <RoomResultCard key={room.idQuarto} room={room} />
+          <RoomResultCard key={room.idQuarto} room={room} searchParams={searchParams} />
         ))}
       </div>
     </div>

@@ -22,11 +22,18 @@ interface AvailabilityResult {
   [key: string]: any;
 }
 
+interface SearchParams {
+  checkin: string;
+  checkout: string;
+  adults: number;
+}
+
 const BookingV2 = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<AvailabilityResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [localRoomsData, setLocalRoomsData] = useState<LocalRoom[]>([]);
+  const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
 
   useEffect(() => {
     const fetchLocalRooms = async () => {
@@ -106,10 +113,11 @@ const BookingV2 = () => {
     fetchLocalRooms();
   }, []);
 
-  const handleSearch = async (params: { checkin: string; checkout: string; adults: number }) => {
+  const handleSearch = async (params: SearchParams) => {
     setIsLoading(true);
     setResults(null);
     setError(null);
+    setSearchParams(params);
 
     if (!supabase) {
       const errorMessage = "Cliente Supabase não está disponível. Verifique a configuração.";
@@ -206,8 +214,8 @@ const BookingV2 = () => {
                 <p className="text-red-600 max-w-md">{error}</p>
               </div>
             )}
-            {results && (
-              <AvailabilityResults results={results} />
+            {results && searchParams && (
+              <AvailabilityResults results={results} searchParams={searchParams} />
             )}
           </div>
         </div>

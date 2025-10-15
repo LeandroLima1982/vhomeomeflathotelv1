@@ -1,5 +1,6 @@
 "use client";
 
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BedDouble, Tag } from "lucide-react";
@@ -12,15 +13,33 @@ interface RoomResult {
   imageUrl: string | null;
 }
 
-interface RoomResultCardProps {
-  room: RoomResult;
+interface SearchParams {
+  checkin: string;
+  checkout: string;
+  adults: number;
 }
 
-export function RoomResultCard({ room }: RoomResultCardProps) {
+interface RoomResultCardProps {
+  room: RoomResult;
+  searchParams: SearchParams;
+}
+
+export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
+  const navigate = useNavigate();
+
   const formattedPrice = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
   }).format(room.valorTotal);
+
+  const handleSelectRoom = () => {
+    navigate('/checkout', {
+      state: {
+        room,
+        searchParams,
+      },
+    });
+  };
 
   return (
     <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col md:flex-row">
@@ -50,7 +69,7 @@ export function RoomResultCard({ room }: RoomResultCardProps) {
               {formattedPrice}
             </p>
           </div>
-          <Button className="w-full sm:w-auto bg-blue-700 hover:bg-blue-800">
+          <Button onClick={handleSelectRoom} className="w-full sm:w-auto bg-blue-700 hover:bg-blue-800">
             Selecionar
           </Button>
         </CardFooter>
