@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/lib/supabaseClient";
 import { showError, showSuccess, showLoading, dismissToast } from "@/utils/toast";
 import { BedDouble, Calendar, Users, Tag, Loader2, PartyPopper, ArrowLeft } from "lucide-react";
+import DetailIcon from '@/components/hotel/DetailIcon'; // Importando o DetailIcon
 
 const formSchema = z.object({
   nome: z.string().min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
@@ -25,12 +26,31 @@ const formSchema = z.object({
   telefone: z.string().min(10, { message: "Telefone inválido. Inclua o DDD." }),
 });
 
+// Interface para o objeto 'room' que vem do estado da localização
+interface RoomResult {
+  idQuarto: number;
+  nomeQuarto: string;
+  disponibilidade: number;
+  valorTotal: number;
+  imageUrl: string | null;
+  details: Record<string, string | null> | null;
+  details_order: string[] | null;
+  special_name?: string | null;
+  [key: string]: any;
+}
+
+interface SearchParams {
+  checkin: string;
+  checkout: string;
+  adults: number;
+}
+
 const Checkout = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [reservationSuccess, setReservationSuccess] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { room, searchParams } = location.state || {};
+  const { room, searchParams } = location.state as { room: RoomResult, searchParams: SearchParams } || {};
 
   useEffect(() => {
     if (!room || !searchParams) {
@@ -99,6 +119,38 @@ const Checkout = () => {
     currency: 'BRL',
   }).format(room.valorTotal);
 
+  // Função para obter os detalhes do quarto com base na ordem
+  const getRoomDetails = (roomData: RoomResult) => {
+    if (!roomData.details || typeof roomData.details !== 'object') return [];
+  
+    const detailsObject = roomData.details;
+  
+    const validKeys = Object.keys(detailsObject).filter(key => {
+      const value = detailsObject[key];
+      return value && typeof value === 'string' && value.trim() !== '' && key !== 'description';
+    });
+  
+    if (roomData.details_order && Array.isArray(roomData.details_order)) {
+      const orderedDetails = roomData.details_order
+        .map(key => {
+          if (validKeys.includes(key)) {
+            return detailsObject[key];
+          }
+          return null;
+        })
+        .filter((value): value is string => value !== null);
+      
+      const unorderedKeys = validKeys.filter(key => !roomData.details_order.includes(key));
+      const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
+  
+      return [...orderedDetails, ...unorderedDetails].slice(0, 9); // Limita a 9 detalhes para não sobrecarregar
+    }
+  
+    return validKeys.map(key => detailsObject[key] as string).slice(0, 9);
+  };
+
+  const roomDetails = getRoomDetails(room);
+
   return (
     <div className="bg-gray-50 min-h-screen">
       <Header />
@@ -141,13 +193,30 @@ const Checkout = () => {
                         <span>{searchParams.adults}</span>
                       </div>
                     </div>
+                    
+                    {roomDetails.length > 0 && (
+                      <>
+                        <Separator />
+                        <div className="space-y-3">
+                          <h4 className="font-medium text-gray-800 text-base">Características do Quarto:</h4>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                            {roomDetails.map((detail, index) => (
+                              <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
+                                <DetailIcon detailText={detail} />
+                                <span>{detail}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
                     <Separator />
                   </CardContent>
                   <CardFooter className="bg-gray-50 p-4">
                     <div className="w-full flex items-center justify-between">
                       <span className="text-lg font-medium text-gray-700">Total:</span>
                       <span className="text-2xl font-bold text-blue-800 flex items-center gap-2">
-                        <Tag className="w-5 h-5 opacity-70" />
+                        <Tag className="w-5 h-5 mr-2 opacity-70" />
                         {formattedPrice}
                       </span>
                     </div>
