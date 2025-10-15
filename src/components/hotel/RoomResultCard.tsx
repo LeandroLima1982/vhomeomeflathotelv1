@@ -15,6 +15,8 @@ interface RoomResult {
   imageUrl: string | null;
   details: Record<string, string | null> | null;
   details_order: string[] | null;
+  special_name?: string | null; // Adicionado para garantir que a propriedade exista
+  [key: string]: any;
 }
 
 interface SearchParams {
@@ -92,6 +94,11 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
       </div>
       <div className="flex-1 flex flex-col">
         <CardHeader>
+          {room.special_name && (
+            <div className="inline-block mb-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
+              {room.special_name}
+            </div>
+          )}
           <CardTitle className="text-xl text-gray-800">{room.nomeQuarto}</CardTitle>
         </CardHeader>
         <CardContent className="flex-grow">
