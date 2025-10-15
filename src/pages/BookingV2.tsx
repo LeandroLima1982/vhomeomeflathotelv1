@@ -182,7 +182,7 @@ const BookingV2 = () => {
       <Header />
       <main>
         <section
-          className="relative bg-cover bg-center bg-gray-700 py-20"
+          className="relative bg-cover bg-center bg-gray-700 py-32"
           style={{ backgroundImage: `url(${heroImageUrl || ''})` }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
