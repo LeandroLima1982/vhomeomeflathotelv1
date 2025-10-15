@@ -79,7 +79,7 @@ const BookingV2 = () => {
       // Fetch Local Rooms Data
       const { data: roomData, error: roomError } = await supabase
         .from('rooms')
-        .select('id, name, special_name, details, details_order')
+        .select('*')
         .order('id');
 
       if (roomError) {
