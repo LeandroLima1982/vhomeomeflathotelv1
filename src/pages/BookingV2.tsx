@@ -89,20 +89,63 @@ const BookingV2 = () => {
 
       const roomsWithImages = await Promise.all(
         roomData.map(async (room) => {
-          const { data: coverFiles } = await supabase.storage.from('gallery').list('rooms', { search: `${room.id}.` });
-          if (coverFiles && coverFiles.length > 0) {
-            const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(`rooms/${coverFiles[0].name}`);
-            return { ...room, imageUrl: `${publicUrl}?t=${new Date().getTime()}` };
-          }
-          const { data: galleryFiles } = await supabase.storage.from('gallery').list(`rooms/${room.id}/gallery`, { limit: 1, sortBy: { column: 'created_at', order: 'desc' } });
-          if (galleryFiles && galleryFiles.length > 0) {
-            const validFile = galleryFiles.find(f => f.name !== '.emptyFolderPlaceholder' && f.name !== '_order.json');
-            if (validFile) {
-              const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(`rooms/${room.id}/gallery/${validFile.name}`);
+          try {
+            const { data: coverFiles } = await supabase.storage
+              .from('gallery')
+              .list('rooms', { search: `${room.id}.` });
+
+            if (coverFiles && coverFiles.length > 0) {
+              const coverFile = coverFiles[0];
+              const { data: { publicUrl } } = supabase.storage
+                .from('gallery')
+                .getPublicUrl(`rooms/${coverFile.name}`);
               return { ...room, imageUrl: `${publicUrl}?t=${new Date().getTime()}` };
             }
+
+            const { data: galleryFiles } = await supabase.storage
+              .from('gallery')
+              .list(`rooms/${room.id}/gallery`, { 
+                limit: 100,
+                sortBy: { column: 'created_at', order: 'desc' }
+              });
+
+            if (galleryFiles && galleryFiles.length > 0) {
+              const validFiles = galleryFiles.filter(
+                file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json'
+              );
+
+              if (validFiles.length > 0) {
+                const { data: orderFileData } = await supabase.storage
+                  .from('gallery')
+                  .download(`rooms/${room.id}/gallery/_order.json`);
+
+                let firstImageName = validFiles[0].name;
+
+                if (orderFileData) {
+                  try {
+                    const orderJson = await orderFileData.text();
+                    const orderedNames = JSON.parse(orderJson) as string[];
+                    if (orderedNames.length > 0) {
+                      firstImageName = orderedNames[0];
+                    }
+                  } catch (e) {
+                    console.warn(`Could not parse order file for room ${room.id}`);
+                  }
+                }
+
+                const { data: { publicUrl } } = supabase.storage
+                  .from('gallery')
+                  .getPublicUrl(`rooms/${room.id}/gallery/${firstImageName}`);
+                
+                return { ...room, imageUrl: `${publicUrl}?t=${new Date().getTime()}` };
+              }
+            }
+
+            return { ...room, imageUrl: null };
+          } catch (error) {
+            console.error(`Error fetching image for room ${room.id}:`, error);
+            return { ...room, imageUrl: null };
           }
-          return { ...room, imageUrl: null };
         })
       );
       setLocalRoomsData(roomsWithImages);
