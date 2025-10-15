@@ -12,6 +12,9 @@ import Institutional from "./pages/Institutional";
 import ScrollToTopOnNavigate from "./components/ScrollToTopOnNavigate";
 import BookingV2 from "./pages/BookingV2";
 import Checkout from "./pages/Checkout";
+import Login from "./pages/Login";
+import { AuthProvider } from "./components/AuthProvider";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -34,15 +37,25 @@ const App = () => {
         <BrowserRouter>
           <ScrollToTopOnNavigate />
           <SupabaseProvider>
-            <Routes>
-              <Route path="/" element={<Hotel />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/institucional" element={<Institutional />} />
-              <Route path="/booking-v2" element={<BookingV2 />} />
-              <Route path="/checkout" element={<Checkout />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <AuthProvider>
+              <Routes>
+                <Route path="/" element={<Hotel />} />
+                <Route path="/login" element={<Login />} />
+                <Route 
+                  path="/admin" 
+                  element={
+                    <ProtectedRoute>
+                      <Admin />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route path="/institucional" element={<Institutional />} />
+                <Route path="/booking-v2" element={<BookingV2 />} />
+                <Route path="/checkout" element={<Checkout />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AuthProvider>
           </SupabaseProvider>
         </BrowserRouter>
       </TooltipProvider>
