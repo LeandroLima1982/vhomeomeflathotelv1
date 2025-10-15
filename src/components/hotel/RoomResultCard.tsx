@@ -52,6 +52,17 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
     });
   };
 
+  // Função para extrair a capacidade de hóspedes
+  const getCapacityDisplay = (details: Record<string, string | null> | null) => {
+    if (!details) return null;
+    const capacityDetail = Object.entries(details).find(([key, value]) => 
+      key.toLowerCase().includes('capacidade') || (value && value.toLowerCase().includes('hóspedes')) || (value && value.toLowerCase().includes('adultos'))
+    );
+    return capacityDetail ? capacityDetail[1] : null;
+  };
+
+  const capacity = getCapacityDisplay(room.details);
+
   const getRoomDetails = (roomData: RoomResult) => {
     if (!roomData.details || typeof roomData.details !== 'object') return [];
   
@@ -59,7 +70,13 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
   
     const validKeys = Object.keys(detailsObject).filter(key => {
       const value = detailsObject[key];
-      return value && typeof value === 'string' && value.trim() !== '' && key !== 'description';
+      // Exclui 'description' e qualquer detalhe identificado como capacidade
+      const isCapacityDetail = 
+        key.toLowerCase().includes('capacidade') || 
+        (value && value.toLowerCase().includes('hóspedes')) || 
+        (value && value.toLowerCase().includes('adultos'));
+
+      return value && typeof value === 'string' && value.trim() !== '' && key !== 'description' && !isCapacityDetail;
     });
   
     if (roomData.details_order && Array.isArray(roomData.details_order)) {
@@ -82,17 +99,6 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
   };
 
   const details = getRoomDetails(room);
-
-  // Função para extrair a capacidade de hóspedes
-  const getCapacityDisplay = (details: Record<string, string | null> | null) => {
-    if (!details) return null;
-    const capacityDetail = Object.entries(details).find(([key, value]) => 
-      key.toLowerCase().includes('capacidade') || (value && value.toLowerCase().includes('hóspedes')) || (value && value.toLowerCase().includes('adultos'))
-    );
-    return capacityDetail ? capacityDetail[1] : null;
-  };
-
-  const capacity = getCapacityDisplay(room.details);
 
   return (
     <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col md:flex-row">
