@@ -14,6 +14,7 @@ export default function Header() {
   const lastScrollY = useRef(0);
   const location = useLocation();
   const isLightPage = location.pathname === '/institucional';
+  const isBookingV2Page = location.pathname === '/booking-v2'; // Nova variável para identificar a página BookingV2
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,25 +60,30 @@ export default function Header() {
 
   return (
     <header className={headerClasses}>
-      <div className="container mx-auto px-4 flex justify-between items-center">
+      <div className={cn(
+        "container mx-auto px-4 flex items-center",
+        isBookingV2Page ? "justify-center" : "justify-between" // Centraliza o logo na BookingV2, mantém o espaçamento nas outras
+      )}>
         <Link to="/">
           <Logo isScrolled={useDarkTextAndSolidBg} />
-        </Link>
-        <div className="flex items-center gap-4">
-          <Nav isScrolled={useDarkTextAndSolidBg} />
-          <Button
-            onClick={scrollToRooms}
-            className={cn(
-              "hidden md:inline-flex transition-colors",
-              useDarkTextAndSolidBg
-                ? "bg-blue-800 hover:bg-blue-900 text-white"
-                : "bg-white hover:bg-gray-200 text-gray-800"
-            )}
-          >
-            Reservar Agora
-          </Button>
-          <MobileNav />
-        </div>
+        </Link>        
+        {!isBookingV2Page && ( // Oculta Nav, Button e MobileNav na página BookingV2
+          <div className="flex items-center gap-4">
+            <Nav isScrolled={useDarkTextAndSolidBg} />
+            <Button
+              onClick={scrollToRooms}
+              className={cn(
+                "hidden md:inline-flex transition-colors",
+                useDarkTextAndSolidBg
+                  ? "bg-blue-800 hover:bg-blue-900 text-white"
+                  : "bg-white hover:bg-gray-200 text-gray-800"
+              )}
+            >
+              Reservar Agora
+            </Button>
+            <MobileNav />
+          </div>
+        )}
       </div>
     </header>
   );
