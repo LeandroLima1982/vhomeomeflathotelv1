@@ -11,7 +11,7 @@ import {
   UtensilsCrossed,
   CheckCircle,
   BedDouble,
-  Users,
+  Users, // Importando o ícone Users
   ShowerHead,
   Sun,
   Building2,
@@ -37,8 +37,9 @@ const iconMap: Record<string, React.ElementType> = {
   'piscina': Waves,
   'cozinha': UtensilsCrossed,
   'cama': BedDouble,
-  'hóspedes': Users,
-  'hospedes': Users,
+  'hóspedes': Users, // Mapeando para Users
+  'hospedes': Users, // Mapeando para Users
+  'pessoas': Users, // Mapeando para Users
   'banheiro': ShowerHead,
   'varanda': Sun,
 };
