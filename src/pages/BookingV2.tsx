@@ -251,10 +251,10 @@ const BookingV2 = () => {
           <div className="relative container mx-auto px-4 text-center">
             <div className="max-w-4xl mx-auto">
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
-                Consulta de Disponibilidade
+                Sua Estadia Perfeita à Beira-Mar Começa Aqui
               </h1>
               <p className="text-gray-200 text-lg drop-shadow-md">
-                Selecione as datas e o número de hóspedes para encontrar a acomodação perfeita para sua estadia.
+                Utilize nosso buscador para encontrar a acomodação ideal e garantir momentos de conforto e sofisticação.
               </p>
             </div>
           </div>
