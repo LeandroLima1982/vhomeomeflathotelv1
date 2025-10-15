@@ -14,10 +14,16 @@ export default function Header() {
   const lastScrollY = useRef(0);
   const location = useLocation();
   const isLightPage = location.pathname === '/institucional';
-  // Variável atualizada para incluir as páginas BookingV2 e Checkout
   const isSpecialPage = location.pathname === '/booking-v2' || location.pathname === '/checkout'; 
 
   useEffect(() => {
+    if (isSpecialPage) {
+      // Desativa a lógica de rolagem para páginas especiais
+      setIsScrolled(true); // Força o estilo de cabeçalho 'rolado'
+      setIsVisible(true); // Garante que o cabeçalho esteja sempre visível
+      return; // Sai do useEffect para não adicionar listeners de scroll
+    }
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
@@ -39,7 +45,7 @@ export default function Header() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [isSpecialPage]); // Adiciona isSpecialPage como dependência
 
   const scrollToRooms = () => {
     const element = document.getElementById('rooms');
@@ -48,14 +54,16 @@ export default function Header() {
     }
   };
 
-  const useDarkTextAndSolidBg = isLightPage || isScrolled;
+  // Força o estilo de fundo escuro/sólido e visibilidade para páginas especiais
+  const useDarkTextAndSolidBg = isLightPage || isScrolled || isSpecialPage;
+  const headerIsVisible = isVisible || isSpecialPage;
 
   const headerClasses = cn(
     "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
     {
       "bg-white shadow-md py-2 border-b border-gray-200": useDarkTextAndSolidBg,
       "bg-transparent py-4": !useDarkTextAndSolidBg,
-      "-translate-y-full": !isVisible,
+      "-translate-y-full": !headerIsVisible,
     }
   );
 
