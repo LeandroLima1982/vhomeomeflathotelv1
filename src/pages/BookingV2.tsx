@@ -10,6 +10,7 @@ import { AvailabilityResults } from "@/components/hotel/AvailabilityResults";
 interface LocalRoom {
   id: number;
   name: string;
+  special_name: string | null;
   imageUrl: string | null;
   details: Record<string, string | null> | null;
   details_order: string[] | null;
@@ -45,7 +46,7 @@ const BookingV2 = () => {
       
       const { data: roomData, error: roomError } = await supabase
         .from('rooms')
-        .select('id, name, details, details_order')
+        .select('id, name, special_name, details, details_order')
         .order('id');
 
       if (roomError) {
@@ -172,6 +173,7 @@ const BookingV2 = () => {
           imageUrl: localRoom ? localRoom.imageUrl : null,
           details: localRoom ? localRoom.details : null,
           details_order: localRoom ? localRoom.details_order : null,
+          special_name: localRoom ? localRoom.special_name : null,
         };
       });
 
