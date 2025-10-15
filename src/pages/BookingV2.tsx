@@ -119,20 +119,27 @@ const BookingV2 = () => {
                   .from('gallery')
                   .download(`rooms/${room.id}/gallery/_order.json`);
 
-                let firstImageName = validFiles[0].name;
+                let firstImageName: string | null = null;
 
                 if (orderFileData) {
                   try {
                     const orderJson = await orderFileData.text();
                     const orderedNames = JSON.parse(orderJson) as string[];
-                    if (orderedNames.length > 0) {
-                      firstImageName = orderedNames[0];
+                    const validOrderedName = orderedNames.find(name => 
+                      validFiles.some(file => file.name === name)
+                    );
+                    if (validOrderedName) {
+                      firstImageName = validOrderedName;
                     }
                   } catch (e) {
                     console.warn(`Could not parse order file for room ${room.id}`);
                   }
                 }
 
+                if (!firstImageName) {
+                  firstImageName = validFiles[0].name;
+                }
+                
                 const { data: { publicUrl } } = supabase.storage
                   .from('gallery')
                   .getPublicUrl(`rooms/${room.id}/gallery/${firstImageName}`);
