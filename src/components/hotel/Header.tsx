@@ -14,7 +14,8 @@ export default function Header() {
   const lastScrollY = useRef(0);
   const location = useLocation();
   const isLightPage = location.pathname === '/institucional';
-  const isBookingV2Page = location.pathname === '/booking-v2'; // Nova variável para identificar a página BookingV2
+  // Variável atualizada para incluir as páginas BookingV2 e Checkout
+  const isSpecialPage = location.pathname === '/booking-v2' || location.pathname === '/checkout'; 
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,12 +63,12 @@ export default function Header() {
     <header className={headerClasses}>
       <div className={cn(
         "container mx-auto px-4 flex items-center",
-        isBookingV2Page ? "justify-center" : "justify-between" // Centraliza o logo na BookingV2, mantém o espaçamento nas outras
+        isSpecialPage ? "justify-center" : "justify-between" // Centraliza o logo nas páginas especiais
       )}>
         <Link to="/">
           <Logo isScrolled={useDarkTextAndSolidBg} />
         </Link>        
-        {!isBookingV2Page && ( // Oculta Nav, Button e MobileNav na página BookingV2
+        {!isSpecialPage && ( // Oculta Nav, Button e MobileNav nas páginas especiais
           <div className="flex items-center gap-4">
             <Nav isScrolled={useDarkTextAndSolidBg} />
             <Button
