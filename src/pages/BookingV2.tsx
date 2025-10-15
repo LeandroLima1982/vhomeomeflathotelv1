@@ -206,9 +206,12 @@ const BookingV2 = () => {
       if (data.error) throw new Error(data.error);
 
       const mergedResults = data.map((apiRoom: any) => {
-        const localRoom = localRoomsData.find(lr => lr.id === apiRoom.idQuarto);
+        // Ajusta o idQuarto da API externa para corresponder ao ID do Supabase (adiciona 3)
+        const adjustedRoomId = apiRoom.idQuarto + 3; 
+        const localRoom = localRoomsData.find(lr => lr.id === adjustedRoomId);
         return {
           ...apiRoom,
+          idQuarto: adjustedRoomId, // Atualiza o idQuarto para o valor ajustado
           imageUrl: localRoom?.imageUrl || null,
           details: localRoom?.details || null,
           details_order: localRoom?.details_order || null,
