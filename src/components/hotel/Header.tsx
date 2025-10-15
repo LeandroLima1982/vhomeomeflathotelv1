@@ -47,20 +47,21 @@ export default function Header() {
     }
   };
 
-  // O cabeçalho será sólido se for uma página clara (institucional) OU se estiver rolado E NÃO for uma página especial.
-  const useDarkTextAndSolidBg = isLightPage || (isScrolled && !isSpecialPage);
+  // O cabeçalho será sólido se for uma página clara (institucional) OU se estiver rolado.
+  const useDarkTextAndSolidBg = isLightPage || isScrolled;
   
   // O cabeçalho é visível se a lógica de rolagem o permite OU se for uma página especial (para garantir que nunca se esconda).
+  // Para páginas especiais, o cabeçalho não será fixo, então a visibilidade não importa para o translate-y-full
   const headerIsVisible = isVisible || isSpecialPage;
 
 
   const headerClasses = cn(
-    "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+    "top-0 left-0 right-0 z-50 transition-all duration-300", // Classes base
     {
-      // Se for uma página especial, sempre será transparente e com py-4
+      "fixed": !isSpecialPage, // Apenas fixo se NÃO for uma página especial
       "bg-white shadow-md py-2 border-b border-gray-200": useDarkTextAndSolidBg && !isSpecialPage,
       "bg-transparent py-4": !useDarkTextAndSolidBg || isSpecialPage,
-      "-translate-y-full": !headerIsVisible,
+      "-translate-y-full": !headerIsVisible && !isSpecialPage, // Esconde apenas se não for especial E não estiver visível
     }
   );
 
