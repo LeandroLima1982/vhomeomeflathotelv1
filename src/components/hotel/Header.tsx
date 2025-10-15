@@ -58,7 +58,8 @@ export default function Header() {
   const headerClasses = cn(
     "top-0 left-0 right-0 z-50 transition-all duration-300", // Classes base
     {
-      "fixed": !isSpecialPage, // Apenas fixo se NÃO for uma página especial
+      "fixed": !isSpecialPage, // Fixed for non-special pages
+      "absolute": isSpecialPage, // Absolute for special pages
       "bg-white shadow-md py-2 border-b border-gray-200": useDarkTextAndSolidBg && !isSpecialPage,
       "bg-transparent py-4": !useDarkTextAndSolidBg || isSpecialPage,
       "-translate-y-full": !headerIsVisible && !isSpecialPage, // Esconde apenas se não for especial E não estiver visível
