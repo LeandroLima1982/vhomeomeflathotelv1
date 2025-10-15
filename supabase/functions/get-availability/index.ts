@@ -64,14 +64,14 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    console.log("Dados brutos da API externa:", JSON.stringify(data, null, 2)); // Adicionado para depuração
+    // console.log("Dados brutos da API externa:", JSON.stringify(data, null, 2)); // Log de depuração removido
 
     if (data.codigoRetorno && data.codigoRetorno !== 0) {
         throw new Error(data.mensagem || "O sistema de reservas retornou um erro desconhecido.");
     }
 
     const results = (data.categorias || []).map((categoria: any) => ({
-      idQuarto: categoria.idQuartoCategoria, // Usando idQuartoCategoria conforme sua sugestão
+      idQuarto: categoria.id, // CORRIGIDO: Usando 'id' da API externa
       nomeQuarto: categoria.nome,
       disponibilidade: categoria.disponibilidade,
       valorTotal: categoria.tarifas?.[0]?.valorTotalReserva || 0,

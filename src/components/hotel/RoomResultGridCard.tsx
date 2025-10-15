@@ -44,7 +44,7 @@ export function RoomResultGridCard({ room, searchParams }: RoomResultGridCardPro
     });
   };
 
-  console.log(`RoomResultGridCard for ${room.nomeQuarto} (ID: ${room.idQuarto}), Image URL: ${room.imageUrl}`); // Debug log
+  // console.log(`RoomResultGridCard for ${room.nomeQuarto} (ID: ${room.idQuarto}), Image URL: ${room.imageUrl}`); // Debug log removido
 
   return (
     <div

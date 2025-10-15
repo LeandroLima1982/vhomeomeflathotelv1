@@ -162,7 +162,7 @@ const BookingV2 = () => {
         })
       );
       setLocalRoomsData(roomsWithImages);
-      console.log("Local Rooms Data with Images:", roomsWithImages); // Debug log
+      // console.log("Local Rooms Data with Images:", roomsWithImages); // Debug log removido
     };
 
     fetchInitialData();
@@ -213,10 +213,10 @@ const BookingV2 = () => {
       if (data.error) throw new Error(data.error);
 
       const mergedResults = data.map((apiRoom: any) => {
-        const adjustedRoomId = apiRoom.idQuarto + 3; 
-        console.log(`API Room ID: ${apiRoom.idQuarto}, Adjusted Supabase ID: ${adjustedRoomId}`); // Debug log
+        const adjustedRoomId = apiRoom.idQuarto; // CORRIGIDO: Removido o ajuste de +3
+        // console.log(`API Room ID: ${apiRoom.idQuarto}, Adjusted Supabase ID: ${adjustedRoomId}`); // Debug log removido
         const localRoom = localRoomsData.find(lr => lr.id === adjustedRoomId);
-        console.log(`Found localRoom for ID ${adjustedRoomId}:`, localRoom); // Debug log
+        // console.log(`Found localRoom for ID ${adjustedRoomId}:`, localRoom); // Debug log removido
         return {
           ...apiRoom,
           idQuarto: adjustedRoomId, 
@@ -229,7 +229,7 @@ const BookingV2 = () => {
 
       const pricedResults = mergedResults.filter(room => room.valorTotal > 0);
       setRawResults(pricedResults);
-      console.log("Final Merged Results:", pricedResults); // Debug log
+      // console.log("Final Merged Results:", pricedResults); // Debug log removido
 
     } catch (e: any) {
       console.error("Erro ao buscar disponibilidade:", e);

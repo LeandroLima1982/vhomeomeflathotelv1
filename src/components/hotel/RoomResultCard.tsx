@@ -75,7 +75,7 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
 
   const details = getRoomDetails(room);
 
-  console.log(`RoomResultCard for ${room.nomeQuarto} (ID: ${room.idQuarto}), Image URL: ${room.imageUrl}`); // Debug log
+  // console.log(`RoomResultCard for ${room.nomeQuarto} (ID: ${room.idQuarto}), Image URL: ${room.imageUrl}`); // Debug log removido
 
   return (
     <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col md:flex-row">
