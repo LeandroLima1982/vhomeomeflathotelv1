@@ -58,12 +58,13 @@ serve(async (req) => {
       console.error(`API externa retornou uma resposta inesperada (status: ${response.status}, tipo: ${contentType}):`, errorBody.substring(0, 500));
       
       const titleMatch = errorBody.match(/<title>(.*?)<\/title>/i);
-      const errorHint = titleMatch ? titleHint[1] : 'A resposta não era um JSON válido.';
+      const errorHint = titleMatch ? titleMatch[1] : 'A resposta não era um JSON válido.';
 
       throw new Error(`O sistema de reservas retornou um erro: "${errorHint}". Verifique se o token da API está correto.`);
     }
 
     const data = await response.json();
+    console.log("Dados brutos da API externa:", JSON.stringify(data, null, 2)); // Adicionado para depuração
 
     if (data.codigoRetorno && data.codigoRetorno !== 0) {
         throw new Error(data.mensagem || "O sistema de reservas retornou um erro desconhecido.");
