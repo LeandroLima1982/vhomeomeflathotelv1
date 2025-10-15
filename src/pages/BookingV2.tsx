@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
 import { Loader2, ServerCrash } from "lucide-react";
 import { AvailabilityResults } from "@/components/hotel/AvailabilityResults";
+import { FilterControls } from "@/components/hotel/FilterControls";
 
 interface LocalRoom {
   id: number;
@@ -35,10 +36,12 @@ interface SearchParams {
 
 const BookingV2 = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [results, setResults] = useState<AvailabilityResult[] | null>(null);
+  const [rawResults, setRawResults] = useState<AvailabilityResult[] | null>(null);
+  const [displayedResults, setDisplayedResults] = useState<AvailabilityResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [localRoomsData, setLocalRoomsData] = useState<LocalRoom[]>([]);
   const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
+  const [sortOrder, setSortOrder] = useState('relevance');
 
   useEffect(() => {
     const fetchLocalRooms = async () => {
@@ -56,7 +59,6 @@ const BookingV2 = () => {
 
       const roomsWithImages = await Promise.all(
         roomData.map(async (room) => {
-          // 1. Tenta buscar a imagem de capa principal
           const { data: coverFiles } = await supabase.storage
             .from('gallery')
             .list('rooms', { search: `${room.id}.` });
@@ -68,7 +70,6 @@ const BookingV2 = () => {
             return { ...room, imageUrl: `${publicUrl}?t=${new Date().getTime()}` };
           }
 
-          // 2. Fallback: Busca a primeira imagem da galeria do quarto
           const { data: galleryFiles } = await supabase.storage
             .from('gallery')
             .list(`rooms/${room.id}/gallery`, { 
@@ -108,7 +109,6 @@ const BookingV2 = () => {
             }
           }
 
-          // 3. Se não encontrar nenhuma imagem
           return { ...room, imageUrl: null };
         })
       );
@@ -118,11 +118,28 @@ const BookingV2 = () => {
     fetchLocalRooms();
   }, []);
 
+  useEffect(() => {
+    if (!rawResults) {
+      setDisplayedResults(null);
+      return;
+    }
+
+    let sortedResults = [...rawResults];
+    if (sortOrder === 'price_asc') {
+      sortedResults.sort((a, b) => a.valorTotal - b.valorTotal);
+    } else if (sortOrder === 'price_desc') {
+      sortedResults.sort((a, b) => b.valorTotal - a.valorTotal);
+    }
+
+    setDisplayedResults(sortedResults);
+  }, [rawResults, sortOrder]);
+
   const handleSearch = async (params: SearchParams) => {
     setIsLoading(true);
-    setResults(null);
+    setRawResults(null);
     setError(null);
     setSearchParams(params);
+    setSortOrder('relevance');
 
     if (!supabase) {
       const errorMessage = "Cliente Supabase não está disponível. Verifique a configuração.";
@@ -178,7 +195,7 @@ const BookingV2 = () => {
       });
 
       const pricedResults = mergedResults.filter(room => room.valorTotal > 0);
-      setResults(pricedResults);
+      setRawResults(pricedResults);
 
     } catch (e: any) {
       console.error("Erro ao buscar disponibilidade:", e);
@@ -223,8 +240,11 @@ const BookingV2 = () => {
                 <p className="text-red-600 max-w-md">{error}</p>
               </div>
             )}
-            {results && searchParams && (
-              <AvailabilityResults results={results} searchParams={searchParams} />
+            {displayedResults && searchParams && (
+              <>
+                <FilterControls sortOrder={sortOrder} onSortChange={setSortOrder} />
+                <AvailabilityResults results={displayedResults} searchParams={searchParams} />
+              </>
             )}
           </div>
         </div>
