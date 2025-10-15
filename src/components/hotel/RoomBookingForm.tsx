@@ -3,16 +3,10 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Calendar as CalendarIcon, Users, ArrowLeft } from "lucide-react";
+import { Users, ArrowLeft } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -25,8 +19,6 @@ export function RoomBookingForm({ roomId, onCancel }: RoomBookingFormProps) {
   const [checkinDate, setCheckinDate] = useState<Date | undefined>();
   const [checkoutDate, setCheckoutDate] = useState<Date | undefined>();
   const [guests, setGuests] = useState(2);
-  const [isCheckinOpen, setIsCheckinOpen] = useState(false);
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   useEffect(() => {
     if (checkinDate && checkoutDate && checkoutDate <= checkinDate) {
@@ -47,16 +39,6 @@ export function RoomBookingForm({ roomId, onCancel }: RoomBookingFormProps) {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  const handleCheckinSelect = (date: Date | undefined) => {
-    setCheckinDate(date);
-    setIsCheckinOpen(false);
-  };
-
-  const handleCheckoutSelect = (date: Date | undefined) => {
-    setCheckoutDate(date);
-    setIsCheckoutOpen(false);
-  };
-
   return (
     <div className="p-6 flex flex-col justify-between h-full bg-white rounded-lg">
       <div>
@@ -70,66 +52,22 @@ export function RoomBookingForm({ roomId, onCancel }: RoomBookingFormProps) {
         <div className="grid gap-4">
           <div className="grid gap-2">
             <Label>Check-in</Label>
-            <Popover open={isCheckinOpen} onOpenChange={setIsCheckinOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !checkinDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {checkinDate ? (
-                    format(checkinDate, "dd 'de' LLL", { locale: ptBR })
-                  ) : (
-                    <span>Selecione a data</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={checkinDate}
-                  onSelect={handleCheckinSelect}
-                  disabled={{ before: new Date() }}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+            <DatePicker
+              date={checkinDate}
+              setDate={setCheckinDate}
+              disabled={{ before: new Date() }}
+              placeholder="Selecione a data"
+            />
           </div>
           <div className="grid gap-2">
             <Label>Check-out</Label>
-            <Popover open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !checkoutDate && "text-muted-foreground"
-                  )}
-                  disabled={!checkinDate}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {checkoutDate ? (
-                    format(checkoutDate, "dd 'de' LLL", { locale: ptBR })
-                  ) : (
-                    <span>Selecione a data</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={checkoutDate}
-                  onSelect={handleCheckoutSelect}
-                  disabled={(date) =>
-                    !checkinDate || date <= checkinDate
-                  }
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+            <DatePicker
+              date={checkoutDate}
+              setDate={setCheckoutDate}
+              triggerDisabled={!checkinDate}
+              disabled={(date) => !checkinDate || date <= checkinDate}
+              placeholder="Selecione a data"
+            />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="guests">Hóspedes</Label>

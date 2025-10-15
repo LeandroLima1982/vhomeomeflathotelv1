@@ -5,14 +5,8 @@ import { Calendar as CalendarIcon, Users } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -32,8 +26,6 @@ export function AvailabilitySearchForm({ onSearch, isLoading }: AvailabilitySear
   const [checkoutDate, setCheckoutDate] = useState<Date | undefined>();
   const [guests, setGuests] = useState(1);
   const [isMounted, setIsMounted] = useState(false);
-  const [isCheckinCalendarOpen, setIsCheckinCalendarOpen] = useState(false);
-  const [isCheckoutCalendarOpen, setIsCheckoutCalendarOpen] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -58,16 +50,6 @@ export function AvailabilitySearchForm({ onSearch, isLoading }: AvailabilitySear
     onSearch({ checkin, checkout, adults: guests });
   };
 
-  const handleCheckinSelect = (date: Date | undefined) => {
-    setCheckinDate(date);
-    setIsCheckinCalendarOpen(false);
-  };
-
-  const handleCheckoutSelect = (date: Date | undefined) => {
-    setCheckoutDate(date);
-    setIsCheckoutCalendarOpen(false);
-  };
-
   return (
     <div className="relative z-10">
       <div className="px-4">
@@ -79,33 +61,12 @@ export function AvailabilitySearchForm({ onSearch, isLoading }: AvailabilitySear
                 <CalendarIcon className="h-4 w-4" />
                 Check-in
               </label>
-              <Popover open={isCheckinCalendarOpen} onOpenChange={setIsCheckinCalendarOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal bg-white/80 hover:bg-white",
-                      !checkinDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {checkinDate ? (
-                      format(checkinDate, "dd 'de' LLL", { locale: ptBR })
-                    ) : (
-                      <span>Selecione a data</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={checkinDate}
-                    onSelect={handleCheckinSelect}
-                    disabled={{ before: new Date() }}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <DatePicker
+                date={checkinDate}
+                setDate={setCheckinDate}
+                disabled={{ before: new Date() }}
+                placeholder="Selecione a data"
+              />
             </div>
 
             {/* Check-out */}
@@ -114,36 +75,13 @@ export function AvailabilitySearchForm({ onSearch, isLoading }: AvailabilitySear
                 <CalendarIcon className="h-4 w-4" />
                 Check-out
               </label>
-              <Popover open={isCheckoutCalendarOpen} onOpenChange={setIsCheckoutCalendarOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal bg-white/80 hover:bg-white",
-                      !checkoutDate && "text-muted-foreground"
-                    )}
-                    disabled={!checkinDate}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {checkoutDate ? (
-                      format(checkoutDate, "dd 'de' LLL", { locale: ptBR })
-                    ) : (
-                      <span>Selecione a data</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={checkoutDate}
-                    onSelect={handleCheckoutSelect}
-                    disabled={(date) =>
-                      !checkinDate || date <= checkinDate
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <DatePicker
+                date={checkoutDate}
+                setDate={setCheckoutDate}
+                triggerDisabled={!checkinDate}
+                disabled={(date) => !checkinDate || date <= checkinDate}
+                placeholder="Selecione a data"
+              />
             </div>
 
             {/* Guests */}
