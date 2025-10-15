@@ -7,7 +7,7 @@ import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 import Header from "@/components/hotel/Header";
-import Footer from "@/components/hotel/Footer";
+import SimpleFooter from "@/components/hotel/SimpleFooter"; // Importando o rodapé simplificado
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -289,7 +289,7 @@ const Checkout = () => {
           </div>
         </div>
       </main>
-      <Footer />
+      <SimpleFooter /> {/* Usando o SimpleFooter aqui */}
     </div>
   );
 };

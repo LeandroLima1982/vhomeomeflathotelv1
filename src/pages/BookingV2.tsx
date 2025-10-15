@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Header from "@/components/hotel/Header";
 import { AvailabilitySearchForm } from "@/components/hotel/AvailabilitySearchForm";
-import Footer from "@/components/hotel/Footer";
+import SimpleFooter from "@/components/hotel/SimpleFooter"; // Importando o rodapé simplificado
 import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
 import { Loader2, ServerCrash } from "lucide-react";
@@ -287,7 +287,7 @@ const BookingV2 = () => {
           )}
         </div>
       </main>
-      <Footer />
+      <SimpleFooter /> {/* Usando o SimpleFooter aqui */}
     </div>
   );
 };
