@@ -50,6 +50,7 @@ const BookingV2 = () => {
   const [sortOrder, setSortOrder] = useState('relevance');
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false); // Estado para controlar a montagem e animações
+  const [stickyFilterTop, setStickyFilterTop] = useState('96px'); // Altura inicial do cabeçalho (py-4 + logo h-16 = 32 + 64 = 96px)
 
   const searchFormRef = useRef<HTMLDivElement>(null);
 
@@ -175,6 +176,24 @@ const BookingV2 = () => {
     };
 
     fetchInitialData();
+  }, []);
+
+  useEffect(() => {
+    // Lógica para ajustar a posição do filtro com base na rolagem
+    const handleScroll = () => {
+      // O cabeçalho tem py-4 (32px) + logo (64px) = 96px quando não rolado
+      // O cabeçalho tem py-2 (16px) + logo (64px) = 80px quando rolado
+      if (window.scrollY > 10) { // 10px é o threshold para o cabeçalho mudar de estado
+        setStickyFilterTop('80px'); 
+      } else {
+        setStickyFilterTop('96px');
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    // Chama a função uma vez para definir o estado inicial corretamente
+    handleScroll(); 
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
@@ -329,7 +348,7 @@ const BookingV2 = () => {
                 </CardContent>
               </Card>
 
-              <div className="sticky top-20 z-20 bg-gray-50 pb-4 -mt-4"> {/* Ajustado para ser sticky */}
+              <div className="sticky z-20 bg-gray-50 pb-4 -mt-4" style={{ top: stickyFilterTop }}> {/* Ajustado para ser sticky */}
                 <FilterControls sortOrder={sortOrder} onSortChange={setSortOrder} />
               </div>
               <AvailabilityResults results={displayedResults} searchParams={searchParams} />
