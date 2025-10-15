@@ -178,6 +178,11 @@ const Checkout = () => {
                       )}
                     </div>
                     <h3 className="text-lg font-semibold text-gray-800">{room.nomeQuarto}</h3>
+                    {room.special_name && (
+                      <div className="inline-block bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md mt-1">
+                        {room.special_name}
+                      </div>
+                    )}
                     <Separator />
                     <div className="space-y-3 text-sm text-gray-600">
                       <div className="flex items-center justify-between">
