@@ -212,7 +212,7 @@ const BookingV2 = () => {
       if (data.error) throw new Error(data.error);
 
       const mergedResults = data.map((apiRoom: any) => {
-        const adjustedRoomId = apiRoom.idQuarto - 3; // CORRIGIDO: Subtraindo 3 para alinhar com IDs do Supabase
+        const adjustedRoomId = apiRoom.idQuarto - 3; // Subtraindo 3 para alinhar com IDs do Supabase
         const localRoom = localRoomsData.find(lr => lr.id === adjustedRoomId);
         return {
           ...apiRoom,
@@ -225,7 +225,9 @@ const BookingV2 = () => {
       });
 
       const pricedResults = mergedResults.filter(room => room.valorTotal > 0);
-      setRawResults(pricedResults);
+      // NOVO FILTRO: Oculta quartos sem imagem de capa
+      const finalFilteredResults = pricedResults.filter(room => room.imageUrl !== null);
+      setRawResults(finalFilteredResults);
 
     } catch (e: any) {
       console.error("Erro ao buscar disponibilidade:", e);
