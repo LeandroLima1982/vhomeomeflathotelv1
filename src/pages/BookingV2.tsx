@@ -11,6 +11,7 @@ import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils"; // Importar cn para classes condicionais
 
 interface LocalRoom {
   id: number;
@@ -43,14 +44,17 @@ const BookingV2 = () => {
   const [rawResults, setRawResults] = useState<AvailabilityResult[] | null>(null);
   const [displayedResults, setDisplayedResults] = useState<AvailabilityResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [localRoomsData, setLocalRoomsData] = useState<LocalRoom[]>([]);
+  const [localRoomsData, setLocalRoomsData] = useState<LocalRoom[]>([]
+  );
   const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
   const [sortOrder, setSortOrder] = useState('relevance');
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false); // Estado para controlar a montagem e animações
 
   const searchFormRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setIsMounted(true); // Define como montado para iniciar as animações
     const fetchInitialData = async () => {
       if (!supabase) {
         console.error('Supabase client not available in BookingV2 fetchInitialData');
@@ -261,13 +265,19 @@ const BookingV2 = () => {
           className="relative bg-cover bg-center bg-gray-700 py-40"
           style={{ backgroundImage: `url(${heroImageUrl || ''})` }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" /> {/* Overlay ajustado */}
           <div className="relative container mx-auto px-4 text-center">
             <div className="max-w-4xl mx-auto">
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
+              <h1 className={cn(
+                "text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg transition-all duration-700 ease-out",
+                isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+              )}>
                 Sua Estadia Perfeita à Beira-Mar Começa Aqui
               </h1>
-              <p className="text-gray-200 text-lg drop-shadow-md">
+              <p className={cn(
+                "text-gray-200 text-lg drop-shadow-md transition-all duration-700 ease-out delay-200",
+                isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+              )}>
                 Utilize nosso buscador para encontrar a acomodação ideal e garantir momentos de conforto e sofisticação.
               </p>
             </div>
