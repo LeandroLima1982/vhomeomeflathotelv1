@@ -13,6 +13,7 @@ import ScrollToTopOnNavigate from "./components/ScrollToTopOnNavigate";
 import BookingV2 from "./pages/BookingV2";
 import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
+import UpdatePassword from "./pages/UpdatePassword"; // Importando a nova página
 import { AuthProvider } from "./components/AuthProvider";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -41,6 +42,7 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<Hotel />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/update-password" element={<UpdatePassword />} /> {/* Adicionando a nova rota */}
                 <Route 
                   path="/admin" 
                   element={
