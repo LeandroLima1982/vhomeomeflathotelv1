@@ -125,7 +125,7 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
             )}
           </div>
           <Button onClick={handleSelectRoom} className="w-full sm:w-auto bg-blue-700 hover:bg-blue-800">
-            Selecionar
+            Reservar
           </Button>
         </CardFooter>
       </div>
