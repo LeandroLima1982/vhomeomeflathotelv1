@@ -1,3 +1,7 @@
+import { supabase } from "@/lib/supabaseClient";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
 import ImageManager from "@/components/admin/ImageManager";
 import LogoManager from "@/components/admin/LogoManager";
 import RoomImageManager from "@/components/admin/RoomImageManager";
@@ -5,13 +9,30 @@ import RoomManager from "@/components/admin/RoomManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Admin = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
+    navigate('/login');
+  };
+
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-4 text-gray-800">Gerenciamento de Conteúdo</h1>
-        <p className="text-gray-600 mb-8">
-          Use as abas abaixo para gerenciar as imagens e conteúdos de cada seção do site.
-        </p>
+        <div className="flex justify-between items-center mb-8 border-b pb-4">
+            <div>
+                <h1 className="text-3xl font-bold text-gray-800">Gerenciamento de Conteúdo</h1>
+                <p className="text-gray-600 mt-1">
+                Use as abas abaixo para gerenciar as imagens e conteúdos de cada seção do site.
+                </p>
+            </div>
+            <Button onClick={handleLogout} variant="outline">
+                <LogOut className="mr-2 h-4 w-4" />
+                Sair
+            </Button>
+        </div>
         
         <Tabs defaultValue="rooms" className="w-full">
           <TabsList className="grid w-full grid-cols-6">
