@@ -67,15 +67,13 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
       const unorderedKeys = validKeys.filter(key => !roomData.details_order.includes(key));
       const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
   
-      return [...orderedDetails, ...unorderedDetails].slice(0, 4);
+      return [...orderedDetails, ...unorderedDetails]; // Removido .slice(0, 4)
     }
   
-    return validKeys.map(key => detailsObject[key] as string).slice(0, 4);
+    return validKeys.map(key => detailsObject[key] as string); // Removido .slice(0, 4)
   };
 
   const details = getRoomDetails(room);
-
-  // console.log(`RoomResultCard for ${room.nomeQuarto} (ID: ${room.idQuarto}), Image URL: ${room.imageUrl}`); // Debug log removido
 
   return (
     <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col md:flex-row">
@@ -92,7 +90,7 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
         </CardHeader>
         <CardContent className="flex-grow">
           {details.length > 0 && (
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-4">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-4"> {/* Mantido grid para um layout organizado */}
               {details.map((detail, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <DetailIcon detailText={detail} />
