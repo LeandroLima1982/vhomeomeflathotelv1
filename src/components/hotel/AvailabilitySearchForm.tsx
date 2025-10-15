@@ -53,7 +53,7 @@ export function AvailabilitySearchForm({ onSearch, isLoading }: AvailabilitySear
   return (
     <div className="relative z-10">
       <div className="px-4">
-        <div className={`max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-xl shadow-xl transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+        <div className={`max-w-4xl mx-auto bg-gradient-to-br from-white to-gray-50 p-6 md:p-8 rounded-xl shadow-xl border border-gray-100 transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-4 md:items-end">
             {/* Check-in */}
             <div className="space-y-2 text-left">
