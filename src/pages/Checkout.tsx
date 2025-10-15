@@ -154,7 +154,7 @@ const Checkout = () => {
   return (
     <div className="bg-gray-50 min-h-screen">
       <Header />
-      <main className="pt-32 pb-20">
+      <main className="pb-20"> {/* Removido pt-32 */}
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-4">Finalizar Reserva</h1>

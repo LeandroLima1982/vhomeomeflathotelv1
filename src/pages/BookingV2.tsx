@@ -50,7 +50,8 @@ const BookingV2 = () => {
   const [sortOrder, setSortOrder] = useState('relevance');
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false); // Estado para controlar a montagem e animações
-  const [stickyFilterTop, setStickyFilterTop] = useState('96px'); // Altura inicial do cabeçalho (py-4 + logo h-16 = 32 + 64 = 96px)
+  // Ajustado para 0px, pois o cabeçalho não é mais fixo nesta página
+  const [stickyFilterTop, setStickyFilterTop] = useState('0px'); 
 
   const searchFormRef = useRef<HTMLDivElement>(null);
 
@@ -179,21 +180,9 @@ const BookingV2 = () => {
   }, []);
 
   useEffect(() => {
-    // Lógica para ajustar a posição do filtro com base na rolagem
-    const handleScroll = () => {
-      // O cabeçalho tem py-4 (32px) + logo (64px) = 96px quando não rolado
-      // O cabeçalho tem py-2 (16px) + logo (64px) = 80px quando rolado
-      if (window.scrollY > 10) { // 10px é o threshold para o cabeçalho mudar de estado
-        setStickyFilterTop('80px'); 
-      } else {
-        setStickyFilterTop('96px');
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    // Chama a função uma vez para definir o estado inicial corretamente
-    handleScroll(); 
-    return () => window.removeEventListener('scroll', handleScroll);
+    // A lógica de stickyFilterTop não precisa mais de ajuste dinâmico com a rolagem
+    // pois o cabeçalho não é fixo. O filtro simplesmente grudará no topo da viewport.
+    setStickyFilterTop('0px'); 
   }, []);
 
   useEffect(() => {
@@ -279,7 +268,7 @@ const BookingV2 = () => {
   return (
     <div className="bg-gray-50 min-h-screen">
       <Header />
-      <main>
+      <main className="pb-20"> {/* Removido pt-32 */}
         <section
           className="relative bg-cover bg-center bg-gray-700 py-40"
           style={{ backgroundImage: `url(${heroImageUrl || ''})` }}
@@ -348,10 +337,10 @@ const BookingV2 = () => {
                 </CardContent>
               </Card>
 
-              <div className="sticky z-20 bg-gray-50 pb-4" style={{ top: stickyFilterTop }}> {/* -mt-4 removido */}
+              <div className="sticky z-20 bg-gray-50 pb-4" style={{ top: stickyFilterTop }}>
                 <FilterControls sortOrder={sortOrder} onSortChange={setSortOrder} />
               </div>
-              <div className="pt-8"> {/* Adicionado padding para empurrar os resultados para baixo */}
+              <div className="pt-8">
                 <AvailabilityResults results={displayedResults} searchParams={searchParams} />
               </div>
             </>
