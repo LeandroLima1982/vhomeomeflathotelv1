@@ -171,6 +171,8 @@ const BookingV2 = () => {
       sortedResults.sort((a, b) => a.valorTotal - b.valorTotal);
     } else if (sortOrder === 'price_desc') {
       sortedResults.sort((a, b) => b.valorTotal - a.valorTotal);
+    } else if (sortOrder === 'relevance') { // Adicionando ordenação por idQuarto para 'relevance'
+      sortedResults.sort((a, b) => a.idQuarto - b.idQuarto);
     }
     setDisplayedResults(sortedResults);
   }, [rawResults, sortOrder]);
