@@ -44,6 +44,8 @@ export function RoomResultGridCard({ room, searchParams }: RoomResultGridCardPro
     });
   };
 
+  console.log(`RoomResultGridCard for ${room.nomeQuarto} (ID: ${room.idQuarto}), Image URL: ${room.imageUrl}`); // Debug log
+
   return (
     <div
       className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer"

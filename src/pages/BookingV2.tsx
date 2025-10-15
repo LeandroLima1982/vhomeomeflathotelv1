@@ -46,7 +46,10 @@ const BookingV2 = () => {
 
   useEffect(() => {
     const fetchInitialData = async () => {
-      if (!supabase) return;
+      if (!supabase) {
+        console.error('Supabase client not available in BookingV2 fetchInitialData');
+        return;
+      }
 
       // Fetch Hero Image
       try {
@@ -83,72 +86,75 @@ const BookingV2 = () => {
         .order('id');
 
       if (roomError) {
-        console.error("Error fetching local rooms:", roomError);
+        console.error("Error fetching local rooms data from Supabase:", roomError);
         return;
       }
 
       const roomsWithImages = await Promise.all(
         roomData.map(async (room) => {
+          let imageUrl: string | null = null;
           try {
+            // Try to find a cover image directly in 'rooms/' folder
             const { data: coverFiles } = await supabase.storage
               .from('gallery')
-              .list('rooms', { search: `${room.id}.` });
+              .list('rooms', { search: `${room.id}.` }); // e.g., '4.png'
 
             if (coverFiles && coverFiles.length > 0) {
-              const coverFile = coverFiles[0];
+              const coverFile = coverFiles[0]; // Take the first one found
               const { data: { publicUrl } } = supabase.storage
                 .from('gallery')
                 .getPublicUrl(`rooms/${coverFile.name}`);
-              return { ...room, imageUrl: `${publicUrl}?t=${new Date().getTime()}` };
+              imageUrl = `${publicUrl}?t=${new Date().getTime()}`; // Add timestamp to bust cache
             }
 
-            const { data: galleryFiles } = await supabase.storage
-              .from('gallery')
-              .list(`rooms/${room.id}/gallery`, { 
-                limit: 100,
-                sortBy: { column: 'created_at', order: 'desc' }
-              });
+            // If no cover image, try to find the first image in the room's gallery subfolder
+            if (!imageUrl) {
+              const { data: galleryFiles } = await supabase.storage
+                .from('gallery')
+                .list(`rooms/${room.id}/gallery`, { 
+                  limit: 100,
+                  sortBy: { column: 'created_at', order: 'desc' }
+                });
 
-            if (galleryFiles && galleryFiles.length > 0) {
-              const validFiles = galleryFiles.filter(
-                file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json'
-              );
+              if (galleryFiles && galleryFiles.length > 0) {
+                const validFiles = galleryFiles.filter(
+                  file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json'
+                );
 
-              if (validFiles.length > 0) {
-                const { data: orderFileData } = await supabase.storage
-                  .from('gallery')
-                  .download(`rooms/${room.id}/gallery/_order.json`);
+                if (validFiles.length > 0) {
+                  let firstImageName: string | null = null;
+                  const { data: orderFileData } = await supabase.storage
+                    .from('gallery')
+                    .download(`rooms/${room.id}/gallery/_order.json`);
 
-                let firstImageName: string | null = null;
-
-                if (orderFileData) {
-                  try {
-                    const orderJson = await orderFileData.text();
-                    const orderedNames = JSON.parse(orderJson) as string[];
-                    const validOrderedName = orderedNames.find(name => 
-                      validFiles.some(file => file.name === name)
-                    );
-                    if (validOrderedName) {
-                      firstImageName = validOrderedName;
+                  if (orderFileData) {
+                    try {
+                      const orderJson = await orderFileData.text();
+                      const orderedNames = JSON.parse(orderJson) as string[];
+                      const validOrderedName = orderedNames.find(name => 
+                        validFiles.some(file => file.name === name)
+                      );
+                      if (validOrderedName) {
+                        firstImageName = validOrderedName;
+                      }
+                    } catch (e) {
+                      console.warn(`Could not parse order file for room ${room.id}:`, e);
                     }
-                  } catch (e) {
-                    console.warn(`Could not parse order file for room ${room.id}`);
                   }
-                }
 
-                if (!firstImageName) {
-                  firstImageName = validFiles[0].name;
+                  if (!firstImageName) {
+                    firstImageName = validFiles[0].name; // Fallback to first file if no order or parsing error
+                  }
+                  
+                  const { data: { publicUrl } } = supabase.storage
+                    .from('gallery')
+                    .getPublicUrl(`rooms/${room.id}/gallery/${firstImageName}`);
+                  
+                  imageUrl = `${publicUrl}?t=${new Date().getTime()}`;
                 }
-                
-                const { data: { publicUrl } } = supabase.storage
-                  .from('gallery')
-                  .getPublicUrl(`rooms/${room.id}/gallery/${firstImageName}`);
-                
-                return { ...room, imageUrl: `${publicUrl}?t=${new Date().getTime()}` };
               }
             }
-
-            return { ...room, imageUrl: null };
+            return { ...room, imageUrl };
           } catch (error) {
             console.error(`Error fetching image for room ${room.id}:`, error);
             return { ...room, imageUrl: null };
@@ -156,6 +162,7 @@ const BookingV2 = () => {
         })
       );
       setLocalRoomsData(roomsWithImages);
+      console.log("Local Rooms Data with Images:", roomsWithImages); // Debug log
     };
 
     fetchInitialData();
@@ -206,12 +213,13 @@ const BookingV2 = () => {
       if (data.error) throw new Error(data.error);
 
       const mergedResults = data.map((apiRoom: any) => {
-        // Ajusta o idQuarto da API externa para corresponder ao ID do Supabase (adiciona 3)
         const adjustedRoomId = apiRoom.idQuarto + 3; 
+        console.log(`API Room ID: ${apiRoom.idQuarto}, Adjusted Supabase ID: ${adjustedRoomId}`); // Debug log
         const localRoom = localRoomsData.find(lr => lr.id === adjustedRoomId);
+        console.log(`Found localRoom for ID ${adjustedRoomId}:`, localRoom); // Debug log
         return {
           ...apiRoom,
-          idQuarto: adjustedRoomId, // Atualiza o idQuarto para o valor ajustado
+          idQuarto: adjustedRoomId, 
           imageUrl: localRoom?.imageUrl || null,
           details: localRoom?.details || null,
           details_order: localRoom?.details_order || null,
@@ -221,6 +229,7 @@ const BookingV2 = () => {
 
       const pricedResults = mergedResults.filter(room => room.valorTotal > 0);
       setRawResults(pricedResults);
+      console.log("Final Merged Results:", pricedResults); // Debug log
 
     } catch (e: any) {
       console.error("Erro ao buscar disponibilidade:", e);
