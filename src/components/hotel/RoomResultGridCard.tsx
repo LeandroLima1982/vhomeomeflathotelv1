@@ -1,7 +1,7 @@
 "use client";
 
 import { useNavigate } from "react-router-dom";
-import { BedDouble, Tag } from "lucide-react";
+import { BedDouble, Tag, Users } from "lucide-react"; // Importando Users
 import { Button } from "@/components/ui/button";
 
 interface AvailabilityResult {
@@ -44,7 +44,16 @@ export function RoomResultGridCard({ room, searchParams }: RoomResultGridCardPro
     });
   };
 
-  // console.log(`RoomResultGridCard for ${room.nomeQuarto} (ID: ${room.idQuarto}), Image URL: ${room.imageUrl}`); // Debug log removido
+  // Função para extrair a capacidade de hóspedes
+  const getCapacityDisplay = (details: Record<string, string | null> | null) => {
+    if (!details) return null;
+    const capacityDetail = Object.entries(details).find(([key, value]) => 
+      key.toLowerCase().includes('capacidade') || (value && value.toLowerCase().includes('hóspedes')) || (value && value.toLowerCase().includes('adultos'))
+    );
+    return capacityDetail ? capacityDetail[1] : null;
+  };
+
+  const capacity = getCapacityDisplay(room.details);
 
   return (
     <div
@@ -70,6 +79,12 @@ export function RoomResultGridCard({ room, searchParams }: RoomResultGridCardPro
             </div>
           )}
           <h3 className="text-lg font-semibold">{room.nomeQuarto}</h3>
+          {capacity && (
+            <div className="flex items-center gap-2 text-xs text-gray-200 mt-1">
+              <Users className="h-3 w-3" />
+              <span>{capacity}</span>
+            </div>
+          )}
         </div>
       </div>
       <div className="p-4 bg-gray-50 flex items-center justify-between">

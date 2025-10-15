@@ -3,9 +3,10 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BedDouble, Tag } from "lucide-react";
+import { BedDouble, Tag, Users } from "lucide-react"; // Importando Users
 import DetailIcon from './DetailIcon';
-import { parse, differenceInDays } from "date-fns"; // Importando parse e differenceInDays
+import { parse, differenceInDays } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface RoomResult {
   idQuarto: number;
@@ -15,7 +16,7 @@ interface RoomResult {
   imageUrl: string | null;
   details: Record<string, string | null> | null;
   details_order: string[] | null;
-  special_name?: string | null; // Adicionado para garantir que a propriedade exista
+  special_name?: string | null;
   [key: string]: any;
 }
 
@@ -38,7 +39,6 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
     currency: 'BRL',
   }).format(room.valorTotal);
 
-  // Calcular o número de diárias
   const checkinDateObj = parse(searchParams.checkin, "yyyyMMdd", new Date());
   const checkoutDateObj = parse(searchParams.checkout, "yyyyMMdd", new Date());
   const numberOfNights = differenceInDays(checkoutDateObj, checkinDateObj);
@@ -83,6 +83,17 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
 
   const details = getRoomDetails(room);
 
+  // Função para extrair a capacidade de hóspedes
+  const getCapacityDisplay = (details: Record<string, string | null> | null) => {
+    if (!details) return null;
+    const capacityDetail = Object.entries(details).find(([key, value]) => 
+      key.toLowerCase().includes('capacidade') || (value && value.toLowerCase().includes('hóspedes')) || (value && value.toLowerCase().includes('adultos'))
+    );
+    return capacityDetail ? capacityDetail[1] : null;
+  };
+
+  const capacity = getCapacityDisplay(room.details);
+
   return (
     <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col md:flex-row">
       <div className="md:w-1/3 bg-gray-200 flex items-center justify-center p-4 min-h-[200px] relative">
@@ -100,6 +111,12 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
             </div>
           )}
           <CardTitle className="text-xl text-gray-800">{room.nomeQuarto}</CardTitle>
+          {capacity && (
+            <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+              <Users className="h-4 w-4 text-blue-700" />
+              <span>{capacity}</span>
+            </div>
+          )}
         </CardHeader>
         <CardContent className="flex-grow">
           {details.length > 0 && (
@@ -119,13 +136,13 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
           </p>
         </CardContent>
         <CardFooter className="bg-gray-50 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex flex-col items-start"> {/* Alterado para flex-col para empilhar os itens */}
+          <div className="flex flex-col items-start">
             <span className="text-sm text-gray-600">Total para o período</span>
             <p className="text-2xl font-bold text-blue-800 flex items-center">
               <Tag className="h-5 w-5 mr-2 opacity-70" />
               {formattedPrice}
             </p>
-            {numberOfNights > 0 && ( // Exibe o número de diárias apenas se for maior que zero
+            {numberOfNights > 0 && (
               <span className="text-xs text-gray-500 mt-1">
                 ({numberOfNights} diária{numberOfNights > 1 ? 's' : ''})
               </span>
