@@ -1,12 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Header from "@/components/hotel/Header";
 import { AvailabilitySearchForm } from "@/components/hotel/AvailabilitySearchForm";
-import SimpleFooter from "@/components/hotel/SimpleFooter"; // Importando o rodapé simplificado
+import SimpleFooter from "@/components/hotel/SimpleFooter";
 import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
-import { Loader2, ServerCrash } from "lucide-react";
+import { Loader2, ServerCrash, Calendar, Users, Search } from "lucide-react";
 import { AvailabilityResults } from "@/components/hotel/AvailabilityResults";
 import { FilterControls } from "@/components/hotel/FilterControls";
+import { format, parse } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface LocalRoom {
   id: number;
@@ -43,6 +47,8 @@ const BookingV2 = () => {
   const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
   const [sortOrder, setSortOrder] = useState('relevance');
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
+
+  const searchFormRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -177,7 +183,7 @@ const BookingV2 = () => {
       sortedResults.sort((a, b) => a.valorTotal - b.valorTotal);
     } else if (sortOrder === 'price_desc') {
       sortedResults.sort((a, b) => b.valorTotal - a.valorTotal);
-    } else if (sortOrder === 'relevance') { // Adicionando ordenação por idQuarto para 'relevance'
+    } else if (sortOrder === 'relevance') {
       sortedResults.sort((a, b) => a.idQuarto - b.idQuarto);
     }
     setDisplayedResults(sortedResults);
@@ -225,7 +231,6 @@ const BookingV2 = () => {
       });
 
       const pricedResults = mergedResults.filter(room => room.valorTotal > 0);
-      // NOVO FILTRO: Oculta quartos sem imagem de capa
       const finalFilteredResults = pricedResults.filter(room => room.imageUrl !== null);
       setRawResults(finalFilteredResults);
 
@@ -237,6 +242,15 @@ const BookingV2 = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const formatDate = (dateStr: string) => {
+    const date = parse(dateStr, "yyyyMMdd", new Date());
+    return format(date, "dd 'de' LLLL 'de' yyyy", { locale: ptBR });
+  };
+
+  const scrollToSearchForm = () => {
+    searchFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   return (
@@ -260,7 +274,7 @@ const BookingV2 = () => {
           </div>
         </section>
 
-        <div className="relative z-10 -mt-16">
+        <div ref={searchFormRef} className="relative z-10 -mt-16">
           <AvailabilitySearchForm onSearch={handleSearch} isLoading={isLoading} />
         </div>
 
@@ -281,13 +295,39 @@ const BookingV2 = () => {
           )}
           {displayedResults && searchParams && (
             <>
-              <FilterControls sortOrder={sortOrder} onSortChange={setSortOrder} />
+              <Card className="mb-8 shadow-md bg-white">
+                <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 text-gray-700 text-sm flex-wrap justify-center sm:justify-start">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4 text-blue-600" />
+                      <span>{formatDate(searchParams.checkin)}</span>
+                    </div>
+                    <span>-</span>
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4 text-blue-600" />
+                      <span>{formatDate(searchParams.checkout)}</span>
+                    </div>
+                    <div className="flex items-center gap-1 ml-2">
+                      <Users className="h-4 w-4 text-blue-600" />
+                      <span>{searchParams.adults} Hóspede{searchParams.adults > 1 ? 's' : ''}</span>
+                    </div>
+                  </div>
+                  <Button variant="outline" onClick={scrollToSearchForm} className="w-full sm:w-auto">
+                    <Search className="h-4 w-4 mr-2" />
+                    Modificar Busca
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <div className="sticky top-20 z-20 bg-gray-50 pb-4 -mt-4"> {/* Ajustado para ser sticky */}
+                <FilterControls sortOrder={sortOrder} onSortChange={setSortOrder} />
+              </div>
               <AvailabilityResults results={displayedResults} searchParams={searchParams} />
             </>
           )}
         </div>
       </main>
-      <SimpleFooter /> {/* Usando o SimpleFooter aqui */}
+      <SimpleFooter />
     </div>
   );
 };
