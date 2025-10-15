@@ -15,6 +15,11 @@ const amenities = [
   { icon: <ConciergeBell className="h-8 w-8 text-blue-700" />, name: "Serviço de Concierge", description: "Assistência personalizada" },
   { icon: <BedDouble className="h-8 w-8 text-blue-700" />, name: "Enxoval Completo", description: "Cama, mesa e banho. Conforto em cada detalhe" },
   { icon: <Sparkles className="h-8 w-8 text-blue-700" />, name: "Serviço de Camareira", description: "Você não precisa se preocupar com tarefas domésticas" },
+  // Novos cards adicionados aqui
+  { icon: <Sparkles className="h-8 w-8 text-blue-700" />, name: "Nova Comodidade 1", description: "Descrição da nova comodidade 1" },
+  { icon: <Sparkles className="h-8 w-8 text-blue-700" />, name: "Nova Comodidade 2", description: "Descrição da nova comodidade 2" },
+  { icon: <Sparkles className="h-8 w-8 text-blue-700" />, name: "Nova Comodidade 3", description: "Descrição da nova comodidade 3" },
+  { icon: <Sparkles className="h-8 w-8 text-blue-700" />, name: "Nova Comodidade 4", description: "Descrição da nova comodidade 4" },
 ];
 
 export function Amenities() {
