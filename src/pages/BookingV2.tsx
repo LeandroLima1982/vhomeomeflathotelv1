@@ -6,13 +6,12 @@ import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
 import { Loader2, ServerCrash, Calendar, Users, Search } from "lucide-react";
 import { AvailabilityResults } from "@/components/hotel/AvailabilityResults";
-import { FilterControls } from "@/components/hotel/FilterControls";
 import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils"; // Importar cn para classes condicionais
-import { InitialBookingState } from "@/components/hotel/InitialBookingState"; // Importando o novo componente
+import { cn } from "@/lib/utils";
+import { InitialBookingState } from "@/components/hotel/InitialBookingState";
 
 interface LocalRoom {
   id: number;
@@ -45,19 +44,16 @@ const BookingV2 = () => {
   const [rawResults, setRawResults] = useState<AvailabilityResult[] | null>(null);
   const [displayedResults, setDisplayedResults] = useState<AvailabilityResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [localRoomsData, setLocalRoomsData] = useState<LocalRoom[]>([]
-  );
+  const [localRoomsData, setLocalRoomsData] = useState<LocalRoom[]>([]);
   const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
-  const [sortOrder, setSortOrder] = useState('price_asc'); // Definido como 'price_asc' por padrão
+  const [sortOrder, setSortOrder] = useState('price_asc');
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
-  const [isMounted, setIsMounted] = useState(false); // Estado para controlar a montagem e animações
-  // Ajustado para 0px, pois o cabeçalho não é mais fixo nesta página
-  const [stickyFilterTop, setStickyFilterTop] = useState('0px'); 
+  const [isMounted, setIsMounted] = useState(false);
 
   const searchFormRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setIsMounted(true); // Define como montado para iniciar as animações
+    setIsMounted(true);
     const fetchInitialData = async () => {
       if (!supabase) {
         console.error('Supabase client not available in BookingV2 fetchInitialData');
@@ -110,14 +106,14 @@ const BookingV2 = () => {
             // Try to find a cover image directly in 'rooms/' folder
             const { data: coverFiles } = await supabase.storage
               .from('gallery')
-              .list('rooms', { search: `${room.id}.` }); // e.g., '4.png'
+              .list('rooms', { search: `${room.id}.` });
 
             if (coverFiles && coverFiles.length > 0) {
-              const coverFile = coverFiles[0]; // Take the first one found
+              const coverFile = coverFiles[0];
               const { data: { publicUrl } } = supabase.storage
                 .from('gallery')
                 .getPublicUrl(`rooms/${coverFile.name}`);
-              imageUrl = `${publicUrl}?t=${new Date().getTime()}`; // Add timestamp to bust cache
+              imageUrl = `${publicUrl}?t=${new Date().getTime()}`;
             }
 
             // If no cover image, try to find the first image in the room's gallery subfolder
@@ -156,7 +152,7 @@ const BookingV2 = () => {
                   }
 
                   if (!firstImageName) {
-                    firstImageName = validFiles[0].name; // Fallback to first file if no order or parsing error
+                    firstImageName = validFiles[0].name;
                   }
                   
                   const { data: { publicUrl } } = supabase.storage
@@ -181,12 +177,6 @@ const BookingV2 = () => {
   }, []);
 
   useEffect(() => {
-    // A lógica de stickyFilterTop não precisa mais de ajuste dinâmico com a rolagem
-    // pois o cabeçalho não é fixo. O filtro simplesmente grudará no topo da viewport.
-    setStickyFilterTop('0px'); 
-  }, []);
-
-  useEffect(() => {
     if (!rawResults) {
       setDisplayedResults(null);
       return;
@@ -207,8 +197,6 @@ const BookingV2 = () => {
     setRawResults(null);
     setError(null);
     setSearchParams(params);
-    // setSortOrder('relevance'); // REMOVIDO: Não resetar a ordenação após a busca
-    // A ordenação padrão será mantida ou a última selecionada pelo usuário.
 
     if (!supabase) {
       const errorMessage = "Cliente Supabase não está disponível. Verifique a configuração.";
@@ -232,7 +220,7 @@ const BookingV2 = () => {
       if (data.error) throw new Error(data.error);
 
       const mergedResults = data.map((apiRoom: any) => {
-        const adjustedRoomId = apiRoom.idQuarto - 3; // Subtraindo 3 para alinhar com IDs do Supabase
+        const adjustedRoomId = apiRoom.idQuarto - 3;
         const localRoom = localRoomsData.find(lr => lr.id === adjustedRoomId);
         return {
           ...apiRoom,
@@ -275,7 +263,7 @@ const BookingV2 = () => {
           className="relative bg-cover bg-center bg-gray-700 py-40"
           style={{ backgroundImage: `url(${heroImageUrl || ''})` }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" /> {/* Overlay ajustado */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
           <div className="relative container mx-auto px-4 text-center">
             <div className="max-w-4xl mx-auto">
               <h1 className={cn(
@@ -342,12 +330,13 @@ const BookingV2 = () => {
                 </CardContent>
               </Card>
 
-              <div className="sticky z-20 bg-gray-50 pb-4" style={{ top: stickyFilterTop }}>
-                <FilterControls sortOrder={sortOrder} onSortChange={setSortOrder} />
-              </div>
-              <div className="pt-8">
-                <AvailabilityResults results={displayedResults} searchParams={searchParams} />
-              </div>
+              {/* O componente AvailabilityResults agora gerenciará o FilterControls e sua própria seção sticky */}
+              <AvailabilityResults 
+                results={displayedResults} 
+                searchParams={searchParams} 
+                sortOrder={sortOrder} 
+                onSortChange={setSortOrder} 
+              />
             </>
           )}
         </div>

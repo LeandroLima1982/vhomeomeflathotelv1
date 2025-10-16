@@ -6,6 +6,7 @@ import { RoomResultGridCard } from "./RoomResultGridCard";
 import { BedDouble, List, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { FilterControls } from "./FilterControls"; // Importando FilterControls
 
 interface AvailabilityResult {
   idQuarto: number;
@@ -27,9 +28,11 @@ interface SearchParams {
 interface AvailabilityResultsProps {
   results: AvailabilityResult[];
   searchParams: SearchParams;
+  sortOrder: string; // Adicionando prop para ordenação
+  onSortChange: (value: string) => void; // Adicionando prop para mudança de ordenação
 }
 
-export function AvailabilityResults({ results, searchParams }: AvailabilityResultsProps) {
+export function AvailabilityResults({ results, searchParams, sortOrder, onSortChange }: AvailabilityResultsProps) {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const availableRooms = results.filter(room => room.disponibilidade > 0);
 
@@ -47,43 +50,50 @@ export function AvailabilityResults({ results, searchParams }: AvailabilityResul
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800">Acomodações Disponíveis</h2>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setViewMode('list')}
-            className={cn(viewMode === 'list' && 'bg-gray-200')}
-            aria-label="Visualização em lista"
-          >
-            <List className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setViewMode('grid')}
-            className={cn(viewMode === 'grid' && 'bg-gray-200')}
-            aria-label="Visualização em grade"
-          >
-            <LayoutGrid className="h-4 w-4" />
-          </Button>
+      {/* Novo contêiner sticky para o título, botões de visualização e filtro */}
+      <div className="sticky top-0 z-20 bg-gray-50 pb-4 pt-8"> {/* Adicionado pt-8 para espaçamento superior */}
+        <div className="flex justify-between items-center mb-4"> {/* Reduzido mb para melhor compactação */}
+          <h2 className="text-2xl font-bold text-gray-800">Acomodações Disponíveis</h2>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setViewMode('list')}
+              className={cn(viewMode === 'list' && 'bg-gray-200')}
+              aria-label="Visualização em lista"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setViewMode('grid')}
+              className={cn(viewMode === 'grid' && 'bg-gray-200')}
+              aria-label="Visualização em grade"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
+        <FilterControls sortOrder={sortOrder} onSortChange={onSortChange} />
       </div>
 
-      {viewMode === 'list' ? (
-        <div className="space-y-6">
-          {availableRooms.map((room) => (
-            <RoomResultCard key={room.idQuarto} room={room} searchParams={searchParams} />
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {availableRooms.map((room) => (
-            <RoomResultGridCard key={room.idQuarto} room={room} searchParams={searchParams} />
-          ))}
-        </div>
-      )}
+      {/* Conteúdo dos resultados, sem padding-top adicional aqui */}
+      <div className="pt-4"> {/* Adicionado pt-4 para espaçamento entre o sticky e os resultados */}
+        {viewMode === 'list' ? (
+          <div className="space-y-6">
+            {availableRooms.map((room) => (
+              <RoomResultCard key={room.idQuarto} room={room} searchParams={searchParams} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {availableRooms.map((room) => (
+              <RoomResultGridCard key={room.idQuarto} room={room} searchParams={searchParams} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
