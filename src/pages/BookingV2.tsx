@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { InitialBookingState } from "@/components/hotel/InitialBookingState";
+import { BookingStickyControls } from "@/components/hotel/BookingStickyControls"; // Importando o novo componente
 
 interface LocalRoom {
   id: number;
@@ -49,6 +50,7 @@ const BookingV2 = () => {
   const [sortOrder, setSortOrder] = useState('price_asc');
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list'); // Estado para o modo de visualização
 
   const searchFormRef = useRef<HTMLDivElement>(null);
 
@@ -306,36 +308,20 @@ const BookingV2 = () => {
           )}
           {displayedResults && searchParams && (
             <>
-              <Card className="mb-4 shadow-md bg-white">
-                <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="flex items-center gap-4 text-gray-700 text-sm flex-wrap justify-center sm:justify-start">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4 text-blue-600" />
-                      <span>{formatDate(searchParams.checkin)}</span>
-                    </div>
-                    <span>-</span>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4 text-blue-600" />
-                      <span>{formatDate(searchParams.checkout)}</span>
-                    </div>
-                    <div className="flex items-center gap-1 ml-2">
-                      <Users className="h-4 w-4 text-blue-600" />
-                      <span>{searchParams.adults} Hóspede{searchParams.adults > 1 ? 's' : ''}</span>
-                    </div>
-                  </div>
-                  <Button variant="outline" onClick={scrollToSearchForm} className="w-full sm:w-auto">
-                    <Search className="h-4 w-4 mr-2" />
-                    Modificar Busca
-                  </Button>
-                </CardContent>
-              </Card>
+              <BookingStickyControls
+                searchParams={searchParams}
+                sortOrder={sortOrder}
+                onSortChange={setSortOrder}
+                scrollToSearchForm={scrollToSearchForm}
+                viewMode={viewMode}
+                onViewModeChange={setViewMode}
+                availableRoomsCount={displayedResults.filter(room => room.disponibilidade > 0).length}
+              />
 
-              {/* O componente AvailabilityResults agora gerenciará o FilterControls e sua própria seção sticky */}
               <AvailabilityResults 
                 results={displayedResults} 
                 searchParams={searchParams} 
-                sortOrder={sortOrder} 
-                onSortChange={setSortOrder} 
+                viewMode={viewMode} // Passando viewMode para AvailabilityResults
               />
             </>
           )}
