@@ -278,7 +278,7 @@ const BookingV2 = () => {
                 "text-gray-200 text-lg drop-shadow-md transition-all duration-700 ease-out delay-200",
                 isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
               )}>
-                Utilize nosso buscador para encontrar a acomodação ideal e garantir momentos de conforto e sofisticação.
+                Encontre Sua Acomodação Ideal em Macaé.
               </p>
             </div>
           </div>
