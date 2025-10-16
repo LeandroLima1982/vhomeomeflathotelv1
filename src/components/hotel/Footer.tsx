@@ -54,7 +54,7 @@ export default function Footer() {
         <div className="border-t border-blue-800 mt-8 pt-8 text-center text-gray-300">
           <p>&copy; 2025 V-Home Flat Hotel. Todos os direitos reservados.</p>
           <p className="mt-2 text-sm">
-            Um empreendimento <Link to="/institucional" className="underline hover:text-white">VERY Construtora</Link>.
+            Um empreendimento <Link to="/institucional" className="underline hover:text-white">VERY</Link>.
           </p>
         </div>
       </div>
