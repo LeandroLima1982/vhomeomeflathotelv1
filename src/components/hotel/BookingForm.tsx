@@ -67,7 +67,6 @@ export function BookingForm() {
                 setDate={setCheckinDate}
                 disabled={{ before: new Date() }}
                 placeholder="Selecione a data"
-                className="w-full" {/* Adicionado w-full para garantir largura total */}
               />
             </div>
 
@@ -83,7 +82,6 @@ export function BookingForm() {
                 triggerDisabled={!checkinDate}
                 disabled={(date) => !checkinDate || date <= checkinDate}
                 placeholder="Selecione a data"
-                className="w-full" {/* Adicionado w-full para garantir largura total */}
               />
             </div>
 
