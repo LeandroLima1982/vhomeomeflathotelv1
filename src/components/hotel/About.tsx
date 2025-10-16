@@ -11,7 +11,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Star, MapPin, Waves, Wifi, Car, Coffee } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 
 const features = [
   { icon: Star, text: "Flat Hotel 4 Estrelas" },
@@ -19,7 +19,7 @@ const features = [
   { icon: Waves, text: "Beira-Mar" },
   { icon: Wifi, text: "Wi-Fi Grátis" },
   { icon: Car, text: "Estacionamento Grátis" },
-  { icon: Coffee, text: "Café da Manã Incluso" },
+  { icon: Coffee, text: "Café da Manhã Incluso" },
 ];
 
 export default function About() {
@@ -99,7 +99,7 @@ export default function About() {
                 proporcionar uma experiência inesquecível.
               </p>
               <p className="text-gray-600 leading-relaxed mt-4">
-                Cada suíte conta com ar-condicionado, tv smart,
+                Cada flat conta com ar-condicionado, tv smart,
                 cozinha completa. Desfrute de nossa
                 piscina SPA aquecida ao ar livre, terraço com vista pro mar, e serviço de concierge
                 disponível 24 horas.

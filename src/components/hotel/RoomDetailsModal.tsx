@@ -26,7 +26,7 @@ import {
   Clock
 } from 'lucide-react';
 import FeatureListDisplay, { FeatureCategory } from './FeatureListDisplay';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabaseClient';
 import { RoomBookingForm } from './RoomBookingForm';
 
 interface RoomDetailsModalProps {

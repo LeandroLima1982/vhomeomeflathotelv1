@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { BedDouble, Star, MousePointerClick } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabaseClient';
 import { Skeleton } from '@/components/ui/skeleton';
 import RoomDetailsModal from './RoomDetailsModal';
 import DetailIcon from './DetailIcon';
