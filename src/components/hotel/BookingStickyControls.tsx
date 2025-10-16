@@ -7,7 +7,13 @@ import { ptBR } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { FilterControls } from "./FilterControls";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"; // Importando Select diretamente
 import { cn } from "@/lib/utils";
 
 interface SearchParams {
@@ -94,8 +100,18 @@ export function BookingStickyControls({
                 <LayoutGrid className="h-4 w-4" />
               </Button>
             </div>
-            <div className="w-full max-w-[120px] sm:max-w-[150px]"> {/* Ajuste de largura para o Select */}
-              <FilterControls sortOrder={sortOrder} onSortChange={onSortChange} />
+            {/* Seletor de ordenação direto, sem Card */}
+            <div className="w-full max-w-[120px] sm:max-w-[150px]">
+              <Select value={sortOrder} onValueChange={onSortChange}>
+                <SelectTrigger id="sort-order" className="h-8 text-xs sm:text-sm">
+                  <SelectValue placeholder="Ordenar por..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="relevance">Relevância</SelectItem>
+                  <SelectItem value="price_asc">Menor Preço</SelectItem>
+                  <SelectItem value="price_desc">Maior Preço</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
