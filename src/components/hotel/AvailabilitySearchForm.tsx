@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar as CalendarIcon, Users } from "lucide-react";
-import { format } from "date-fns";
+import { Calendar as CalendarIcon, Users, Loader2 } from "lucide-react";
+import { format, addDays, parseISO } from "date-fns"; // Importando addDays e parseISO
 import { ptBR } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils"; // Importando cn para classes condicionais
 
 interface AvailabilitySearchFormProps {
   onSearch: (params: { checkin: string; checkout: string; adults: number }) => void;
@@ -24,16 +24,41 @@ interface AvailabilitySearchFormProps {
 export function AvailabilitySearchForm({ onSearch, isLoading }: AvailabilitySearchFormProps) {
   const [checkinDate, setCheckinDate] = useState<Date | undefined>();
   const [checkoutDate, setCheckoutDate] = useState<Date | undefined>();
-  const [guests, setGuests] = useState(1);
+  const [guests, setGuests] = useState(2); // Default para 2 hóspedes
   const [isMounted, setIsMounted] = useState(false);
+  const [showDateError, setShowDateError] = useState(false); // Novo estado para validação visual
 
   useEffect(() => {
     setIsMounted(true);
+
+    // Tenta carregar os últimos valores pesquisados do localStorage
+    const savedCheckin = localStorage.getItem('lastCheckinDate');
+    const savedCheckout = localStorage.getItem('lastCheckoutDate');
+    const savedGuests = localStorage.getItem('lastGuests');
+
+    if (savedCheckin && savedCheckout && savedGuests) {
+      setCheckinDate(parseISO(savedCheckin));
+      setCheckoutDate(parseISO(savedCheckout));
+      setGuests(Number(savedGuests));
+    } else {
+      // Define valores padrão: check-in em 2 dias, check-out em 4 dias (2 diárias), 2 hóspedes
+      const today = new Date();
+      const defaultCheckin = addDays(today, 2);
+      const defaultCheckout = addDays(defaultCheckin, 2);
+      setCheckinDate(defaultCheckin);
+      setCheckoutDate(defaultCheckout);
+      setGuests(2);
+    }
   }, []);
 
+  // Reseta a data de checkout se for anterior ou igual à de check-in
   useEffect(() => {
     if (checkinDate && checkoutDate && checkoutDate <= checkinDate) {
       setCheckoutDate(undefined);
+    }
+    // Limpa o erro de validação se as datas estiverem preenchidas
+    if (checkinDate && checkoutDate) {
+      setShowDateError(false);
     }
   }, [checkinDate, checkoutDate]);
 
@@ -41,8 +66,14 @@ export function AvailabilitySearchForm({ onSearch, isLoading }: AvailabilitySear
     e.preventDefault();
 
     if (!checkinDate || !checkoutDate) {
+      setShowDateError(true); // Ativa o erro visual
       return;
     }
+
+    // Salva os parâmetros da busca no localStorage
+    localStorage.setItem('lastCheckinDate', checkinDate.toISOString());
+    localStorage.setItem('lastCheckoutDate', checkoutDate.toISOString());
+    localStorage.setItem('lastGuests', String(guests));
 
     const checkin = format(checkinDate, "yyyyMMdd");
     const checkout = format(checkoutDate, "yyyyMMdd");
@@ -63,10 +94,10 @@ export function AvailabilitySearchForm({ onSearch, isLoading }: AvailabilitySear
               </label>
               <DatePicker
                 date={checkinDate}
-                setDate={setCheckinDate}
+                setDate={(date) => { setCheckinDate(date); if (date) setShowDateError(false); }}
                 disabled={{ before: new Date() }}
                 placeholder="Selecione a data"
-                className="bg-white"
+                className={cn("bg-white", { "border-red-500 ring-red-500": showDateError && !checkinDate })}
               />
             </div>
 
@@ -78,11 +109,11 @@ export function AvailabilitySearchForm({ onSearch, isLoading }: AvailabilitySear
               </label>
               <DatePicker
                 date={checkoutDate}
-                setDate={setCheckoutDate}
+                setDate={(date) => { setCheckoutDate(date); if (date) setShowDateError(false); }}
                 triggerDisabled={!checkinDate}
                 disabled={(date) => !checkinDate || date <= checkinDate}
                 placeholder="Selecione a data"
-                className="bg-white"
+                className={cn("bg-white", { "border-red-500 ring-red-500": showDateError && !checkoutDate })}
               />
             </div>
 
@@ -92,7 +123,7 @@ export function AvailabilitySearchForm({ onSearch, isLoading }: AvailabilitySear
                 <Users className="h-4 w-4" />
                 Hóspedes
               </label>
-              <Select onValueChange={(value) => setGuests(Number(value))} defaultValue="1">
+              <Select onValueChange={(value) => setGuests(Number(value))} value={String(guests)}>
                 <SelectTrigger id="guests" className="w-full bg-white">
                   <SelectValue placeholder="Número de hóspedes" />
                 </SelectTrigger>
