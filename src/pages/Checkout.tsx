@@ -12,7 +12,7 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from '@/integrations/supabase/client';
-import toast from 'react-hot-toast';
+import { showError, showSuccess } from '@/utils/toast'; // Importando as funções de toast do Sonner
 
 interface RoomDetails {
   id: number;
@@ -47,7 +47,7 @@ export default function Checkout() {
 
   useEffect(() => {
     if (!roomId || !checkInDate || !checkOutDate || !guests) {
-      toast.error("Detalhes da reserva incompletos. Por favor, volte e selecione novamente.");
+      showError("Detalhes da reserva incompletos. Por favor, volte e selecione novamente.");
       navigate('/');
       return;
     }
@@ -61,7 +61,7 @@ export default function Checkout() {
 
       if (error) {
         console.error('Error fetching room details:', error);
-        toast.error("Erro ao carregar detalhes do quarto.");
+        showError("Erro ao carregar detalhes do quarto.");
         navigate('/');
       } else {
         setRoom(data);
@@ -75,13 +75,13 @@ export default function Checkout() {
     e.preventDefault();
 
     if (!room || !date || !checkOutDate) {
-      toast.error("Por favor, preencha todos os detalhes da reserva.");
+      showError("Por favor, preencha todos os detalhes da reserva.");
       return;
     }
 
     // Here you would typically send the booking data to your backend
     // For this example, we'll just show a success message
-    toast.success("Reserva confirmada com sucesso!");
+    showSuccess("Reserva confirmada com sucesso!");
     console.log({
       room: room.name,
       firstName,
