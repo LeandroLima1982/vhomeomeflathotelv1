@@ -31,7 +31,7 @@ const values = [
     },
     {
         title: "DETALHES QUE FAZEM A DIFERENÇA",
-        description: "Uma das características que faz a VERY CONSTRUTORA se destacar no mercado é o cuidado com os detalhes. Essa preocupação visa proporcionar ao nosso cliente a melhor experiência na aquisição do seu imóvel."
+        description: "Uma das características que faz a se destacar no mercado é o cuidado com os detalhes. Essa preocupação visa proporcionar ao nosso cliente a melhor experiência na aquisição do seu imóvel."
     }
 ]
 
