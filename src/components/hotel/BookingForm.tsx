@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Calendar as CalendarIcon, Users } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -67,7 +67,7 @@ export function BookingForm() {
                 setDate={setCheckinDate}
                 disabled={{ before: new Date() }}
                 placeholder="Selecione a data"
-                className="w-full" {/* Adicionado w-full para garantir largura total */}
+                className="w-full"
               />
             </div>
 
@@ -83,7 +83,7 @@ export function BookingForm() {
                 triggerDisabled={!checkinDate}
                 disabled={(date) => !checkinDate || date <= checkinDate}
                 placeholder="Selecione a data"
-                className="w-full" {/* Adicionado w-full para garantir largura total */}
+                className="w-full"
               />
             </div>
 
