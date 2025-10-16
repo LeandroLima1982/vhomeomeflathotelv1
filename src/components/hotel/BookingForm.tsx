@@ -1,18 +1,18 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { DatePickerWithRange } from '@/components/ui/date-range-picker';
+import { DatePickerWithRange } from '@/components/ui/date-range-picker'; // Importação corrigida
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon, Minus, Plus, Search } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } => '@/lib/utils';
 import { format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { showSuccess, showError } from '@/utils/toast'; // Importando as funções corretas de toast
+import { showSuccess, showError } from '@/utils/toast';
 
 const BookingForm = () => {
   const [date, setDate] = useState<DateRange | undefined>({
@@ -34,7 +34,7 @@ const BookingForm = () => {
   const fetchRooms = async () => {
     const { data, error } = await supabase.from('rooms').select('*');
     if (error) {
-      showError('Erro ao carregar quartos.'); // Usando showError
+      showError('Erro ao carregar quartos.');
       console.error('Error fetching rooms:', error);
     } else {
       setAvailableRooms(data);
@@ -44,10 +44,10 @@ const BookingForm = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!date?.from || !date?.to || !selectedRoom) {
-      showError('Por favor, preencha todos os campos.'); // Usando showError
+      showError('Por favor, preencha todos os campos.');
       return;
     }
-    showSuccess('Reserva simulada com sucesso!'); // Usando showSuccess
+    showSuccess('Reserva simulada com sucesso!');
     console.log({ date, adults, children, rooms, selectedRoom });
   };
 
