@@ -48,7 +48,7 @@ const BookingV2 = () => {
   const [localRoomsData, setLocalRoomsData] = useState<LocalRoom[]>([]
   );
   const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
-  const [sortOrder, setSortOrder] = useState('relevance');
+  const [sortOrder, setSortOrder] = useState('price_asc'); // Definido como 'price_asc' por padrão
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false); // Estado para controlar a montagem e animações
   // Ajustado para 0px, pois o cabeçalho não é mais fixo nesta página
@@ -207,7 +207,8 @@ const BookingV2 = () => {
     setRawResults(null);
     setError(null);
     setSearchParams(params);
-    setSortOrder('relevance');
+    // setSortOrder('relevance'); // REMOVIDO: Não resetar a ordenação após a busca
+    // A ordenação padrão será mantida ou a última selecionada pelo usuário.
 
     if (!supabase) {
       const errorMessage = "Cliente Supabase não está disponível. Verifique a configuração.";
