@@ -12,7 +12,7 @@ import { format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'react-hot-toast';
+import { showSuccess, showError } from '@/utils/toast'; // Importando as funções corretas de toast
 
 const BookingForm = () => {
   const [date, setDate] = useState<DateRange | undefined>({
@@ -34,7 +34,7 @@ const BookingForm = () => {
   const fetchRooms = async () => {
     const { data, error } = await supabase.from('rooms').select('*');
     if (error) {
-      toast.error('Erro ao carregar quartos.');
+      showError('Erro ao carregar quartos.'); // Usando showError
       console.error('Error fetching rooms:', error);
     } else {
       setAvailableRooms(data);
@@ -44,10 +44,10 @@ const BookingForm = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!date?.from || !date?.to || !selectedRoom) {
-      toast.error('Por favor, preencha todos os campos.');
+      showError('Por favor, preencha todos os campos.'); // Usando showError
       return;
     }
-    toast.success('Reserva simulada com sucesso!');
+    showSuccess('Reserva simulada com sucesso!'); // Usando showSuccess
     console.log({ date, adults, children, rooms, selectedRoom });
   };
 
