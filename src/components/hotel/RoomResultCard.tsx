@@ -3,10 +3,11 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BedDouble, Tag, Users } from "lucide-react"; // Importando Users
+import { BedDouble, Tag, Users, MousePointerClick } from "lucide-react"; // Importando Users e MousePointerClick
 import DetailIcon from './DetailIcon';
 import { parse, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { cn } from "@/lib/utils"; // Importar cn para classes condicionais
 
 interface RoomResult {
   idQuarto: number;
@@ -17,6 +18,9 @@ interface RoomResult {
   details: Record<string, string | null> | null;
   details_order: string[] | null;
   special_name?: string | null;
+  description?: string | null; // Adicionado para o modal
+  custom_description?: string | null; // Adicionado para o modal
+  additional_features?: any[] | null; // Adicionado para o modal
   [key: string]: any;
 }
 
@@ -29,9 +33,10 @@ interface SearchParams {
 interface RoomResultCardProps {
   room: RoomResult;
   searchParams: SearchParams;
+  onViewDetails: (room: RoomResult) => void; // Nova prop
 }
 
-export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
+export function RoomResultCard({ room, searchParams, onViewDetails }: RoomResultCardProps) {
   const navigate = useNavigate();
 
   const formattedPrice = new Intl.NumberFormat('pt-BR', {
@@ -43,7 +48,8 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
   const checkoutDateObj = parse(searchParams.checkout, "yyyyMMdd", new Date());
   const numberOfNights = differenceInDays(checkoutDateObj, checkinDateObj);
 
-  const handleSelectRoom = () => {
+  const handleSelectRoom = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Impede que o clique no botão acione o onViewDetails do card
     navigate('/checkout', {
       state: {
         room,
@@ -101,13 +107,22 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
   const details = getRoomDetails(room);
 
   return (
-    <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col md:flex-row">
+    <Card 
+      className="overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col md:flex-row cursor-pointer group"
+      onClick={() => onViewDetails(room)} // Abre o modal ao clicar no card
+    >
       <div className="md:w-1/3 bg-gray-200 flex items-center justify-center p-4 min-h-[200px] relative">
         {room.imageUrl ? (
           <img src={room.imageUrl} alt={room.nomeQuarto} className="absolute inset-0 w-full h-full object-cover" />
         ) : (
           <BedDouble className="h-16 w-16 text-gray-400" />
         )}
+        {/* Ícone de clique para indicar que o card é clicável */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
+          <div className="p-3 bg-white/20 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-300 ease-in-out">
+            <MousePointerClick className="h-6 w-6 text-white animate-click" />
+          </div>
+        </div>
       </div>
       <div className="flex-1 flex flex-col">
         <CardHeader>

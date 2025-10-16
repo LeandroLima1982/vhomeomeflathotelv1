@@ -28,25 +28,32 @@ import {
 import FeatureListDisplay, { FeatureCategory } from './FeatureListDisplay';
 import { supabase } from '@/lib/supabaseClient';
 import { RoomBookingForm } from './RoomBookingForm';
+import { useNavigate } from 'react-router-dom'; // Importar useNavigate
 
 interface RoomDetailsModalProps {
   room: any;
   onClose: () => void;
+  searchParams: { // Adicionar searchParams como prop
+    checkin: string;
+    checkout: string;
+    adults: number;
+  };
 }
 
-const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
+const RoomDetailsModal = ({ room, onClose, searchParams }: RoomDetailsModalProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [roomImages, setRoomImages] = useState<string[]>([]);
   const [loadingImages, setLoadingImages] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showBookingForm, setShowBookingForm] = useState(false);
+  const navigate = useNavigate(); // Inicializar useNavigate
 
   useEffect(() => {
     const fetchRoomImages = async () => {
-      if (!room?.id) return;
+      if (!room?.idQuarto) return; // Usar idQuarto para buscar imagens
 
       setLoadingImages(true);
-      const { data: files, error: listError } = await supabase.storage.from('gallery').list(`rooms/${room.id}/gallery`, {
+      const { data: files, error: listError } = await supabase.storage.from('gallery').list(`rooms/${room.idQuarto}/gallery`, {
         limit: 100,
         offset: 0,
         sortBy: { column: 'created_at', order: 'desc' },
@@ -62,10 +69,10 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
       const imageFiles = files.filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json');
       const imageUrls = imageFiles.map(file => ({
         name: file.name,
-        url: supabase.storage.from('gallery').getPublicUrl(`rooms/${room.id}/gallery/${file.name}`).data.publicUrl,
+        url: supabase.storage.from('gallery').getPublicUrl(`rooms/${room.idQuarto}/gallery/${file.name}`).data.publicUrl,
       }));
 
-      const { data: orderFileData } = await supabase.storage.from('gallery').download(`rooms/${room.id}/gallery/_order.json`);
+      const { data: orderFileData } = await supabase.storage.from('gallery').download(`rooms/${room.idQuarto}/gallery/_order.json`);
 
       if (!orderFileData) {
         setRoomImages(imageUrls.map(img => img.url).slice(0, 10));
@@ -121,6 +128,17 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
     if (lowerFeature.includes('ar') || lowerFeature.includes('condicionado')) return <Wind className="w-5 h-5" />;
     if (lowerFeature.includes('banheiro') || lowerFeature.includes('banho')) return <Droplets className="w-5 h-5" />;
     return <Sparkles className="w-5 h-5" />;
+  };
+
+  // Função para navegar para o checkout
+  const handleBookRoom = () => {
+    navigate('/checkout', {
+      state: {
+        room,
+        searchParams,
+      },
+    });
+    onClose(); // Fechar o modal após navegar
   };
 
   // Renderizar detalhes como badges modernos
@@ -187,7 +205,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                     <span className="text-yellow-400 font-medium text-xs">4 Estrelas</span>
                   </div>
                   <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 leading-tight">
-                    {room.name}
+                    {room.nomeQuarto} {/* Usar nomeQuarto da API */}
                   </h1>
                   {room.special_name && (
                     <div className="mt-2 inline-block bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
@@ -213,26 +231,20 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
             </div>
           </div>
 
-          {/* Sistema de reserva acima do carousel */}
-          {showBookingForm ? (
-            <div className="px-4 sm:px-6 lg:px-8 py-4 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200/60">
-              <RoomBookingForm roomId={room.id} onCancel={() => setShowBookingForm(false)} />
+          {/* Botão "Reservar este Quarto" acima do carousel */}
+          <div className="px-4 sm:px-6 lg:px-8 py-4 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200/60">
+            <div className="flex justify-center">
+              <Button
+                onClick={handleBookRoom} // Chamar a função de reserva
+                size="lg"
+                className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105"
+              >
+                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                Reservar este Quarto
+                <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
+              </Button>
             </div>
-          ) : (
-            <div className="px-4 sm:px-6 lg:px-8 py-4 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200/60">
-              <div className="flex justify-center">
-                <Button
-                  onClick={() => setShowBookingForm(true)}
-                  size="lg"
-                  className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105"
-                >
-                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                  Consultar preço
-                  <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
-                </Button>
-              </div>
-            </div>
-          )}
+          </div>
 
           {/* Carousel de Imagens Moderno */}
           <div className="relative w-full h-48 sm:h-64 lg:h-[350px] bg-slate-100 overflow-hidden">
@@ -247,7 +259,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
               <div className="relative w-full h-full group">
                 <img
                   src={roomImages[currentImageIndex]}
-                  alt={`${room.name} - Imagem ${currentImageIndex + 1}`}
+                  alt={`${room.nomeQuarto} - Imagem ${currentImageIndex + 1}`}
                   className="w-full h-full object-cover transition-all duration-500 ease-out"
                 />
                 
