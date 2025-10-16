@@ -9,11 +9,6 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Log para verificar se o cliente Supabase está inicializado
-    if (!supabase) {
-      console.error("Supabase client is not initialized. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.");
-    }
-
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         navigate('/admin');
@@ -41,10 +36,7 @@ const Login = () => {
         </div>
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">Acesso Administrativo</h2>
-        <p className="text-center text-gray-500 mb-4">Faça login para gerenciar o conteúdo do site.</p>
-        <p className="text-center text-sm text-blue-600 mb-8">
-          Se você é um administrador e ainda não tem uma conta, por favor, registre-se usando o formulário abaixo e confirme seu e-mail.
-        </p>
+        <p className="text-center text-gray-500 mb-8">Faça login para gerenciar o conteúdo do site.</p>
         <Auth
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
