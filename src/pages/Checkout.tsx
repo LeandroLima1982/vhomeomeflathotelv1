@@ -156,7 +156,7 @@ const Checkout = () => {
       <Header />
       <main className="pb-20 flex-grow min-h-[600px]">
         <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-5xl mx-auto pt-24">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-4">Finalizar Reserva</h1>
             <p className="text-gray-600 text-center mb-12">
               Confira os detalhes e preencha suas informações para confirmar a estadia.
