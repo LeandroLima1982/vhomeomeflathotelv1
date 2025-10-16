@@ -1,94 +1,121 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { DatePickerWithRange } from '@/components/ui/date-picker-with-range';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DateRange } from 'react-day-picker';
-import { addDays } from 'date-fns';
-import { toast } from 'sonner';
+import React, { useState, useEffect } from "react";
+import { Calendar as CalendarIcon, Users } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
-interface BookingFormProps {
-  roomName: string;
-  bookingUrl: string;
-}
+import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const BookingForm: React.FC<BookingFormProps> = ({ roomName, bookingUrl }) => {
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: new Date(),
-    to: addDays(new Date(), 2),
-  });
-  const [guests, setGuests] = useState<number>(1);
+export function BookingForm() {
+  const [checkinDate, setCheckinDate] = useState<Date | undefined>();
+  const [checkoutDate, setCheckoutDate] = useState<Date | undefined>();
+  const [guests, setGuests] = useState(1);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
+  // Reseta a data de checkout se for anterior ou igual à de check-in
+  useEffect(() => {
+    if (checkinDate && checkoutDate && checkoutDate <= checkinDate) {
+      setCheckoutDate(undefined);
+    }
+  }, [checkinDate, checkoutDate]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!date?.from || !date?.to || guests < 1) {
-      toast.error("Por favor, preencha todos os campos de reserva.");
+
+    if (!checkinDate || !checkoutDate) {
+      alert("Por favor, selecione as datas de check-in e check-out.");
       return;
     }
 
-    const checkInDate = date.from.toLocaleDateString('pt-BR');
-    const checkOutDate = date.to.toLocaleDateString('pt-BR');
+    const checkin = format(checkinDate, "yyyyMMdd");
+    const checkout = format(checkoutDate, "yyyyMMdd");
+    const adults = guests;
+    const categoryId = 3; // ID da categoria conforme o exemplo
 
-    const message = `Reserva para o quarto: ${roomName}\nCheck-in: ${checkInDate}\nCheck-out: ${checkOutDate}\nHóspedes: ${guests}`;
+    const baseUrl = "https://vhomeflathotel.motordereservas.com.br/novareserva";
+    const finalUrl = `${baseUrl}?inicio=${checkin}&fim=${checkout}&adultos=${adults}&idquartoCategoria=${categoryId}`;
 
-    // In a real application, you would send this data to a backend or booking service.
-    // For this example, we'll just log it and show a toast.
-    console.log(message);
-    toast.success("Sua solicitação de reserva foi enviada!");
-
-    // Optionally, redirect to the booking URL
-    // window.open(bookingUrl, '_blank');
+    window.open(finalUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
-    <div className="px-4">
-      <div className={`max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-xl shadow-2xl transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+    <div className="relative -mt-12 md:-mt-16 z-10">
+      <div className="px-4">
+        <div className={`max-w-4xl mx-auto bg-white/30 backdrop-blur-lg border border-white/50 p-4 md:p-6 rounded-xl shadow-xl transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-2 md:gap-4 md:grid-cols-4 md:items-end">
             {/* Check-in */}
             <div className="space-y-2 text-left">
-              <Label htmlFor="check-in-date">Check-in & Check-out</Label>
-              <DatePickerWithRange date={date} setDate={setDate} />
+              <label className="font-medium text-gray-800 flex items-center gap-2 text-sm pl-1">
+                <CalendarIcon className="h-4 w-4" />
+                Check-in
+              </label>
+              <DatePicker
+                date={checkinDate}
+                setDate={setCheckinDate}
+                disabled={{ before: new Date() }}
+                placeholder="Selecione a data"
+                className="w-full"
+              />
+            </div>
+
+            {/* Check-out */}
+            <div className="space-y-2 text-left">
+              <label className="font-medium text-gray-800 flex items-center gap-2 text-sm pl-1">
+                <CalendarIcon className="h-4 w-4" />
+                Check-out
+              </label>
+              <DatePicker
+                date={checkoutDate}
+                setDate={setCheckoutDate}
+                triggerDisabled={!checkinDate}
+                disabled={(date) => !checkinDate || date <= checkinDate}
+                placeholder="Selecione a data"
+                className="w-full"
+              />
             </div>
 
             {/* Guests */}
             <div className="space-y-2 text-left">
-              <Label htmlFor="guests">Hóspedes</Label>
-              <Select value={String(guests)} onValueChange={(value) => setGuests(Number(value))}>
-                <SelectTrigger className="w-full">
+              <label htmlFor="guests" className="font-medium text-gray-800 flex items-center gap-2 text-sm pl-1">
+                <Users className="h-4 w-4" />
+                Hóspedes
+              </label>
+              <Select onValueChange={(value) => setGuests(Number(value))} defaultValue="1">
+                <SelectTrigger id="guests" className="w-full bg-white/80 hover:bg-white">
                   <SelectValue placeholder="Número de hóspedes" />
                 </SelectTrigger>
                 <SelectContent>
-                  {[1, 2, 3, 4, 5, 6].map((num) => (
-                    <SelectItem key={num} value={String(num)}>
-                      {num} Hóspede{num > 1 ? 's' : ''}
+                  {[...Array(8)].map((_, i) => (
+                    <SelectItem key={i + 1} value={String(i + 1)}>
+                      {i + 1} Hóspede{i > 0 ? 's' : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Room Name (Display only) */}
-            <div className="space-y-2 text-left md:col-span-1">
-              <Label htmlFor="room-name">Quarto</Label>
-              <Input id="room-name" type="text" value={roomName} readOnly className="bg-gray-100 cursor-not-allowed" />
-            </div>
-
             {/* Submit Button */}
-            <Button type="submit" className="w-full md:col-span-1">
-              Reservar Agora
-            </Button>
+            <div>
+              <Button type="submit" className="w-full font-bold bg-blue-700 hover:bg-blue-750 text-white">
+                Verificar
+              </Button>
+            </div>
           </form>
         </div>
       </div>
+    </div>
   );
-};
-
-export default BookingForm;
+}
