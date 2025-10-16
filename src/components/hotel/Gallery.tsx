@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Lightbox } from "./Lightbox";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const BUCKET_NAME = 'gallery';

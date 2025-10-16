@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import Header from "@/components/hotel/Header";
 import { AvailabilitySearchForm } from "@/components/hotel/AvailabilitySearchForm";
 import SimpleFooter from "@/components/hotel/SimpleFooter";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
 import { Loader2, ServerCrash, Calendar, Users, Search } from "lucide-react";
 import { AvailabilityResults } from "@/components/hotel/AvailabilityResults";
