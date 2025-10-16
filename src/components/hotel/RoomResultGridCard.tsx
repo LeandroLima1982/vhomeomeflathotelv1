@@ -3,6 +3,7 @@
 import { useNavigate } from "react-router-dom";
 import { BedDouble, Tag, Users } from "lucide-react"; // Importando Users
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge"; // Importando Badge
 
 interface AvailabilityResult {
   idQuarto: number;
@@ -55,6 +56,9 @@ export function RoomResultGridCard({ room, searchParams }: RoomResultGridCardPro
 
   const capacity = getCapacityDisplay(room.details);
 
+  const showUrgencyBadge = room.disponibilidade > 0 && room.disponibilidade <= 2;
+  const urgencyMessage = room.disponibilidade === 1 ? "Apenas 1 quarto restante!" : "Últimas 2 unidades!";
+
   return (
     <div
       className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer"
@@ -84,6 +88,11 @@ export function RoomResultGridCard({ room, searchParams }: RoomResultGridCardPro
               <Users className="h-3 w-3" />
               <span>{capacity}</span>
             </div>
+          )}
+          {showUrgencyBadge && (
+            <Badge variant="destructive" className="mt-2 w-fit bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+              {urgencyMessage}
+            </Badge>
           )}
         </div>
       </div>

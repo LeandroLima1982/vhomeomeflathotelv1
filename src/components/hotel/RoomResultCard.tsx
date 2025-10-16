@@ -7,6 +7,7 @@ import { BedDouble, Tag, Users } from "lucide-react"; // Importando Users
 import DetailIcon from './DetailIcon';
 import { parse, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Badge } from "@/components/ui/badge"; // Importando Badge
 
 interface RoomResult {
   idQuarto: number;
@@ -100,6 +101,9 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
 
   const details = getRoomDetails(room);
 
+  const showUrgencyBadge = room.disponibilidade > 0 && room.disponibilidade <= 2;
+  const urgencyMessage = room.disponibilidade === 1 ? "Apenas 1 quarto restante!" : "Últimas 2 unidades!";
+
   return (
     <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col md:flex-row">
       <div className="md:w-1/3 bg-gray-200 flex items-center justify-center p-4 min-h-[200px] relative">
@@ -122,6 +126,11 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
               <Users className="h-4 w-4 text-blue-700" />
               <span>{capacity}</span>
             </div>
+          )}
+          {showUrgencyBadge && (
+            <Badge variant="destructive" className="mt-2 w-fit bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+              {urgencyMessage}
+            </Badge>
           )}
         </CardHeader>
         <CardContent className="flex-grow">
