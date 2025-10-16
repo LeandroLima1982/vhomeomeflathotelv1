@@ -41,45 +41,45 @@ export function BookingStickyControls({
   };
 
   return (
-    <div className="sticky top-0 z-20 bg-gray-50 pb-4 pt-4 border-b border-gray-200 shadow-sm">
-      <div className="container mx-auto px-4 max-w-5xl">
+    <div className="sticky top-0 z-20 bg-gray-50 py-2 sm:py-4 border-b border-gray-200 shadow-sm">
+      <div className="container mx-auto px-2 sm:px-4 max-w-5xl">
         {/* Resumo da Busca e Botão Modificar */}
-        <Card className="mb-4 shadow-md bg-white">
-          <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4 text-gray-700 text-sm flex-wrap justify-center sm:justify-start">
+        <Card className="mb-2 sm:mb-4 shadow-md bg-white">
+          <CardContent className="p-2 sm:p-4 flex flex-col md:flex-row items-center justify-between gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 text-gray-700 text-xs sm:text-sm flex-wrap justify-center md:justify-start">
               <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4 text-blue-600" />
+                <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
                 <span>{formatDate(searchParams.checkin)}</span>
               </div>
               <span>-</span>
               <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4 text-blue-600" />
+                <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
                 <span>{formatDate(searchParams.checkout)}</span>
               </div>
-              <div className="flex items-center gap-1 ml-2">
-                <Users className="h-4 w-4 text-blue-600" />
+              <div className="flex items-center gap-1 ml-0 sm:ml-2">
+                <Users className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
                 <span>{searchParams.adults} Hóspede{searchParams.adults > 1 ? 's' : ''}</span>
               </div>
             </div>
-            <Button variant="outline" onClick={scrollToSearchForm} className="w-full sm:w-auto">
-              <Search className="h-4 w-4 mr-2" />
+            <Button variant="outline" onClick={scrollToSearchForm} className="w-full sm:w-auto h-8 px-3 text-xs sm:text-sm">
+              <Search className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               Modificar Busca
             </Button>
           </CardContent>
         </Card>
 
         {/* Título, Botões de Visualização e Filtro de Ordenação */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <h2 className="text-2xl font-bold text-gray-800 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-4">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 flex-shrink-0 text-center sm:text-left">
             Acomodações Disponíveis ({availableRoomsCount})
           </h2>
-          <div className="flex items-center gap-4 w-full md:w-auto justify-end">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-center sm:justify-end">
+            <div className="flex items-center gap-1 sm:gap-2">
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => onViewModeChange('list')}
-                className={cn(viewMode === 'list' && 'bg-gray-200')}
+                className={cn("h-8 w-8", viewMode === 'list' && 'bg-gray-200')}
                 aria-label="Visualização em lista"
               >
                 <List className="h-4 w-4" />
@@ -88,13 +88,15 @@ export function BookingStickyControls({
                 variant="outline"
                 size="icon"
                 onClick={() => onViewModeChange('grid')}
-                className={cn(viewMode === 'grid' && 'bg-gray-200')}
+                className={cn("h-8 w-8", viewMode === 'grid' && 'bg-gray-200')}
                 aria-label="Visualização em grade"
               >
                 <LayoutGrid className="h-4 w-4" />
               </Button>
             </div>
-            <FilterControls sortOrder={sortOrder} onSortChange={onSortChange} />
+            <div className="w-full max-w-[120px] sm:max-w-[150px]"> {/* Ajuste de largura para o Select */}
+              <FilterControls sortOrder={sortOrder} onSortChange={onSortChange} />
+            </div>
           </div>
         </div>
       </div>
