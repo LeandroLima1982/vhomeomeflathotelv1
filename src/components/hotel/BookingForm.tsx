@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { DatePickerWithRange } from '@/components/ui/date-range-picker'; // Importação corrigida
+import { DatePickerWithRange } from '@/components/ui/date-range-picker';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon, Minus, Plus, Search } from 'lucide-react';
-import { cn } => '@/lib/utils';
+import { cn } from '@/lib/utils'; // Correção: '=>' substituído por 'from'
 import { format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
