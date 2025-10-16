@@ -89,7 +89,9 @@ export default function Header() {
             >
               Reservar Agora
             </Button>
-            <MobileNav />
+            <div className="md:hidden"> {/* Adicionado contêiner com md:hidden para MobileNav */}
+              <MobileNav />
+            </div>
           </div>
         )}
       </div>

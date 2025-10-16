@@ -18,6 +18,9 @@ export default {
       },
     },
     extend: {
+      screens: {
+        'md': '900px', // Novo breakpoint 'md' definido para 900px
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
