@@ -19,7 +19,7 @@ const pillars = [
 const values = [
     {
         title: "TRANSPARÊNCIA TOTAL",
-        description: "Toda assinatura de contrato é acompanhado por um representante da VERY CONSTRUTORA, que esclarece os pontos mais importantes e fica à disposição para esclarecer dúvidas. Essa filosofia garante segurança, transparência e a satisfação dos clientes."
+        description: "Toda assinatura de contrato é acompanhado por um representante da VERY , que esclarece os pontos mais importantes e fica à disposição para esclarecer dúvidas. Essa filosofia garante segurança, transparência e a satisfação dos clientes."
     },
     {
         title: "ENTREGA NO PRAZO",
