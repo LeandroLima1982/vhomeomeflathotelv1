@@ -1,5 +1,5 @@
 import Header from "@/components/hotel/Header";
-import BookingForm from "@/components/hotel/BookingForm"; // Alterado para default import
+import BookingForm from "@/components/hotel/BookingForm";
 import About from "@/components/hotel/About";
 import { Amenities } from "@/components/hotel/Amenities";
 import { Nearby } from "@/components/hotel/Nearby";
@@ -8,6 +8,7 @@ import Footer from "@/components/hotel/Footer";
 import Contact from "@/components/hotel/Contact";
 import Rooms from "@/components/hotel/Rooms";
 import { ScrollToTop } from "@/components/hotel/ScrollToTop";
+import { Hero } from "@/components/hotel/Hero"; // Importando o componente Hero
 
 const Hotel = () => {
   return (
