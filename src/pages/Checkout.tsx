@@ -154,7 +154,7 @@ const Checkout = () => {
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
       <Header />
-      <main className="pb-20 flex-grow min-h-[calc(100vh-280px)]">
+      <main className="pb-20 flex-grow min-h-[600px]">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-4">Finalizar Reserva</h1>
