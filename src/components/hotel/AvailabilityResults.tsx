@@ -6,7 +6,6 @@ import { RoomResultGridCard } from "./RoomResultGridCard";
 import { BedDouble, List, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import RoomDetailsModal from "./RoomDetailsModal"; // Importar o modal
 
 interface AvailabilityResult {
   idQuarto: number;
@@ -16,10 +15,6 @@ interface AvailabilityResult {
   imageUrl: string | null;
   details: Record<string, string | null> | null;
   details_order: string[] | null;
-  special_name?: string | null;
-  description?: string | null; // Adicionado para o modal
-  custom_description?: string | null; // Adicionado para o modal
-  additional_features?: any[] | null; // Adicionado para o modal
   [key: string]: any;
 }
 
@@ -36,16 +31,7 @@ interface AvailabilityResultsProps {
 
 export function AvailabilityResults({ results, searchParams }: AvailabilityResultsProps) {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
-  const [selectedRoomForDetails, setSelectedRoomForDetails] = useState<AvailabilityResult | null>(null); // Novo estado para o modal
   const availableRooms = results.filter(room => room.disponibilidade > 0);
-
-  const handleViewDetails = (room: AvailabilityResult) => {
-    setSelectedRoomForDetails(room);
-  };
-
-  const handleCloseDetailsModal = () => {
-    setSelectedRoomForDetails(null);
-  };
 
   if (availableRooms.length === 0) {
     return (
@@ -60,64 +46,44 @@ export function AvailabilityResults({ results, searchParams }: AvailabilityResul
   }
 
   return (
-    <>
-      <div>
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-800">Acomodações Disponíveis</h2>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setViewMode('list')}
-              className={cn(viewMode === 'list' && 'bg-gray-200')}
-              aria-label="Visualização em lista"
-            >
-              <List className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setViewMode('grid')}
-              className={cn(viewMode === 'grid' && 'bg-gray-200')}
-              aria-label="Visualização em grade"
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </Button>
-          </div>
+    <div>
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-2xl font-bold text-gray-800">Acomodações Disponíveis</h2>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setViewMode('list')}
+            className={cn(viewMode === 'list' && 'bg-gray-200')}
+            aria-label="Visualização em lista"
+          >
+            <List className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setViewMode('grid')}
+            className={cn(viewMode === 'grid' && 'bg-gray-200')}
+            aria-label="Visualização em grade"
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </Button>
         </div>
-
-        {viewMode === 'list' ? (
-          <div className="space-y-6">
-            {availableRooms.map((room) => (
-              <RoomResultCard 
-                key={room.idQuarto} 
-                room={room} 
-                searchParams={searchParams} 
-                onViewDetails={handleViewDetails} // Passar a função para abrir o modal
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {availableRooms.map((room) => (
-              <RoomResultGridCard 
-                key={room.idQuarto} 
-                room={room} 
-                searchParams={searchParams} 
-                onViewDetails={handleViewDetails} // Passar a função para abrir o modal
-              />
-            ))}
-          </div>
-        )}
       </div>
 
-      {selectedRoomForDetails && (
-        <RoomDetailsModal
-          room={selectedRoomForDetails}
-          onClose={handleCloseDetailsModal}
-          searchParams={searchParams} // Passar searchParams para o modal
-        />
+      {viewMode === 'list' ? (
+        <div className="space-y-6">
+          {availableRooms.map((room) => (
+            <RoomResultCard key={room.idQuarto} room={room} searchParams={searchParams} />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {availableRooms.map((room) => (
+            <RoomResultGridCard key={room.idQuarto} room={room} searchParams={searchParams} />
+          ))}
+        </div>
       )}
-    </>
+    </div>
   );
 }

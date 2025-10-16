@@ -1,9 +1,8 @@
 "use client";
 
 import { useNavigate } from "react-router-dom";
-import { BedDouble, Tag, Users, MousePointerClick } from "lucide-react"; // Importando Users e MousePointerClick
+import { BedDouble, Tag, Users } from "lucide-react"; // Importando Users
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils"; // Importar cn para classes condicionais
 
 interface AvailabilityResult {
   idQuarto: number;
@@ -14,9 +13,6 @@ interface AvailabilityResult {
   details: Record<string, string | null> | null;
   details_order: string[] | null;
   special_name?: string | null;
-  description?: string | null; // Adicionado para o modal
-  custom_description?: string | null; // Adicionado para o modal
-  additional_features?: any[] | null; // Adicionado para o modal
   [key: string]: any;
 }
 
@@ -29,10 +25,9 @@ interface SearchParams {
 interface RoomResultGridCardProps {
   room: AvailabilityResult;
   searchParams: SearchParams;
-  onViewDetails: (room: AvailabilityResult) => void; // Nova prop
 }
 
-export function RoomResultGridCard({ room, searchParams, onViewDetails }: RoomResultGridCardProps) {
+export function RoomResultGridCard({ room, searchParams }: RoomResultGridCardProps) {
   const navigate = useNavigate();
 
   const formattedPrice = new Intl.NumberFormat('pt-BR', {
@@ -40,8 +35,7 @@ export function RoomResultGridCard({ room, searchParams, onViewDetails }: RoomRe
     currency: 'BRL',
   }).format(room.valorTotal);
 
-  const handleSelectRoom = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Impede que o clique no botão acione o onViewDetails do card
+  const handleSelectRoom = () => {
     navigate('/checkout', {
       state: {
         room,
@@ -64,7 +58,7 @@ export function RoomResultGridCard({ room, searchParams, onViewDetails }: RoomRe
   return (
     <div
       className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer"
-      onClick={() => onViewDetails(room)} // Abre o modal ao clicar no card
+      onClick={handleSelectRoom}
     >
       <div className="h-64 relative overflow-hidden">
         {room.imageUrl ? (
@@ -91,12 +85,6 @@ export function RoomResultGridCard({ room, searchParams, onViewDetails }: RoomRe
               <span>{capacity}</span>
             </div>
           )}
-        </div>
-        {/* Ícone de clique para indicar que o card é clicável */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
-          <div className="p-3 bg-white/20 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-300 ease-in-out">
-            <MousePointerClick className="h-6 w-6 text-white animate-click" />
-          </div>
         </div>
       </div>
       <div className="p-4 bg-gray-50 flex items-center justify-between">
