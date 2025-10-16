@@ -69,7 +69,10 @@ export default function Header() {
         "container mx-auto px-4 flex items-center justify-between"
       )}>
         <Link to="/">
-          <Logo isScrolled={useDarkTextAndSolidBg} />
+          <Logo 
+            isScrolled={useDarkTextAndSolidBg} 
+            isTransparentHeaderOnLightBackground={isSpecialPage} // Passando a nova prop
+          />
         </Link>        
         {/* Oculta Nav, Button e MobileNav se for uma página especial */}
         {!isSpecialPage && (

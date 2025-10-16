@@ -8,16 +8,29 @@ interface LogoProps {
   isFooter?: boolean;
   isModal?: boolean;
   className?: string;
+  isTransparentHeaderOnLightBackground?: boolean; // Nova propriedade
 }
 
 // URL estática para o logo, construída com as informações do projeto.
 const LOGO_URL = 'https://hvlycmbcvcftathcnzdr.supabase.co/storage/v1/object/public/gallery/logo/logo.png';
 
-const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className }) => {
+const Logo: React.FC<LogoProps> = ({ isScrolled, isFooter, isModal, className, isTransparentHeaderOnLightBackground }) => {
   const logoImageClasses = `h-16 w-auto ${className || ''}`;
 
-  const textColor = isFooter || isModal ? "text-white" : (isScrolled ? "text-gray-800" : "text-white");
-  const starColor = isFooter || isModal ? "text-yellow-400" : (isScrolled ? "text-yellow-500" : "text-yellow-400");
+  // Lógica para definir a cor do texto e das estrelas
+  let textColor = "text-white";
+  let starColor = "text-yellow-400";
+
+  if (isFooter || isModal) {
+    textColor = "text-white";
+    starColor = "text-yellow-400";
+  } else if (isTransparentHeaderOnLightBackground) { // Prioriza esta condição para fundos claros
+    textColor = "text-gray-800";
+    starColor = "text-yellow-600"; // Um amarelo mais escuro para contraste
+  } else if (isScrolled) {
+    textColor = "text-gray-800";
+    starColor = "text-yellow-500";
+  }
 
   return (
     <div className="flex items-center space-x-3">
