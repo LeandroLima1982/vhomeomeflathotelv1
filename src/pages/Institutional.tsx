@@ -51,7 +51,7 @@ const Institutional: React.FC = () => {
 
             <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed space-y-6">
               <p>
-                A VERY (Soares Ferreira Incorporações LTDA) é uma empresa do ramo da construção civil hotelaria, que nasceu da combinação de experiência de dois sócios, que atuavam em áreas completamente distintas. O “Soares”, vem de um empresário com mais de 25 anos de experiência na Indústria de Óleo & Gás atuando na área de engenharia, e o “Ferreira” vem de um empresário também com mais de 25 anos de experiência no ramo de medicina.
+                A VERY (Soares Ferreira Incorporações LTDA) é uma empresa do ramo da construção civil e hotelaria, que nasceu da combinação de experiência de dois sócios, que atuavam em áreas completamente distintas. O “Soares”, vem de um empresário com mais de 25 anos de experiência na Indústria de Óleo & Gás atuando na área de engenharia, e o “Ferreira” vem de um empresário também com mais de 25 anos de experiência no ramo de medicina.
               </p>
               <p>
                 Desde 2014, o foco da VERY está voltado para a superação das expectativas dos clientes quando se pensa em uma construtora, sempre imprimindo soluções arquitetônicas com projetos de design contemporâneo e materiais de alto padrão.
