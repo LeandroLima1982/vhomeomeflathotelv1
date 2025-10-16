@@ -152,9 +152,9 @@ const Checkout = () => {
   const roomDetails = getRoomDetails(room);
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 min-h-screen flex flex-col">
       <Header />
-      <main className="pb-20"> {/* Removido pt-32 */}
+      <main className="pb-20 flex-grow"> {/* Removido pt-32 */}
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-4">Finalizar Reserva</h1>
