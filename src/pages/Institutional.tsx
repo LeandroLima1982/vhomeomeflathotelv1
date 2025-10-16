@@ -43,7 +43,7 @@ const Institutional: React.FC = () => {
         <section className="py-16 md:py-24 bg-white">
           <div className="container mx-auto px-4 max-w-4xl">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-4">
-              Sobre a VERY Construtora
+              Sobre a VERY
             </h1>
             <p className="text-lg text-gray-600 text-center mb-12">
               Soares Ferreira Incorporações LTDA
