@@ -13,7 +13,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"; // Importando Select diretamente
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 interface SearchParams {
@@ -43,7 +43,7 @@ export function BookingStickyControls({
 }: BookingStickyControlsProps) {
   const formatDate = (dateStr: string) => {
     const date = parse(dateStr, "yyyyMMdd", new Date());
-    return format(date, "dd 'de' LLLL 'de' yyyy", { locale: ptBR });
+    return format(date, "dd/MM", { locale: ptBR });
   };
 
   return (
@@ -55,12 +55,9 @@ export function BookingStickyControls({
             <div className="flex items-center gap-2 sm:gap-4 text-gray-700 text-xs sm:text-sm flex-wrap justify-center md:justify-start">
               <div className="flex items-center gap-1">
                 <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
-                <span>{formatDate(searchParams.checkin)}</span>
-              </div>
-              <span>-</span>
-              <div className="flex items-center gap-1">
-                <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
-                <span>{formatDate(searchParams.checkout)}</span>
+                <span>
+                  {formatDate(searchParams.checkin)} - {formatDate(searchParams.checkout)}
+                </span>
               </div>
               <div className="flex items-center gap-1 ml-0 sm:ml-2">
                 <Users className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
@@ -77,7 +74,7 @@ export function BookingStickyControls({
         {/* Título, Botões de Visualização e Filtro de Ordenação */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-4">
           <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 flex-shrink-0 text-center sm:text-left">
-            Acomodações Disponíveis ({availableRoomsCount})
+            Quartos Disponíveis ({availableRoomsCount})
           </h2>
           <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-center sm:justify-end">
             <div className="flex items-center gap-1 sm:gap-2">
