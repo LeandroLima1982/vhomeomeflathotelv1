@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom"; // Adicionado useNavigate
 import Logo from "./Logo";
 import { Nav } from "./Nav";
 import MobileNav from "./MobileNav";
@@ -13,6 +13,7 @@ export default function Header() {
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollY = useRef(0);
   const location = useLocation();
+  const navigate = useNavigate(); // Inicializado useNavigate
   const isLightPage = location.pathname === '/institucional';
   const isSpecialPage = location.pathname === '/booking-v2' || location.pathname === '/checkout'; 
 
@@ -40,12 +41,8 @@ export default function Header() {
     };
   }, []);
 
-  const scrollToRooms = () => {
-    const element = document.getElementById('rooms');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  // A função scrollToRooms foi removida, pois o botão agora navega para uma página.
+  // Se precisar de rolagem para seções na página de reservas, isso deve ser implementado lá.
 
   // O cabeçalho será sólido se for uma página clara (institucional) OU se estiver rolado.
   const useDarkTextAndSolidBg = isLightPage || isScrolled;
@@ -79,7 +76,7 @@ export default function Header() {
           <div className="flex items-center gap-4">
             <Nav isScrolled={useDarkTextAndSolidBg} />
             <Button
-              onClick={scrollToRooms}
+              onClick={() => navigate('/booking-v2')} // Alterado para navegar para /booking-v2
               className={cn(
                 "hidden md:inline-flex transition-colors",
                 useDarkTextAndSolidBg
