@@ -12,6 +12,7 @@ import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils"; // Importar cn para classes condicionais
+import { InitialBookingState } from "@/components/hotel/InitialBookingState"; // Importando o novo componente
 
 interface LocalRoom {
   id: number;
@@ -310,6 +311,9 @@ const BookingV2 = () => {
               <p className="text-lg font-semibold text-red-700">Ocorreu um Erro</p>
               <p className="text-red-600 max-w-md">{error}</p>
             </div>
+          )}
+          {!isLoading && !error && !displayedResults && (
+            <InitialBookingState />
           )}
           {displayedResults && searchParams && (
             <>
