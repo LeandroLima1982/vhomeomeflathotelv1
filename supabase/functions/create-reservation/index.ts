@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { v4 as uuidv4 } from "https://deno.land/std@0.224.0/uuid/mod.ts"; // Importando UUID para identificador único
 
 // Headers CORS para permitir requisições do navegador
 const corsHeaders = {
@@ -19,6 +20,31 @@ const parseDate = (dateString: string) => {
     dia: dateString.substring(6, 8),
   };
 };
+
+// Função auxiliar para formatar CPF
+const formatCpf = (cpf: string) => {
+  // Remove tudo que não for dígito e aplica a máscara
+  const cleanedCpf = cpf.replace(/\D/g, '');
+  if (cleanedCpf.length !== 11) {
+    throw new Error(`CPF inválido: ${cpf}. Deve conter 11 dígitos.`);
+  }
+  return cleanedCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+};
+
+// Função auxiliar para formatar telefone
+const formatPhone = (phone: string) => {
+  // Remove tudo que não for dígito
+  const cleanedPhone = phone.replace(/\D/g, '');
+  if (cleanedPhone.length < 10 || cleanedPhone.length > 11) {
+    throw new Error(`Telefone inválido: ${phone}. Deve conter 10 ou 11 dígitos (DDD + número).`);
+  }
+  // Formato (DD) 9XXXX-XXXX ou (DD) XXXX-XXXX
+  if (cleanedPhone.length === 11) {
+    return `(${cleanedPhone.substring(0, 2)}) ${cleanedPhone.substring(2, 7)}-${cleanedPhone.substring(7, 11)}`;
+  }
+  return `(${cleanedPhone.substring(0, 2)}) ${cleanedPhone.substring(2, 6)}-${cleanedPhone.substring(6, 10)}`;
+};
+
 
 serve(async (req) => {
   // Responde a requisições OPTIONS para o pre-flight do CORS
@@ -43,7 +69,7 @@ serve(async (req) => {
     // Validação dos campos obrigatórios
     const requiredFields = { checkin, checkout, adults, idQuarto, valorTotal, nome, sobrenome, email, cpf, telefone };
     for (const [field, value] of Object.entries(requiredFields)) {
-      if (value === undefined || value === null) {
+      if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
         return new Response(JSON.stringify({ error: `Parâmetro ausente: '${field}' é obrigatório.` }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -56,22 +82,43 @@ serve(async (req) => {
       throw new Error('O segredo API_RESERVAS_TOKEN não foi configurado na Supabase.');
     }
 
-    // Monta o corpo da requisição para a API externa
+    // Gerar um identificador único para a reserva
+    const identificadorReserva = uuidv4();
+
+    // Criar array de integrantes com base no número de adultos
+    const integrantes = Array.from({ length: adults }, (_, i) => ({
+      nomeCompleto: `Hóspede ${i + 1}`, // Nome genérico para integrantes
+      categoriaPessoa: "ADULTO",
+    }));
+
+    // Monta o corpo da requisição para a API externa, seguindo a documentação
     const requestBody = {
-      reserva: {
-        inicio: parseDate(checkin),
-        fim: parseDate(checkout),
-        numeroAdultos: adults,
-        idQuartoCategoria: idQuarto,
-        valorTotalReserva: valorTotal,
-      },
-      hospede: {
-        nome,
-        sobrenome,
-        email,
-        cpf,
-        telefone,
-      }
+      identificador: identificadorReserva,
+      inicio: parseDate(checkin),
+      fim: parseDate(checkout),
+      acomodacoes: [
+        {
+          idtarifa: idQuarto, // idQuarto da sua aplicação mapeia para idtarifa da API externa
+          valorTotal: valorTotal,
+          confirmada: "true", // Definir como "true" para confirmar a reserva
+          responsavel: {
+            nomeCompleto: `${nome} ${sobrenome}`, // Concatenar nome e sobrenome
+            cpf: formatCpf(cpf), // Formatar CPF
+            telefone: formatPhone(telefone), // Formatar telefone
+            email: email,
+          },
+          integrantes: integrantes, // Incluir todos os hóspedes
+          pagamentos: [
+            {
+              id: `pagamento-${identificadorReserva}`, // ID único para o pagamento
+              valor: valorTotal,
+              codigoFormaPagamento: 1, // ATENÇÃO: Este código deve ser confirmado com a equipe Facility Hotel para "pagamento na chegada" ou similar.
+              liquidado: "false", // Definir como "false" se o pagamento não for processado imediatamente
+              vencimento: parseDate(checkin), // Data de vencimento pode ser o check-in ou outra data acordada
+            }
+          ]
+        }
+      ]
     };
 
     const response = await fetch(API_BASE_URL, {
@@ -96,6 +143,8 @@ serve(async (req) => {
 
     const data = await response.json();
 
+    // A documentação indica que codigoRetorno 0 é sucesso.
+    // Se a API retornar um código diferente de 0, consideramos um erro.
     if (data.codigoRetorno && data.codigoRetorno !== 0) {
         throw new Error(data.mensagem || "O sistema de reservas retornou um erro desconhecido ao tentar criar a reserva.");
     }
