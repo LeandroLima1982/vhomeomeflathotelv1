@@ -272,7 +272,7 @@ const BookingV2 = () => {
                 "text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg transition-all duration-700 ease-out",
                 isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
               )}>
-                Conforto e Sofisticação à Beira-Mar
+                Seu Refúgio Perfeito à Beira-Mar
               </h1>
               <p className={cn(
                 "text-gray-200 text-lg drop-shadow-md transition-all duration-700 ease-out delay-200",
