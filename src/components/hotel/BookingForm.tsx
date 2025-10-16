@@ -54,11 +54,11 @@ export function BookingForm() {
   return (
     <div className="relative -mt-12 md:-mt-16 z-10">
       <div className="px-4">
-        <div className={`max-w-lg md:max-w-3xl mx-auto bg-white border border-white/50 p-4 md:p-6 rounded-xl shadow-xl transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+        <div className={`max-w-lg md:max-w-3xl mx-auto bg-white border border-white/50 p-6 md:p-8 rounded-xl shadow-xl transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-2 md:gap-4 md:grid-cols-4 md:items-end">
             {/* Check-in */}
-            <div className="space-y-2 text-left">
-              <label className="font-medium text-gray-800 flex items-center gap-2 text-sm pl-1">
+            <div className="space-y-2 text-center md:text-left">
+              <label className="font-medium text-gray-800 flex items-center gap-2 text-sm justify-center md:justify-start md:pl-1">
                 <CalendarIcon className="h-4 w-4" />
                 Check-in
               </label>
@@ -71,8 +71,8 @@ export function BookingForm() {
             </div>
 
             {/* Check-out */}
-            <div className="space-y-2 text-left">
-              <label className="font-medium text-gray-800 flex items-center gap-2 text-sm pl-1">
+            <div className="space-y-2 text-center md:text-left">
+              <label className="font-medium text-gray-800 flex items-center gap-2 text-sm justify-center md:justify-start md:pl-1">
                 <CalendarIcon className="h-4 w-4" />
                 Check-out
               </label>
@@ -86,8 +86,8 @@ export function BookingForm() {
             </div>
 
             {/* Guests */}
-            <div className="space-y-2 text-left">
-              <label htmlFor="guests" className="font-medium text-gray-800 flex items-center gap-2 text-sm pl-1">
+            <div className="space-y-2 text-center md:text-left">
+              <label htmlFor="guests" className="font-medium text-gray-800 flex items-center gap-2 text-sm justify-center md:justify-start md:pl-1">
                 <Users className="h-4 w-4" />
                 Hóspedes
               </label>
