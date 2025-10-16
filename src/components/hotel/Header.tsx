@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom"; // Adicionado useNavigate
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "./Logo";
 import { Nav } from "./Nav";
 import MobileNav from "./MobileNav";
@@ -13,9 +13,11 @@ export default function Header() {
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollY = useRef(0);
   const location = useLocation();
-  const navigate = useNavigate(); // Inicializado useNavigate
+  const navigate = useNavigate();
   const isLightPage = location.pathname === '/institucional';
-  const isSpecialPage = location.pathname === '/booking-v2' || location.pathname === '/checkout'; 
+  const isBookingV2Page = location.pathname === '/booking-v2';
+  const isCheckoutPage = location.pathname === '/checkout'; // Nova variável para identificar a página de checkout
+  const isSpecialPage = isCheckoutPage || isBookingV2Page; 
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,10 +26,8 @@ export default function Header() {
       setIsScrolled(currentScrollY > 10);
 
       if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-        // Rolando para baixo
         setIsVisible(false);
       } else {
-        // Rolando para cima
         setIsVisible(true);
       }
 
@@ -41,25 +41,19 @@ export default function Header() {
     };
   }, []);
 
-  // A função scrollToRooms foi removida, pois o botão agora navega para uma página.
-  // Se precisar de rolagem para seções na página de reservas, isso deve ser implementado lá.
-
-  // O cabeçalho será sólido se for uma página clara (institucional) OU se estiver rolado.
   const useDarkTextAndSolidBg = isLightPage || isScrolled;
   
-  // O cabeçalho é visível se a lógica de rolagem o permite OU se for uma página especial (para garantir que nunca se esconda).
-  // Para páginas especiais, o cabeçalho não será fixo, então a visibilidade não importa para o translate-y-full
   const headerIsVisible = isVisible || isSpecialPage;
 
 
   const headerClasses = cn(
-    "top-0 left-0 right-0 z-50 transition-all duration-300", // Classes base
+    "top-0 left-0 right-0 z-50 transition-all duration-300",
     {
-      "fixed": !isSpecialPage, // Fixed for non-special pages
-      "absolute": isSpecialPage, // Absolute for special pages
+      "fixed": !isSpecialPage,
+      "absolute": isSpecialPage,
       "bg-white shadow-md py-2 border-b border-gray-200": useDarkTextAndSolidBg && !isSpecialPage,
       "bg-transparent py-4": !useDarkTextAndSolidBg || isSpecialPage,
-      "-translate-y-full": !headerIsVisible && !isSpecialPage, // Esconde apenas se não for especial E não estiver visível
+      "-translate-y-full": !headerIsVisible && !isSpecialPage,
     }
   );
 
@@ -71,15 +65,14 @@ export default function Header() {
         <Link to="/">
           <Logo 
             isScrolled={useDarkTextAndSolidBg} 
-            isTransparentHeaderOnLightBackground={isSpecialPage} // Passando a nova prop
+            isTransparentHeaderOnLightBackground={isCheckoutPage} // Agora passa 'true' apenas para a página de checkout
           />
         </Link>        
-        {/* Oculta Nav, Button e MobileNav se for uma página especial */}
         {!isSpecialPage && (
           <div className="flex items-center gap-4">
             <Nav isScrolled={useDarkTextAndSolidBg} />
             <Button
-              onClick={() => navigate('/booking-v2')} // Alterado para navegar para /booking-v2
+              onClick={() => navigate('/booking-v2')}
               className={cn(
                 "hidden md:inline-flex transition-colors",
                 useDarkTextAndSolidBg
@@ -89,7 +82,7 @@ export default function Header() {
             >
               Reservar Agora
             </Button>
-            <div className="md:hidden"> {/* Adicionado contêiner com md:hidden para MobileNav */}
+            <div className="md:hidden">
               <MobileNav />
             </div>
           </div>
