@@ -11,7 +11,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Star, MapPin, Waves, Wifi, Car, Coffee } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 
 const features = [
   { icon: Star, text: "Flat Hotel 4 Estrelas" },
@@ -19,7 +19,7 @@ const features = [
   { icon: Waves, text: "Beira-Mar" },
   { icon: Wifi, text: "Wi-Fi Grátis" },
   { icon: Car, text: "Estacionamento Grátis" },
-  { icon: Coffee, text: "Café da Manhã Incluso" },
+  { icon: Coffee, text: "Café da Manã Incluso" },
 ];
 
 export default function About() {
