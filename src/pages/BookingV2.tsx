@@ -268,7 +268,7 @@ const BookingV2 = () => {
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
       <Header />
-      <main className="pb-20 flex-grow min-h-[calc(100vh-200px)]">
+      <main className="pb-20 flex-grow min-h-[calc(100vh-280px)]">
         <section
           className="relative bg-cover bg-center bg-gray-700 py-40"
           style={{ backgroundImage: `url(${heroImageUrl || ''})` }}
