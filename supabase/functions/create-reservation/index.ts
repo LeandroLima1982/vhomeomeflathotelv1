@@ -6,7 +6,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const API_BASE_URL = 'https://vhomeflathotel.facilityhotel.com.br/integracao/hotelDoForte/lancarReserva';
+const AVAILABILITY_API_URL = 'https://vhomeflathotel.facilityhotel.com.br/integracao/hotelDoForte/retornadisponibilidade';
+const RESERVATION_API_URL = 'https://vhomeflathotel.facilityhotel.com.br/integracao/hotelDoForte/lancarReserva';
 
 // Função auxiliar para converter a string de data 'yyyyMMdd' para o formato de objeto esperado pela API
 const parseDate = (dateString: string) => {
@@ -22,7 +23,6 @@ const parseDate = (dateString: string) => {
 
 // Função auxiliar para formatar CPF
 const formatCpf = (cpf: string) => {
-  // Remove tudo que não for dígito e aplica a máscara
   const cleanedCpf = cpf.replace(/\D/g, '');
   if (cleanedCpf.length !== 11) {
     throw new Error(`CPF inválido: ${cpf}. Deve conter 11 dígitos.`);
@@ -32,40 +32,27 @@ const formatCpf = (cpf: string) => {
 
 // Função auxiliar para formatar telefone
 const formatPhone = (phone: string) => {
-  // Remove tudo que não for dígito
   const cleanedPhone = phone.replace(/\D/g, '');
   if (cleanedPhone.length < 10 || cleanedPhone.length > 11) {
     throw new Error(`Telefone inválido: ${phone}. Deve conter 10 ou 11 dígitos (DDD + número).`);
   }
-  // Formato (DD) 9XXXX-XXXX ou (DD) XXXX-XXXX
   if (cleanedPhone.length === 11) {
     return `(${cleanedPhone.substring(0, 2)}) ${cleanedPhone.substring(2, 7)}-${cleanedPhone.substring(7, 11)}`;
   }
   return `(${cleanedPhone.substring(0, 2)}) ${cleanedPhone.substring(2, 6)}-${cleanedPhone.substring(6, 10)}`;
 };
 
-
 serve(async (req) => {
-  // Responde a requisições OPTIONS para o pre-flight do CORS
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const { 
-      checkin, 
-      checkout, 
-      adults, 
-      idQuarto, 
-      valorTotal,
-      nome,
-      sobrenome,
-      email,
-      cpf,
-      telefone
+      checkin, checkout, adults, idQuarto, valorTotal,
+      nome, sobrenome, email, cpf, telefone
     } = await req.json();
 
-    // Validação dos campos obrigatórios
     const requiredFields = { checkin, checkout, adults, idQuarto, valorTotal, nome, sobrenome, email, cpf, telefone };
     for (const [field, value] of Object.entries(requiredFields)) {
       if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
@@ -81,76 +68,90 @@ serve(async (req) => {
       throw new Error('O segredo API_RESERVAS_TOKEN não foi configurado na Supabase.');
     }
 
-    // Gerar um identificador único para a reserva usando a API nativa
-    const identificadorReserva = crypto.randomUUID();
+    // --- PASSO 1: RE-VERIFICAR DISPONIBILIDADE EM TEMPO REAL ---
+    const availabilityRequestBody = {
+      inicio: parseDate(checkin),
+      fim: parseDate(checkout),
+      numeroAdultos: adults,
+    };
 
-    // CORREÇÃO: O responsável é o primeiro integrante. Os demais são acompanhantes.
+    const availabilityResponse = await fetch(AVAILABILITY_API_URL, {
+      method: 'POST',
+      headers: { 'token': apiToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify(availabilityRequestBody),
+    });
+
+    if (!availabilityResponse.ok) {
+      throw new Error('Não foi possível verificar a disponibilidade antes de confirmar a reserva.');
+    }
+
+    const availabilityData = await availabilityResponse.json();
+    const roomAvailability = availabilityData.categorias?.find((cat: any) => cat.id === idQuarto);
+
+    if (!roomAvailability || roomAvailability.disponibilidade <= 0) {
+      throw new Error('Desculpe, a acomodação selecionada não está mais disponível para estas datas. Por favor, tente novamente.');
+    }
+    
+    const currentPrice = roomAvailability.tarifas?.[0]?.valorTotalReserva;
+    if (currentPrice && Math.abs(currentPrice - valorTotal) > 0.01) {
+        throw new Error(`O preço da acomodação mudou. O valor atual é R$ ${currentPrice.toFixed(2)}. Por favor, revise sua reserva.`);
+    }
+
+    // --- PASSO 2: CRIAR A RESERVA (SE A DISPONIBILIDADE FOR CONFIRMADA) ---
+    const identificadorReserva = crypto.randomUUID();
     const integrantes = [
-      {
-        nomeCompleto: `${nome} ${sobrenome}`,
-        categoriaPessoa: "ADULTO",
-      },
-      // Adiciona os acompanhantes, se houver (adults - 1)
+      { nomeCompleto: `${nome} ${sobrenome}`, categoriaPessoa: "ADULTO" },
       ...Array.from({ length: Math.max(0, adults - 1) }, (_, i) => ({
         nomeCompleto: `Acompanhante ${i + 1}`,
         categoriaPessoa: "ADULTO",
       }))
     ];
 
-    // Monta o corpo da requisição para a API externa, seguindo a documentação
-    const requestBody = {
+    const reservationRequestBody = {
       identificador: identificadorReserva,
       inicio: parseDate(checkin),
       fim: parseDate(checkout),
       acomodacoes: [
         {
-          idtarifa: idQuarto, // idQuarto da sua aplicação mapeia para idtarifa da API externa
+          idtarifa: idQuarto,
           valorTotal: valorTotal,
-          confirmada: "true", // Definir como "true" para confirmar a reserva
+          numeroAdultos: adults, // **CORREÇÃO CRÍTICA: Adicionando o número de adultos**
+          confirmada: "true",
           responsavel: {
-            nomeCompleto: `${nome} ${sobrenome}`, // Concatenar nome e sobrenome
-            cpf: formatCpf(cpf), // Formatar CPF
-            telefone: formatPhone(telefone), // Formatar telefone
+            nomeCompleto: `${nome} ${sobrenome}`,
+            cpf: formatCpf(cpf),
+            telefone: formatPhone(telefone),
             email: email,
           },
-          integrantes: integrantes, // Incluir todos os hóspedes
+          integrantes: integrantes,
           pagamentos: [
             {
-              id: `pagamento-${identificadorReserva}`, // ID único para o pagamento
+              id: `pagamento-${identificadorReserva}`,
               valor: valorTotal,
-              codigoFormaPagamento: 1, // ATENÇÃO: Este código deve ser confirmado com a equipe Facility Hotel para "pagamento na chegada" ou similar.
-              liquidado: "false", // Definir como "false" se o pagamento não for processado imediatamente
-              vencimento: parseDate(checkin), // Data de vencimento pode ser o check-in ou outra data acordada
+              codigoFormaPagamento: 1,
+              liquidado: "false",
+              vencimento: parseDate(checkin),
             }
           ]
         }
       ]
     };
 
-    const response = await fetch(API_BASE_URL, {
+    const reservationApiResponse = await fetch(RESERVATION_API_URL, {
       method: 'POST',
-      headers: {
-        'token': apiToken,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
+      headers: { 'token': apiToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify(reservationRequestBody),
     });
 
-    const contentType = response.headers.get("content-type");
-    if (!response.ok || !contentType || !contentType.includes("application/json")) {
-      const errorBody = await response.text();
-      console.error(`API externa retornou uma resposta inesperada (status: ${response.status}, tipo: ${contentType}):`, errorBody.substring(0, 500));
-      
+    const contentType = reservationApiResponse.headers.get("content-type");
+    if (!reservationApiResponse.ok || !contentType || !contentType.includes("application/json")) {
+      const errorBody = await reservationApiResponse.text();
       const titleMatch = errorBody.match(/<title>(.*?)<\/title>/i);
       const errorHint = titleMatch ? titleMatch[1] : 'A resposta não era um JSON válido.';
-
       throw new Error(`O sistema de reservas retornou um erro: "${errorHint}".`);
     }
 
-    const data = await response.json();
-
-    // A documentação indica que codigoRetorno 0 é sucesso.
-    // Se a API retornar um código diferente de 0, consideramos um erro.
+    const data = await reservationApiResponse.json();
     if (data.codigoRetorno && data.codigoRetorno !== 0) {
         throw new Error(data.mensagem || "O sistema de reservas retornou um erro desconhecido ao tentar criar a reserva.");
     }
