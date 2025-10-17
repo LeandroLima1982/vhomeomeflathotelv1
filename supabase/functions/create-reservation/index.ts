@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
-import { v4 as uuidv4 } from "https://deno.land/std@0.224.0/uuid/mod.ts"; // Importando UUID para identificador único
+import * as uuid from "https://deno.land/std@0.224.0/uuid/mod.ts"; // Importando o módulo UUID completo
 
 // Headers CORS para permitir requisições do navegador
 const corsHeaders = {
@@ -83,7 +83,7 @@ serve(async (req) => {
     }
 
     // Gerar um identificador único para a reserva
-    const identificadorReserva = uuidv4.generate();
+    const identificadorReserva = uuid.v4.generate();
 
     // Criar array de integrantes com base no número de adultos
     const integrantes = Array.from({ length: adults }, (_, i) => ({
