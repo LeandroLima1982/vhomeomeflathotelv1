@@ -48,10 +48,10 @@ export function AvailabilitySearchForm({ onSearch, isLoading, initialSearchParam
         setCheckoutDate(parseISO(savedCheckout));
         setGuests(Number(savedGuests));
       } else {
-        // Define valores padrão: check-in em 2 dias, check-out em 4 dias (2 diárias), 2 hóspedes
+        // Define valores padrão: check-in na data atual, check-out no dia seguinte, 2 hóspedes
         const today = new Date();
-        const defaultCheckin = addDays(today, 2);
-        const defaultCheckout = addDays(defaultCheckin, 2);
+        const defaultCheckin = today;
+        const defaultCheckout = addDays(today, 1); // Dia seguinte
         setCheckinDate(defaultCheckin);
         setCheckoutDate(defaultCheckout);
         setGuests(2);
