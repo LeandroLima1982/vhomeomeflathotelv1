@@ -134,7 +134,7 @@ export const Hero = () => {
               Seu Flat Hotel
             </span>
             <span className={cn("mt-2 block text-3xl font-extralight tracking-widest text-white/90 md:text-4xl lg:text-5xl text-right", animationClasses("delay-700"))}>
-              à Beira Mar
+              à Beira Mar em Macaé
             </span>
           </h1>
 
