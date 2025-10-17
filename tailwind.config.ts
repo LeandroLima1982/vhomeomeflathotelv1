@@ -23,7 +23,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
-        serif: ['Playfair Display', 'serif'],
+        heading: ['Raleway', 'sans-serif'], // Raleway para títulos
       },
       colors: {
         border: "hsl(var(--border))",
