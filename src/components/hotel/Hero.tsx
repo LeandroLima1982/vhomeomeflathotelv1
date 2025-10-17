@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { cn } from '@/lib/utils';
+// TypingEffect não é mais necessário aqui
 
 const BUCKET_NAME = 'gallery';
 const FOLDER = 'hero';
@@ -13,7 +14,7 @@ export const Hero = () => {
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showTextAfterDelay, setShowTextAfterDelay] = useState(false);
+  // showTypingEffect não é mais necessário
 
   useEffect(() => {
     setIsMounted(true);
@@ -74,29 +75,6 @@ export const Hero = () => {
     setLoading(false);
   };
 
-  // Effect to trigger text display after 2 seconds once the current image is loaded
-  useEffect(() => {
-    if (images.length > 0) {
-      setShowTextAfterDelay(false); // Reset text visibility for the new slide
-
-      const img = new Image();
-      img.src = images[currentIndex]; // Check current image
-      img.onload = () => {
-        const timer = setTimeout(() => {
-          setShowTextAfterDelay(true);
-        }, 2000); // 2-second delay before text starts animating
-        return () => clearTimeout(timer);
-      };
-      img.onerror = () => {
-        console.warn("Failed to load hero image for current slide, proceeding anyway.");
-        const timer = setTimeout(() => {
-          setShowTextAfterDelay(true);
-        }, 2000); // Proceed even if error
-        return () => clearTimeout(timer);
-      };
-    }
-  }, [images, currentIndex]); // Run when images or current slide changes
-
   useEffect(() => {
     if (images.length > 1) {
       const duration = currentIndex === 0 ? 10000 : 5000; // 10 segundos para o primeiro slide, 5 para os demais
@@ -107,14 +85,15 @@ export const Hero = () => {
     }
   }, [currentIndex, images.length]);
 
+  // O useEffect para showTypingEffect foi removido
+
   const defaultImage = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto-format&fit=crop&q=80";
 
-  // Helper function for conditional animation classes
-  const getTextAnimationClasses = (initialDelay: string) =>
+  const animationClasses = (delay: string) =>
     cn(
-      "transition-all duration-[4000ms] ease-out", // Duração de 4 segundos para a transição
-      "opacity-0 translate-y-20", // Estado inicial: invisível e abaixo
-      showTextAfterDelay && `opacity-100 translate-y-0 ${initialDelay}` // Estado final: visível e na posição, com atraso
+      "transition-all duration-1000 ease-out",
+      isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10",
+      delay
     );
 
   return (
@@ -147,43 +126,46 @@ export const Hero = () => {
       {/* Content */}
       <div className="relative z-10 flex h-full items-center justify-center px-4">
         <div className="max-w-5xl">
-          {/* Decorative Line (Top) */}
-          <div className={cn("mb-8 flex items-center justify-center gap-4", getTextAnimationClasses("delay-1000"))}>
+          {/* Decorative Line */}
+          <div className={cn("mb-8 flex items-center justify-center gap-4", animationClasses("delay-300"))}>
             <div className="h-px w-12 bg-white/60" />
             <div className="h-1.5 w-1.5 rotate-45 bg-white/60" />
             <div className="h-px w-12 bg-white/60" />
           </div>
 
-          {/* Main Heading (h1) */}
+          {/* Main Heading */}
           <h1 className="text-white text-center">
             <span className={cn(
               "block text-5xl font-light tracking-wide md:text-7xl lg:text-8xl",
-              getTextAnimationClasses("delay-2000") // Primeiro a surgir
+              animationClasses("delay-500"),
+              currentIndex !== 0 && "opacity-0 translate-y-4" // Esconde e desloca se não for o primeiro slide
             )}>
               Seu Flat Hotel
             </span>
             <span className={cn(
               "mt-2 block text-3xl font-extralight tracking-widest text-white/90 md:text-4xl lg:text-5xl text-right",
-              getTextAnimationClasses("delay-3500") // Segundo a surgir
+              animationClasses("delay-700"), // Animação de montagem inicial
+              currentIndex !== 0 && "opacity-0 translate-y-4" // Esconde e desloca se não for o primeiro slide
             )}>
               à Beira Mar em Macaé
             </span>
           </h1>
 
+          {/* Subtitle */}
+          <p className={cn(
+            "mt-8 text-lg font-light tracking-wide text-white/95 md:text-xl lg:text-2xl text-center", 
+            animationClasses("delay-[1300ms]"), // Aumentado o delay para aparecer por último
+            currentIndex !== 0 && "opacity-0 translate-y-4 duration-300" // Adicionado duration-300 para desaparecer mais rápido
+          )}>
+            Onde Conforto, Sofisticação e Natureza se Entrelaçam
+          </p>
+
           {/* Decorative Bottom Line */}
-          <div className={cn("mt-12 flex items-center justify-center gap-4", getTextAnimationClasses("delay-4500"))}>
+          <div className={cn("mt-12 flex items-center justify-center gap-4", animationClasses("delay-[1100ms]"))}>
             <div className="h-px w-16 bg-white/40" />
             <div className="h-1 w-1 rounded-full bg-white/40" />
             <div className="h-px w-16 bg-white/40" />
           </div>
-
-          {/* Subtitle (p) */}
-          <p className={cn(
-            "mt-8 text-lg font-light tracking-wide text-white/95 md:text-xl lg:text-2xl text-center", 
-            getTextAnimationClasses("delay-5500") // Último a surgir
-          )}>
-            Onde Conforto, Sofisticação e Natureza se Entrelaçam
-          </p>
         </div>
       </div>
     </div>
