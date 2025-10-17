@@ -16,9 +16,8 @@ interface Room {
   description: string | null;
   custom_description: string | null;
   additional_features: any[] | null;
-  details_order: string[] | null;
+  details_order: string[] | null; // Nova propriedade
   imageUrl?: string | null;
-  base_price?: number | null;
 }
 
 export default function Rooms() {
@@ -278,20 +277,6 @@ export default function Rooms() {
                       </div>
                     )}
                     <h3 className="text-xl font-semibold mb-2 text-gray-800">{room.name}</h3>
-                    
-                    {room.base_price && (
-                      <div className="mb-4">
-                        <p className="text-lg font-semibold text-blue-800">
-                          A partir de{' '}
-                          {new Intl.NumberFormat('pt-BR', {
-                            style: 'currency',
-                            currency: 'BRL',
-                          }).format(room.base_price)}
-                          <span className="text-sm font-normal text-gray-500"> / diária</span>
-                        </p>
-                      </div>
-                    )}
-
                     <p className="text-gray-600 leading-relaxed line-clamp-2 mb-4 text-sm">
                       {room.custom_description || room.description || 'Descrição não disponível'}
                     </p>
