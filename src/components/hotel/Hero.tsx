@@ -77,9 +77,10 @@ export const Hero = () => {
 
   useEffect(() => {
     if (images.length > 1) {
+      const duration = currentIndex === 0 ? 8000 : 5000; // 8 segundos para o primeiro slide, 5 para os demais
       const timer = setTimeout(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-      }, 5000); // Change image every 5 seconds
+      }, duration);
       return () => clearTimeout(timer);
     }
   }, [currentIndex, images.length]);
