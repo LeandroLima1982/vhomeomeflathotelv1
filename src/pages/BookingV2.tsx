@@ -25,6 +25,7 @@ interface LocalRoom {
 
 interface AvailabilityResult {
   idQuarto: number;
+  apiRoomId: number; // Campo para o ID original da API
   nomeQuarto: string;
   disponibilidade: number;
   valorTotal: number;
@@ -226,7 +227,8 @@ const BookingV2 = () => {
         const localRoom = localRoomsData.find(lr => lr.id === adjustedRoomId);
         return {
           ...apiRoom,
-          idQuarto: adjustedRoomId, 
+          idQuarto: adjustedRoomId,
+          apiRoomId: apiRoom.idQuarto, // Armazena o ID original da API
           imageUrl: localRoom?.imageUrl || null,
           details: localRoom?.details || null,
           details_order: localRoom?.details_order || null,

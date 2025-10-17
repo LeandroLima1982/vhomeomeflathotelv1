@@ -29,6 +29,7 @@ const formSchema = z.object({
 // Interface para o objeto 'room' que vem do estado da localização
 interface RoomResult {
   idQuarto: number;
+  apiRoomId: number; // ID original da API
   nomeQuarto: string;
   disponibilidade: number;
   valorTotal: number;
@@ -78,7 +79,7 @@ const Checkout = () => {
       checkin: searchParams.checkin,
       checkout: searchParams.checkout,
       adults: searchParams.adults,
-      idQuarto: room.idQuarto,
+      idQuarto: room.apiRoomId, // Usando o ID original da API
       valorTotal: room.valorTotal,
       ...values,
     };
