@@ -27,7 +27,8 @@ import {
   Loader2,
   ArrowLeft,
   Search,
-  BedDouble
+  BedDouble,
+  ServerCrash
 } from 'lucide-react';
 import FeatureListDisplay, { FeatureCategory } from './FeatureListDisplay';
 import { supabase } from '@/lib/supabaseClient';
@@ -161,6 +162,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
       setAvailabilitySearchError(errorMessage);
       showError(errorMessage);
       setIsSearchingAvailability(false);
+      setShowBookingForm(false); // Adicionado para ocultar o formulário em caso de erro
       return;
     }
 
@@ -195,15 +197,17 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
           details_order: room.details_order,
           special_name: room.special_name,
         });
+        setShowBookingForm(false); // IMPORTANTE: Ocultar o formulário para mostrar os resultados
       } else {
         setAvailabilitySearchError("Desculpe, esta acomodação não está disponível para as datas e hóspedes selecionados.");
+        setShowBookingForm(false); // IMPORTANTE: Ocultar o formulário para mostrar a mensagem de erro
       }
 
     } catch (e: any) {
       console.error("Erro ao buscar disponibilidade no modal:", e);
       const errorMessage = e.message || "Ocorreu um erro ao buscar a disponibilidade. Tente novamente.";
       setAvailabilitySearchError(errorMessage);
-      showError(errorMessage);
+      setShowBookingForm(false); // IMPORTANTE: Ocultar o formulário para mostrar a mensagem de erro
     } finally {
       setIsSearchingAvailability(false);
     }
@@ -382,6 +386,12 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                 initialCheckout={currentSearchParams ? parse(currentSearchParams.checkout, "yyyyMMdd", new Date()) : undefined}
                 initialGuests={currentSearchParams?.adults}
               />
+            ) : isSearchingAvailability ? ( // Adicionado estado de carregamento
+              <div className="flex flex-col items-center justify-center text-center p-10 bg-white rounded-lg shadow-md">
+                <Loader2 className="h-12 w-12 animate-spin text-blue-600 mb-4" />
+                <p className="text-lg font-semibold text-gray-700">Buscando disponibilidade...</p>
+                <p className="text-gray-500">Por favor, aguarde um momento.</p>
+              </div>
             ) : roomAvailabilityResult ? (
               // Resultados da disponibilidade para o quarto atual
               <div className="p-6 bg-white rounded-lg shadow-md border border-blue-100">
