@@ -24,8 +24,7 @@ interface LocalRoom {
 }
 
 interface AvailabilityResult {
-  idQuarto: number;
-  apiRoomId: number; // Campo para o ID original da API
+  idQuarto: number; // Agora este será o ID original da API
   nomeQuarto: string;
   disponibilidade: number;
   valorTotal: number;
@@ -223,13 +222,11 @@ const BookingV2 = () => {
       if (data.error) throw new Error(data.error);
 
       const mergedResults = data.map((apiRoom: any) => {
-        // REVERTENDO CORREÇÃO: Subtraindo 3 para alinhar o ID da API externa com o ID local do Supabase
-        const adjustedRoomId = apiRoom.idQuarto - 3; 
-        const localRoom = localRoomsData.find(lr => lr.id === adjustedRoomId);
+        // REVERTIDO: Usando o ID original da API externa para idQuarto e para buscar dados locais
+        const localRoom = localRoomsData.find(lr => lr.id === apiRoom.idQuarto);
         return {
           ...apiRoom,
-          idQuarto: adjustedRoomId,
-          apiRoomId: apiRoom.idQuarto, // Armazena o ID original da API
+          idQuarto: apiRoom.idQuarto, // Agora idQuarto é o ID original da API
           imageUrl: localRoom?.imageUrl || null,
           details: localRoom?.details || null,
           details_order: localRoom?.details_order || null,
@@ -238,8 +235,8 @@ const BookingV2 = () => {
       });
 
       const pricedResults = mergedResults.filter(room => room.valorTotal > 0);
-      const finalFilteredResults = pricedResults.filter(room => room.imageUrl !== null);
-      setRawResults(finalFilteredResults);
+      // REVERTIDO: Removendo o filtro que ocultava quartos sem imagem
+      setRawResults(pricedResults);
 
     } catch (e: any) {
       console.error("Erro ao buscar disponibilidade:", e);
