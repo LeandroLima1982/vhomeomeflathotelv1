@@ -99,13 +99,13 @@ serve(async (req) => {
 
     // --- PASSO 2: CRIAR A RESERVA (SE A DISPONIBILIDADE FOR CONFIRMADA) ---
     const identificadorReserva = crypto.randomUUID();
-    const integrantes = [
-      { nomeCompleto: `${nome} ${sobrenome}`, categoriaPessoa: "ADULTO" },
-      ...Array.from({ length: Math.max(0, adults - 1) }, (_, i) => ({
-        nomeCompleto: `Acompanhante ${i + 1}`,
-        categoriaPessoa: "ADULTO",
-      }))
-    ];
+    
+    // **CORREÇÃO DEFINITIVA:** A API externa soma o 'responsavel' (1) com a lista de 'integrantes'.
+    // Para a contagem ser correta, a lista de 'integrantes' deve conter apenas os acompanhantes adicionais.
+    const integrantes = Array.from({ length: Math.max(0, adults - 1) }, (_, i) => ({
+      nomeCompleto: `Acompanhante ${i + 1}`,
+      categoriaPessoa: "ADULTO",
+    }));
 
     const reservationRequestBody = {
       identificador: identificadorReserva,
@@ -115,7 +115,7 @@ serve(async (req) => {
         {
           idtarifa: idQuarto,
           valorTotal: valorTotal,
-          numeroAdultos: adults, // **CORREÇÃO CRÍTICA: Adicionando o número de adultos**
+          numeroAdultos: adults,
           confirmada: "true",
           responsavel: {
             nomeCompleto: `${nome} ${sobrenome}`,
