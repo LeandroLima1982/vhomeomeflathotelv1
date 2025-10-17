@@ -1,13 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { 
   Users, 
-  Bed, 
   Wifi, 
   Coffee, 
   Tv, 
@@ -23,23 +22,60 @@ import {
   Star,
   MapPin,
   Calendar,
-  Clock
+  Clock,
+  Tag,
+  Loader2,
+  ArrowLeft,
+  Search,
+  BedDouble
 } from 'lucide-react';
 import FeatureListDisplay, { FeatureCategory } from './FeatureListDisplay';
 import { supabase } from '@/lib/supabaseClient';
 import { RoomBookingForm } from './RoomBookingForm';
+import { showError } from '@/utils/toast';
+import { useNavigate } from 'react-router-dom';
+import { format, parse, differenceInDays } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import DetailIcon from './DetailIcon'; // Importando o DetailIcon
+
+// Interface para o objeto 'room' que vem do estado da localização
+interface RoomResultForCheckout {
+  idQuarto: number; // ID do Supabase (ajustado)
+  apiRoomId: number; // ID original da API externa
+  nomeQuarto: string;
+  disponibilidade: number;
+  valorTotal: number;
+  imageUrl: string | null;
+  details: Record<string, string | null> | null;
+  details_order: string[] | null;
+  special_name?: string | null;
+  [key: string]: any;
+}
+
+interface SearchParams {
+  checkin: string;
+  checkout: string;
+  adults: number;
+}
 
 interface RoomDetailsModalProps {
-  room: any;
+  room: any; // O quarto original do Supabase
   onClose: () => void;
 }
 
 const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
+  const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [roomImages, setRoomImages] = useState<string[]>([]);
   const [loadingImages, setLoadingImages] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showBookingForm, setShowBookingForm] = useState(false);
+
+  // Novos estados para a busca de disponibilidade
+  const [isSearchingAvailability, setIsSearchingAvailability] = useState(false);
+  const [roomAvailabilityResult, setRoomAvailabilityResult] = useState<RoomResultForCheckout | null>(null);
+  const [availabilitySearchError, setAvailabilitySearchError] = useState<string | null>(null);
+  const [currentSearchParams, setCurrentSearchParams] = useState<SearchParams | null>(null);
 
   useEffect(() => {
     const fetchRoomImages = async () => {
@@ -93,34 +129,109 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
   if (!room) return null;
 
   const nextImage = () => {
-    if (isTransitioning) return;
+    if (isTransitioning || roomImages.length === 0) return;
     setIsTransitioning(true);
     setCurrentImageIndex((prev) => (prev + 1) % roomImages.length);
     setTimeout(() => setIsTransitioning(false), 300);
   };
 
   const prevImage = () => {
-    if (isTransitioning) return;
+    if (isTransitioning || roomImages.length === 0) return;
     setIsTransitioning(true);
     setCurrentImageIndex((prev) => (prev - 1 + roomImages.length) % roomImages.length);
     setTimeout(() => setIsTransitioning(false), 300);
   };
 
   const goToImage = (index: number) => {
-    if (isTransitioning || index === currentImageIndex) return;
+    if (isTransitioning || index === currentImageIndex || roomImages.length === 0) return;
     setIsTransitioning(true);
     setCurrentImageIndex(index);
     setTimeout(() => setIsTransitioning(false), 300);
   };
 
-  const getFeatureIcon = (feature: string) => {
-    const lowerFeature = feature.toLowerCase();
-    if (lowerFeature.includes('wifi') || lowerFeature.includes('internet')) return <Wifi className="w-5 h-5" />;
-    if (lowerFeature.includes('café') || lowerFeature.includes('coffee')) return <Coffee className="w-5 h-5" />;
-    if (lowerFeature.includes('tv')) return <Tv className="w-5 h-5" />;
-    if (lowerFeature.includes('ar') || lowerFeature.includes('condicionado')) return <Wind className="w-5 h-5" />;
-    if (lowerFeature.includes('banheiro') || lowerFeature.includes('banho')) return <Droplets className="w-5 h-5" />;
-    return <Sparkles className="w-5 h-5" />;
+  // Função para realizar a busca de disponibilidade
+  const handleAvailabilitySearch = async (checkin: string, checkout: string, adults: number) => {
+    setIsSearchingAvailability(true);
+    setRoomAvailabilityResult(null);
+    setAvailabilitySearchError(null);
+    setCurrentSearchParams({ checkin, checkout, adults });
+
+    if (!supabase) {
+      const errorMessage = "Cliente Supabase não está disponível. Verifique a configuração.";
+      setAvailabilitySearchError(errorMessage);
+      showError(errorMessage);
+      setIsSearchingAvailability(false);
+      return;
+    }
+
+    try {
+      const { data, error: functionError } = await supabase.functions.invoke('get-availability', {
+        body: { checkin, checkout, adults },
+      });
+
+      if (functionError) {
+        const errorDetails = await functionError.context.json();
+        if (errorDetails && errorDetails.error) throw new Error(errorDetails.error);
+        throw new Error(functionError.message || "Erro na comunicação com a função.");
+      }
+      
+      if (data.error) throw new Error(data.error);
+
+      // A Edge Function retorna o idQuarto como o ID original da API.
+      // Precisamos encontrar o quarto que corresponde ao nosso room.id do Supabase.
+      // A correção de ID é -3 para ir da API para o Supabase, então para ir do Supabase para a API é +3.
+      const targetApiRoomId = room.id + 3; 
+      const foundRoom = data.find((apiRoom: any) => apiRoom.idQuarto === targetApiRoomId);
+
+      if (foundRoom && foundRoom.disponibilidade > 0 && foundRoom.valorTotal > 0) {
+        setRoomAvailabilityResult({
+          idQuarto: room.id, // ID do Supabase
+          apiRoomId: foundRoom.idQuarto, // ID original da API
+          nomeQuarto: room.name,
+          disponibilidade: foundRoom.disponibilidade,
+          valorTotal: foundRoom.valorTotal,
+          imageUrl: room.imageUrl, // Usamos a imagem do Supabase
+          details: room.details,
+          details_order: room.details_order,
+          special_name: room.special_name,
+        });
+      } else {
+        setAvailabilitySearchError("Desculpe, esta acomodação não está disponível para as datas e hóspedes selecionados.");
+      }
+
+    } catch (e: any) {
+      console.error("Erro ao buscar disponibilidade no modal:", e);
+      const errorMessage = e.message || "Ocorreu um erro ao buscar a disponibilidade. Tente novamente.";
+      setAvailabilitySearchError(errorMessage);
+      showError(errorMessage);
+    } finally {
+      setIsSearchingAvailability(false);
+    }
+  };
+
+  const handleReserveClick = (isDirectBooking: boolean) => {
+    if (roomAvailabilityResult && currentSearchParams) {
+      const targetPath = isDirectBooking ? '/direct-checkout' : '/checkout';
+      navigate(targetPath, {
+        state: {
+          room: roomAvailabilityResult,
+          searchParams: currentSearchParams,
+        },
+      });
+    }
+  };
+
+  const handleViewOtherOptions = (isDirectBooking: boolean) => {
+    if (currentSearchParams) {
+      const { checkin, checkout, adults } = currentSearchParams;
+      const targetPath = isDirectBooking ? '/direct-booking' : '/booking-v2';
+      navigate(`${targetPath}?checkin=${checkin}&checkout=${checkout}&adults=${adults}`);
+    } else {
+      // Se não houver searchParams, apenas navega para a página de busca geral
+      const targetPath = isDirectBooking ? '/direct-booking' : '/booking-v2';
+      navigate(targetPath);
+    }
+    onClose(); // Fecha o modal ao navegar para a página de busca
   };
 
   // Renderizar detalhes como badges modernos
@@ -162,6 +273,46 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
       </div>
     );
   };
+
+  const getRoomDetails = (roomData: any) => {
+    if (!roomData.details || typeof roomData.details !== 'object') return [];
+  
+    const detailsObject = roomData.details;
+  
+    const validKeys = Object.keys(detailsObject).filter(key => {
+      const value = detailsObject[key];
+      return value && typeof value === 'string' && value.trim() !== '' && key !== 'description';
+    });
+  
+    if (roomData.details_order && Array.isArray(roomData.details_order)) {
+      const orderedDetails = roomData.details_order
+        .map((key: string) => {
+          if (validKeys.includes(key)) {
+            return detailsObject[key];
+          }
+          return null;
+        })
+        .filter((value: string | null): value is string => value !== null);
+      
+      const unorderedKeys = validKeys.filter(key => !roomData.details_order.includes(key));
+      const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
+  
+      return [...orderedDetails, ...unorderedDetails].slice(0, 9);
+    }
+  
+    return validKeys.map(key => detailsObject[key] as string).slice(0, 9);
+  };
+
+  const roomDetails = getRoomDetails(room);
+
+  const formattedPrice = roomAvailabilityResult ? new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(roomAvailabilityResult.valorTotal) : '';
+
+  const checkinDateObj = currentSearchParams ? parse(currentSearchParams.checkin, "yyyyMMdd", new Date()) : null;
+  const checkoutDateObj = currentSearchParams ? parse(currentSearchParams.checkout, "yyyyMMdd", new Date()) : null;
+  const numberOfNights = (checkinDateObj && checkoutDateObj) ? differenceInDays(checkoutDateObj, checkinDateObj) : 0;
 
   return (
     <Dialog open={!!room} onOpenChange={onClose}>
@@ -214,12 +365,93 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
           </div>
 
           {/* Sistema de reserva acima do carousel */}
-          {showBookingForm ? (
-            <div className="px-4 sm:px-6 lg:px-8 py-4 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200/60">
-              <RoomBookingForm roomId={room.id} onCancel={() => setShowBookingForm(false)} />
-            </div>
-          ) : (
-            <div className="px-4 sm:px-6 lg:px-8 py-4 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200/60">
+          <div className="px-4 sm:px-6 lg:px-8 py-4 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200/60">
+            {showBookingForm ? (
+              // Formulário de busca de disponibilidade
+              <RoomBookingForm 
+                roomId={room.id} 
+                onCancel={() => {
+                  setShowBookingForm(false);
+                  setRoomAvailabilityResult(null);
+                  setAvailabilitySearchError(null);
+                  setCurrentSearchParams(null);
+                }}
+                onConsult={handleAvailabilitySearch}
+                isLoading={isSearchingAvailability}
+                initialCheckin={currentSearchParams ? parse(currentSearchParams.checkin, "yyyyMMdd", new Date()) : undefined}
+                initialCheckout={currentSearchParams ? parse(currentSearchParams.checkout, "yyyyMMdd", new Date()) : undefined}
+                initialGuests={currentSearchParams?.adults}
+              />
+            ) : roomAvailabilityResult ? (
+              // Resultados da disponibilidade para o quarto atual
+              <div className="p-6 bg-white rounded-lg shadow-md border border-blue-100">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-blue-800">Disponível!</h3>
+                  <Button variant="outline" onClick={() => setShowBookingForm(true)}>
+                    <ArrowLeft className="h-4 w-4 mr-2" /> Modificar Datas
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <Calendar className="h-5 w-5 text-blue-600" />
+                    <span>Check-in: {format(parse(currentSearchParams!.checkin, "yyyyMMdd", new Date()), "dd/MM/yyyy", { locale: ptBR })}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <Calendar className="h-5 w-5 text-blue-600" />
+                    <span>Check-out: {format(parse(currentSearchParams!.checkout, "yyyyMMdd", new Date()), "dd/MM/yyyy", { locale: ptBR })}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <Users className="h-5 w-5 text-blue-600" />
+                    <span>{currentSearchParams!.adults} Hóspede{currentSearchParams!.adults > 1 ? 's' : ''}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <BedDouble className="h-5 w-5 text-blue-600" />
+                    <span>{roomAvailabilityResult.disponibilidade} unidade{roomAvailabilityResult.disponibilidade > 1 ? 's' : ''} disponível{roomAvailabilityResult.disponibilidade > 1 ? 's' : ''}</span>
+                  </div>
+                </div>
+                <Separator className="my-4" />
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-center sm:text-left">
+                    <span className="text-sm text-gray-600">Total para {numberOfNights} diária{numberOfNights > 1 ? 's' : ''}</span>
+                    <p className="text-3xl font-bold text-blue-800 flex items-center gap-2 mt-1">
+                      <Tag className="h-6 w-6 opacity-70" />
+                      {formattedPrice}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={() => handleReserveClick(false)} // Passa false para indicar que não é direct booking
+                    size="lg"
+                    className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105 w-full sm:w-auto"
+                  >
+                    <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    Reservar Agora
+                  </Button>
+                </div>
+                <div className="mt-4 text-center">
+                  <Button variant="link" onClick={() => handleViewOtherOptions(false)} className="text-blue-600 hover:text-blue-800">
+                    <Search className="h-4 w-4 mr-2" /> Ver Outras Opções
+                  </Button>
+                </div>
+              </div>
+            ) : availabilitySearchError ? (
+              // Mensagem de erro
+              <div className="p-6 bg-red-50 rounded-lg shadow-md border border-red-200 text-center">
+                <div className="flex items-center justify-center mb-4">
+                  <ServerCrash className="h-12 w-12 text-red-500" />
+                </div>
+                <h3 className="text-xl font-bold text-red-800 mb-2">Erro na Consulta</h3>
+                <p className="text-red-700 mb-4">{availabilitySearchError}</p>
+                <div className="flex flex-col sm:flex-row justify-center gap-3">
+                  <Button variant="outline" onClick={() => setShowBookingForm(true)}>
+                    <ArrowLeft className="h-4 w-4 mr-2" /> Tentar Novamente
+                  </Button>
+                  <Button onClick={() => handleViewOtherOptions(false)}>
+                    <Search className="h-4 w-4 mr-2" /> Ver Outras Opções
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              // Botão inicial para consultar preço
               <div className="flex justify-center">
                 <Button
                   onClick={() => setShowBookingForm(true)}
@@ -231,8 +463,8 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                   <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
                 </Button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Carousel de Imagens Moderno */}
           <div className="relative w-full h-48 sm:h-64 lg:h-[350px] bg-slate-100 overflow-hidden">

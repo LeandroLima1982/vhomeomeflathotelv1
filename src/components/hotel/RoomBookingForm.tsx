@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Users, ArrowLeft } from "lucide-react";
+import { Users, ArrowLeft, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -13,12 +13,25 @@ import { Label } from "@/components/ui/label";
 interface RoomBookingFormProps {
   roomId: number;
   onCancel: () => void;
+  onConsult: (checkin: string, checkout: string, adults: number) => void; // Novo callback
+  isLoading: boolean; // Novo estado de carregamento
+  initialCheckin?: Date; // Para preencher o formulário se já houver dados
+  initialCheckout?: Date; // Para preencher o formulário se já houver dados
+  initialGuests?: number; // Para preencher o formulário se já houver dados
 }
 
-export function RoomBookingForm({ roomId, onCancel }: RoomBookingFormProps) {
-  const [checkinDate, setCheckinDate] = useState<Date | undefined>();
-  const [checkoutDate, setCheckoutDate] = useState<Date | undefined>();
-  const [guests, setGuests] = useState(2);
+export function RoomBookingForm({ 
+  roomId, 
+  onCancel, 
+  onConsult, 
+  isLoading,
+  initialCheckin,
+  initialCheckout,
+  initialGuests
+}: RoomBookingFormProps) {
+  const [checkinDate, setCheckinDate] = useState<Date | undefined>(initialCheckin);
+  const [checkoutDate, setCheckoutDate] = useState<Date | undefined>(initialCheckout);
+  const [guests, setGuests] = useState(initialGuests || 2);
 
   useEffect(() => {
     if (checkinDate && checkoutDate && checkoutDate <= checkinDate) {
@@ -28,15 +41,14 @@ export function RoomBookingForm({ roomId, onCancel }: RoomBookingFormProps) {
 
   const handleConsult = () => {
     if (!checkinDate || !checkoutDate) {
+      // Poderíamos adicionar um toast de erro aqui, mas por enquanto, apenas retornamos.
       return;
     }
 
     const checkIn = format(checkinDate, "yyyyMMdd");
     const checkOut = format(checkoutDate, "yyyyMMdd");
-    const baseUrl = "https://vhomeflathotel.motordereservas.com.br/novareserva";
-    const url = `${baseUrl}?inicio=${checkIn}&fim=${checkOut}&adultos=${guests}&idquartoCategoria=${roomId}`;
-
-    window.open(url, "_blank", "noopener,noreferrer");
+    
+    onConsult(checkIn, checkOut, guests); // Chama o callback passado pelo pai
   };
 
   return (
@@ -72,7 +84,7 @@ export function RoomBookingForm({ roomId, onCancel }: RoomBookingFormProps) {
           <div className="grid gap-2">
             <Label htmlFor="guests">Hóspedes</Label>
             <div className="relative">
-                <Users className="absolute left-3 top-1/2 -translatey-1/2 h-4 w-4 text-gray-500" />
+                <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                 <Input
                     id="guests"
                     type="number"
@@ -88,10 +100,11 @@ export function RoomBookingForm({ roomId, onCancel }: RoomBookingFormProps) {
       <div className="mt-6">
         <Button
           onClick={handleConsult}
-          disabled={!checkinDate || !checkoutDate}
+          disabled={isLoading || !checkinDate || !checkoutDate}
           className="w-full bg-blue-800 hover:bg-blue-900"
         >
-          Consultar Disponibilidade
+          {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          {isLoading ? 'Consultando...' : 'Consultar Disponibilidade'}
         </Button>
       </div>
     </div>
