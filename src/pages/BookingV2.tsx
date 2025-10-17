@@ -46,7 +46,8 @@ const BookingV2 = () => {
   const [rawResults, setRawResults] = useState<AvailabilityResult[] | null>(null);
   const [displayedResults, setDisplayedResults] = useState<AvailabilityResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [localRoomsData, setLocalRoomsData] = useState<LocalRoom[]>([]);
+  const [localRoomsData, setLocalRoomsData] = useState<LocalRoom[]>([]
+);
   const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
   const [sortOrder, setSortOrder] = useState('price_asc');
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
@@ -238,8 +239,9 @@ const BookingV2 = () => {
       });
 
       const pricedResults = mergedResults.filter(room => room.valorTotal > 0);
-      const finalFilteredResults = pricedResults.filter(room => room.imageUrl !== null);
-      setRawResults(finalFilteredResults);
+      // REMOVIDO: Filtro que removia quartos sem imagem. Agora todos os quartos com preço serão exibidos.
+      // const finalFilteredResults = pricedResults.filter(room => room.imageUrl !== null);
+      setRawResults(pricedResults); // Usando pricedResults diretamente
 
     } catch (e: any) {
       console.error("Erro ao buscar disponibilidade:", e);
