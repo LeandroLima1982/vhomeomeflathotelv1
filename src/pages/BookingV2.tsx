@@ -63,7 +63,7 @@ const BookingV2 = () => {
     setSearchParams(params);
 
     // Rola para a seção de resultados assim que a busca é iniciada
-    resultsContainerRef.current?.scrollIntoIntoView({ behavior: 'smooth', block: 'start' });
+    resultsContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     if (!supabase) {
       const errorMessage = "Cliente Supabase não está disponível. Verifique a configuração.";
