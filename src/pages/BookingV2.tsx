@@ -223,7 +223,8 @@ const BookingV2 = () => {
       if (data.error) throw new Error(data.error);
 
       const mergedResults = data.map((apiRoom: any) => {
-        const adjustedRoomId = apiRoom.idQuarto - 3;
+        // CORREÇÃO: Adicionando 3 para alinhar o ID da API externa com o ID local do Supabase
+        const adjustedRoomId = apiRoom.idQuarto + 3; 
         const localRoom = localRoomsData.find(lr => lr.id === adjustedRoomId);
         return {
           ...apiRoom,
