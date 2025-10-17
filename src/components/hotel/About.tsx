@@ -90,7 +90,7 @@ export default function About() {
                 Bem-vindo ao V-Home
               </h2>
               <p className="text-xl text-gray-700 mb-6">
-                Seu Flat Hotel à Beira Mar
+                Seu Flat Hotel à Beira Mar em Macaé
               </p>
               <p className="text-gray-600 leading-relaxed">
                 O V-Home Flat Hotel oferece acomodações modernas e sofisticadas
