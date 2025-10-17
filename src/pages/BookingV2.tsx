@@ -49,7 +49,7 @@ const BookingV2 = () => {
   const [localRoomsData, setLocalRoomsData] = useState<LocalRoom[]>([]
 );
   const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
-  const [sortOrder, setSortOrder] = useState('price_asc');
+  const [sortOrder, setSortOrder] = useState('relevance'); // Alterado para 'relevance' como padrão
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list'); // Estado para o modo de visualização
@@ -191,7 +191,9 @@ const BookingV2 = () => {
     } else if (sortOrder === 'price_desc') {
       sortedResults.sort((a, b) => b.valorTotal - a.valorTotal);
     } else if (sortOrder === 'relevance') {
-      sortedResults.sort((a, b) => a.idQuarto - b.idQuarto);
+      // Quando 'relevance' é selecionado, usamos a ordem original da API (rawResults)
+      // Não aplicamos nenhuma ordenação adicional aqui.
+      sortedResults = [...rawResults]; 
     }
     setDisplayedResults(sortedResults);
   }, [rawResults, sortOrder]);
@@ -239,8 +241,6 @@ const BookingV2 = () => {
       });
 
       const pricedResults = mergedResults.filter(room => room.valorTotal > 0);
-      // REMOVIDO: Filtro que removia quartos sem imagem. Agora todos os quartos com preço serão exibidos.
-      // const finalFilteredResults = pricedResults.filter(room => room.imageUrl !== null);
       setRawResults(pricedResults); // Usando pricedResults diretamente
 
     } catch (e: any) {
