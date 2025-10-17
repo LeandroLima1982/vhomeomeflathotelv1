@@ -105,7 +105,7 @@ export const Hero = () => {
         images.map((src, index) => (
           <div
             key={index}
-            className="absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out" // Apenas transição de opacidade
+            className="absolute inset-0 w-full h-full bg-contain md:bg-cover bg-center transition-opacity duration-1000 ease-in-out" // Alterado aqui
             style={{
               backgroundImage: `url(${src})`,
               opacity: index === currentIndex ? 1 : 0,
