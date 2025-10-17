@@ -79,7 +79,7 @@ const Checkout = () => {
       checkin: searchParams.checkin,
       checkout: searchParams.checkout,
       adults: searchParams.adults,
-      idQuarto: room.idQuarto, // ALTERADO PARA TESTE: Enviando o ID ajustado (local do Supabase)
+      idQuarto: room.apiRoomId, // REVERTIDO: Enviando o ID original da API externa
       valorTotal: room.valorTotal,
       ...values,
     };
