@@ -133,7 +133,7 @@ export const Hero = () => {
             <span className={cn(
               "block text-5xl font-light tracking-wide md:text-7xl lg:text-8xl",
               animationClasses("delay-500"),
-              currentIndex !== 0 && "opacity-0 translate-y-4" // Adicionado para o efeito no primeiro slide
+              currentIndex !== 0 && "opacity-0 translate-y-4" // Esconde e desloca se não for o primeiro slide
             )}>
               Seu Flat Hotel
             </span>
@@ -147,7 +147,11 @@ export const Hero = () => {
           </h1>
 
           {/* Subtitle */}
-          <p className={cn("mt-8 text-lg font-light tracking-wide text-white/95 md:text-xl lg:text-2xl text-center", animationClasses("delay-[900ms]"))}>
+          <p className={cn(
+            "mt-8 text-lg font-light tracking-wide text-white/95 md:text-xl lg:text-2xl text-center", 
+            animationClasses("delay-[900ms]"),
+            currentIndex !== 0 && "opacity-0 translate-y-4" // Esconde e desloca se não for o primeiro slide
+          )}>
             Onde Conforto, Sofisticação e Natureza se Entrelaçam
           </p>
 
