@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const API_BASE_URL = 'https://vhomeflathotel.facilityhotel.com.br/integracao/hotelDoForte/gravareserva';
+const API_BASE_URL = 'https://vhomeflathotel.facilityhotel.com.br/integracao/hotelDoForte/lancarReserva';
 
 // Função auxiliar para converter a string de data 'yyyyMMdd' para o formato de objeto esperado pela API
 const parseDate = (dateString: string) => {
