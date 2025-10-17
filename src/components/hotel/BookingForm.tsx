@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Calendar as CalendarIcon, Users } from "lucide-react";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom"; // Importando useNavigate
 
@@ -17,9 +17,14 @@ import {
 } from "@/components/ui/select";
 
 export function BookingForm() {
-  const [checkinDate, setCheckinDate] = useState<Date | undefined>();
-  const [checkoutDate, setCheckoutDate] = useState<Date | undefined>();
-  const [guests, setGuests] = useState(1);
+  // Define valores padrão: check-in na data atual, check-out no dia seguinte, 2 hóspedes
+  const today = new Date();
+  const defaultCheckin = today;
+  const defaultCheckout = addDays(today, 1); // Dia seguinte
+
+  const [checkinDate, setCheckinDate] = useState<Date | undefined>(defaultCheckin);
+  const [checkoutDate, setCheckoutDate] = useState<Date | undefined>(defaultCheckout);
+  const [guests, setGuests] = useState(2);
   const [isMounted, setIsMounted] = useState(false);
   const navigate = useNavigate(); // Inicializando useNavigate
 
@@ -90,7 +95,7 @@ export function BookingForm() {
                 <Users className="h-4 w-4" />
                 Hóspedes
               </label>
-              <Select onValueChange={(value) => setGuests(Number(value))} defaultValue="1">
+              <Select onValueChange={(value) => setGuests(Number(value))} defaultValue={String(guests)}>
                 <SelectTrigger id="guests" className="w-full bg-white/80 hover:bg-white">
                   <SelectValue placeholder="Número de hóspedes" />
                 </SelectTrigger>
