@@ -83,7 +83,7 @@ serve(async (req) => {
     }
 
     // Gerar um identificador único para a reserva
-    const identificadorReserva = uuidv4();
+    const identificadorReserva = uuidv4.generate();
 
     // Criar array de integrantes com base no número de adultos
     const integrantes = Array.from({ length: adults }, (_, i) => ({
