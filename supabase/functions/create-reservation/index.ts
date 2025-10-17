@@ -50,7 +50,8 @@ serve(async (req) => {
   try {
     const { 
       checkin, checkout, adults, idQuarto, valorTotal,
-      nome, sobrenome, email, cpf, telefone
+      nome, sobrenome, email, cpf, telefone,
+      companionNames // Novo campo para os nomes dos acompanhantes
     } = await req.json();
 
     const requiredFields = { checkin, checkout, adults, idQuarto, valorTotal, nome, sobrenome, email, cpf, telefone };
@@ -99,9 +100,11 @@ serve(async (req) => {
 
     // --- PASSO 2: CRIAR A RESERVA (SE A DISPONIBILIDADE FOR CONFIRMADA) ---
     const identificadorReserva = crypto.randomUUID();
-    const integrantes = Array.from({ length: Math.max(0, adults - 1) }, (_, i) => ({
-      nomeCompleto: `Acompanhante ${i + 1}`,
-      categoriaPessoa: "ADULTO",
+    
+    // Constrói o array de integrantes com base em companionNames
+    const integrantes = (companionNames || []).map((name: string) => ({
+      nomeCompleto: name,
+      categoriaPessoa: "ADULTO", // Conforme a documentação, se não mapeado, será ADULTO
     }));
 
     // CORREÇÃO: Aplicando o ajuste de ID subtraindo 3 para a API de reserva externa
@@ -123,7 +126,7 @@ serve(async (req) => {
             telefone: formatPhone(telefone),
             email: email,
           },
-          integrantes: integrantes,
+          integrantes: integrantes, // Usa o array de integrantes construído
           // A API externa requer o campo 'pagamentos', mesmo que vazio.
           // Enviando uma lista vazia para sinalizar "pague no hotel" sem causar erro.
           pagamentos: [],

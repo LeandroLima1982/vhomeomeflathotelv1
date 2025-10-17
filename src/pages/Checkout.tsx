@@ -20,14 +20,6 @@ import { showError, showSuccess, showLoading, dismissToast } from "@/utils/toast
 import { BedDouble, Calendar, Users, Tag, Loader2, PartyPopper, ArrowLeft } from "lucide-react";
 import DetailIcon from '@/components/hotel/DetailIcon'; // Importando o DetailIcon
 
-const formSchema = z.object({
-  nome: z.string().min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
-  sobrenome: z.string().min(2, { message: "O sobrenome deve ter pelo menos 2 caracteres." }),
-  email: z.string().email({ message: "Por favor, insira um e-mail válido." }),
-  cpf: z.string().regex(/^\d{11}$/, { message: "CPF inválido. Digite 11 números, sem pontos ou traços." }),
-  telefone: z.string().min(10, { message: "Telefone inválido. Inclua o DDD." }),
-});
-
 // Interface para o objeto 'room' que vem do estado da localização
 interface RoomResult {
   idQuarto: number;
@@ -48,12 +40,37 @@ interface SearchParams {
   adults: number;
 }
 
+// Esquema de validação atualizado para incluir nomes dos acompanhantes
+const formSchema = z.object({
+  nome: z.string().min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
+  sobrenome: z.string().min(2, { message: "O sobrenome deve ter pelo menos 2 caracteres." }),
+  email: z.string().email({ message: "Por favor, insira um e-mail válido." }),
+  cpf: z.string().regex(/^\d{11}$/, { message: "CPF inválido. Digite 11 números, sem pontos ou traços." }),
+  telefone: z.string().min(10, { message: "Telefone inválido. Inclua o DDD." }),
+  companionNames: z.array(
+    z.string().min(2, { message: "O nome do acompanhante deve ter pelo menos 2 caracteres." })
+  ).optional(), // Opcional no esquema, a validação de tamanho será feita no onSubmit
+});
+
 const Checkout = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [reservationSuccess, setReservationSuccess] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { room, searchParams } = location.state as { room: RoomResult, searchParams: SearchParams } || {};
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      nome: "",
+      sobrenome: "",
+      email: "",
+      cpf: "",
+      telefone: "",
+      // Inicializa companionNames com base no número de adultos
+      companionNames: Array.from({ length: Math.max(0, (searchParams?.adults || 1) - 1) }).map(() => ""),
+    },
+  });
 
   useEffect(() => {
     if (!room || !searchParams) {
@@ -64,20 +81,31 @@ const Checkout = () => {
     setReservationSuccess(false); 
   }, [room, searchParams, navigate]);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      nome: "",
-      sobrenome: "",
-      email: "",
-      cpf: "",
-      telefone: "",
-    },
-  });
+  // Atualiza os defaultValues de companionNames quando searchParams.adults muda
+  useEffect(() => {
+    if (searchParams) {
+      form.reset({
+        ...form.getValues(), // Mantém os valores existentes para outros campos
+        companionNames: Array.from({ length: Math.max(0, searchParams.adults - 1) }).map(() => ""),
+      });
+    }
+  }, [searchParams?.adults, form]);
+
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     const toastId = showLoading("Processando sua reserva...");
+
+    const expectedCompanions = Math.max(0, (searchParams?.adults || 1) - 1);
+    if ((values.companionNames?.length || 0) !== expectedCompanions) {
+      form.setError("companionNames", {
+        type: "manual",
+        message: "Por favor, preencha o nome de todos os acompanhantes.",
+      });
+      dismissToast(toastId);
+      setIsSubmitting(false);
+      return;
+    }
 
     const reservationPayload = {
       checkin: searchParams.checkin,
@@ -85,7 +113,12 @@ const Checkout = () => {
       adults: searchParams.adults,
       idQuarto: room.apiRoomId, // REVERTIDO: Enviando o ID original da API externa
       valorTotal: room.valorTotal,
-      ...values,
+      nome: values.nome,
+      sobrenome: values.sobrenome,
+      email: values.email,
+      cpf: values.cpf,
+      telefone: values.telefone,
+      companionNames: values.companionNames, // Inclui os nomes dos acompanhantes
     };
 
     try {
@@ -155,6 +188,8 @@ const Checkout = () => {
   };
 
   const roomDetails = getRoomDetails(room);
+
+  const numberOfCompanions = Math.max(0, searchParams.adults - 1);
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
@@ -275,6 +310,32 @@ const Checkout = () => {
                               <FormItem><FormLabel>Telefone</FormLabel><FormControl><Input placeholder="(DDD) 99999-9999" {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
                           </div>
+
+                          {/* Campos para hóspedes acompanhantes */}
+                          {numberOfCompanions > 0 && (
+                            <div className="space-y-4 pt-4 border-t mt-6">
+                              <h3 className="text-lg font-semibold text-gray-800">Hóspedes Acompanhantes</h3>
+                              <p className="text-sm text-gray-600">Por favor, preencha o nome completo de cada acompanhante.</p>
+                              {Array.from({ length: numberOfCompanions }).map((_, index) => (
+                                <FormField
+                                  key={index}
+                                  control={form.control}
+                                  name={`companionNames.${index}`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Nome Completo do Acompanhante {index + 1}</FormLabel>
+                                      <FormControl>
+                                        <Input placeholder={`Nome completo do acompanhante ${index + 1}`} {...field} />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              ))}
+                              <FormMessage>{form.formState.errors.companionNames?.message}</FormMessage>
+                            </div>
+                          )}
+
                           <Button type="submit" className="w-full" disabled={isSubmitting}>
                             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {isSubmitting ? "Confirmando..." : "Confirmar Reserva"}
