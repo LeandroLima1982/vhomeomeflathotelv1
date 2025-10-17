@@ -105,10 +105,11 @@ export const Hero = () => {
         images.map((src, index) => (
           <div
             key={index}
-            className="absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out"
+            className="absolute inset-0 w-full h-full bg-cover bg-center transition-all duration-1000 ease-in-out"
             style={{
               backgroundImage: `url(${src})`,
               opacity: index === currentIndex ? 1 : 0,
+              transform: index === currentIndex ? 'scale(1)' : 'scale(1.1)', // Zoom-out effect
             }}
           >
             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
