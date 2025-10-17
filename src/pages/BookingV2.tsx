@@ -101,8 +101,11 @@ const BookingV2 = () => {
         };
       });
 
-      const pricedResults = mergedResults.filter(room => room.valorTotal > 0);
-      setRawResults(pricedResults);
+      // Filtrar quartos que têm valor total > 0 E uma imagem de capa
+      const pricedAndImagedResults = mergedResults.filter((room: AvailabilityResult) => 
+        room.valorTotal > 0 && room.imageUrl // Adicionada a condição room.imageUrl
+      );
+      setRawResults(pricedAndImagedResults);
 
     } catch (e: any) {
       console.error("Erro ao buscar disponibilidade:", e);
