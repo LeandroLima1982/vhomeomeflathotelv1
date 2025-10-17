@@ -1,14 +1,20 @@
+"use client";
+
 import { useState, useEffect, useRef } from "react";
 import Header from "@/components/hotel/Header";
 import { AvailabilitySearchForm } from "@/components/hotel/AvailabilitySearchForm";
 import SimpleFooter from "@/components/hotel/SimpleFooter";
 import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
-import { Loader2, ServerCrash } from "lucide-react";
+import { Loader2, ServerCrash, Calendar, Users, Search } from "lucide-react";
 import { AvailabilityResults } from "@/components/hotel/AvailabilityResults";
+import { format, parse } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { InitialBookingState } from "@/components/hotel/InitialBookingState";
-import { BookingStickyControls } from "@/components/hotel/BookingStickyControls";
+import { BookingStickyControls } from "@/components/hotel/BookingStickyControls"; // Importando o novo componente
 
 // Interface para os resultados da API externa (sem mapeamento local)
 interface AvailabilityResult {

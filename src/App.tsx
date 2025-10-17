@@ -13,9 +13,11 @@ import ScrollToTopOnNavigate from "./components/ScrollToTopOnNavigate";
 import BookingV2 from "./pages/BookingV2";
 import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
-import UpdatePassword from "./pages/UpdatePassword"; // Importando a nova página
+import UpdatePassword from "./pages/UpdatePassword";
 import { AuthProvider } from "./components/AuthProvider";
 import ProtectedRoute from "./components/ProtectedRoute";
+import DirectBooking from "./pages/DirectBooking"; // Importando a nova página
+import DirectCheckout from "./pages/DirectCheckout"; // Importando a nova página
 
 const queryClient = new QueryClient();
 
@@ -42,7 +44,7 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<Hotel />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/update-password" element={<UpdatePassword />} /> {/* Adicionando a nova rota */}
+                <Route path="/update-password" element={<UpdatePassword />} />
                 <Route 
                   path="/admin" 
                   element={
@@ -54,6 +56,8 @@ const App = () => {
                 <Route path="/institucional" element={<Institutional />} />
                 <Route path="/booking-v2" element={<BookingV2 />} />
                 <Route path="/checkout" element={<Checkout />} />
+                <Route path="/direct-booking" element={<DirectBooking />} /> {/* Nova rota */}
+                <Route path="/direct-checkout" element={<DirectCheckout />} /> {/* Nova rota */}
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
