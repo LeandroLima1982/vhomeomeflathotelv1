@@ -104,8 +104,8 @@ serve(async (req) => {
       categoriaPessoa: "ADULTO",
     }));
 
-    // CORREÇÃO: Aplicando o ajuste de ID para a API de reserva externa
-    const adjustedIdtarifa = idQuarto + 3;
+    // CORREÇÃO: Removendo o ajuste de ID. Usar idQuarto diretamente.
+    // const adjustedIdtarifa = idQuarto + 3; // Esta linha foi removida
 
     const reservationRequestBody = {
       identificador: identificadorReserva,
@@ -113,7 +113,7 @@ serve(async (req) => {
       fim: parseDate(checkout),
       acomodacoes: [
         {
-          idtarifa: adjustedIdtarifa, // Usando o ID ajustado aqui
+          idtarifa: idQuarto, // Usando o ID original da API diretamente
           valorTotal: valorTotal,
           numeroAdultos: adults,
           confirmada: "true",
