@@ -16,8 +16,10 @@ export default function Header() {
   const navigate = useNavigate();
   const isLightPage = location.pathname === '/institucional';
   const isBookingV2Page = location.pathname === '/booking-v2';
-  const isCheckoutPage = location.pathname === '/checkout'; // Nova variável para identificar a página de checkout
-  const isSpecialPage = isCheckoutPage || isBookingV2Page; 
+  const isBookingV3Page = location.pathname === '/booking-v3'; // Adicionado para V3
+  const isCheckoutPage = location.pathname === '/checkout';
+  const isCheckoutV3Page = location.pathname === '/checkout-v3'; // Adicionado para V3
+  const isSpecialPage = isCheckoutPage || isBookingV2Page || isBookingV3Page || isCheckoutV3Page;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,14 +67,14 @@ export default function Header() {
         <Link to="/">
           <Logo 
             isScrolled={useDarkTextAndSolidBg} 
-            isTransparentHeaderOnLightBackground={isCheckoutPage} // Agora passa 'true' apenas para a página de checkout
+            isTransparentHeaderOnLightBackground={isCheckoutPage || isCheckoutV3Page}
           />
         </Link>        
         {!isSpecialPage && (
           <div className="flex items-center gap-4">
             <Nav isScrolled={useDarkTextAndSolidBg} />
             <Button
-              onClick={() => navigate('/booking-v2')}
+              onClick={() => navigate('/booking-v3')}
               className={cn(
                 "hidden md:inline-flex transition-colors",
                 useDarkTextAndSolidBg
@@ -90,4 +92,3 @@ export default function Header() {
       </div>
     </header>
   );
-}
