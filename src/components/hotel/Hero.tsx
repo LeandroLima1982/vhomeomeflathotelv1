@@ -14,6 +14,7 @@ export const Hero = () => {
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showTypingEffect, setShowTypingEffect] = useState(false); // Novo estado para controlar o TypingEffect
 
   useEffect(() => {
     setIsMounted(true);
@@ -82,6 +83,25 @@ export const Hero = () => {
       return () => clearTimeout(timer);
     }
   }, [currentIndex, images.length]);
+
+  // NOVO useEffect para controlar o início do TypingEffect
+  useEffect(() => {
+    if (isMounted && currentIndex === 0) {
+      // O título principal tem delay-700 e duration-1000, então termina em 1.7s.
+      // Vamos iniciar o TypingEffect um pouco depois, por exemplo, em 1.8s.
+      const typingStartTimer = setTimeout(() => {
+        setShowTypingEffect(true);
+      }, 1800); // 1.8 segundos
+
+      return () => {
+        clearTimeout(typingStartTimer);
+        setShowTypingEffect(false); // Reseta ao mudar de slide ou desmontar
+      };
+    } else {
+      setShowTypingEffect(false); // Desativa se não for o primeiro slide
+    }
+  }, [isMounted, currentIndex]);
+
 
   const defaultImage = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto-format&fit=crop&q=80";
 
@@ -156,7 +176,7 @@ export const Hero = () => {
             <TypingEffect 
               text="Onde Conforto, Sofisticação e Natureza se Entrelaçam" 
               delay={50} // Velocidade de digitação (ajuste conforme necessário)
-              active={currentIndex === 0 && isMounted} // Ativo apenas no primeiro slide e após a montagem
+              active={showTypingEffect} // Ativo apenas quando showTypingEffect é true
             />
           </p>
 
