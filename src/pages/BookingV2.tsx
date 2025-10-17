@@ -47,7 +47,7 @@ const BookingV2 = () => {
   const [error, setError] = useState<string | null>(null);
   const [localRoomsData, setLocalRoomsData] = useState<LocalRoom[]>([]);
   const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
-  const [sortOrder, setSortOrder] = useState('relevance');
+  const [sortOrder, setSortOrder] = useState('price_asc'); // Alterado para 'price_asc'
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
