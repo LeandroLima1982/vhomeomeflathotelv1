@@ -3,7 +3,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
-import Image from 'next/image';
+// import Image from 'next/image'; // Removido: next/image não é usado em projetos React puros
 
 const About = () => {
   return (
@@ -11,7 +11,7 @@ const About = () => {
       <div className="container mx-auto px-4">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
           <div className="lg:w-1/2">
-            <Image
+            <img
               src="/placeholder.svg"
               alt="V-Home Hotel"
               width={600}
