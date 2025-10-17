@@ -119,7 +119,7 @@ export const Hero = () => {
   const getTextAnimationClasses = (initialDelay: string) =>
     cn(
       "transition-all duration-1000 ease-out",
-      showTextAfterDelay && currentIndex === 0 ? `opacity-100 translate-y-0 ${initialDelay}` : "opacity-0 translate-y-10",
+      showTextAfterDelay && currentIndex === 0 ? `opacity-100 translate-y-0 ${initialDelay}` : "opacity-0 translate-y-20", // Aumentado para translate-y-20
       currentIndex !== 0 && "duration-300" // Faster disappearance for subsequent slides
     );
 
