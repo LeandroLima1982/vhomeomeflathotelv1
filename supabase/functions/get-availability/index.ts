@@ -64,18 +64,26 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    // console.log("Dados brutos da API externa:", JSON.stringify(data, null, 2)); // Log de depuração removido
 
     if (data.codigoRetorno && data.codigoRetorno !== 0) {
         throw new Error(data.mensagem || "O sistema de reservas retornou um erro desconhecido.");
     }
 
-    const results = (data.categorias || []).map((categoria: any) => ({
-      idQuarto: categoria.id, // CORRIGIDO: Usando 'id' da API externa
-      nomeQuarto: categoria.nome,
-      disponibilidade: categoria.disponibilidade,
-      valorTotal: categoria.tarifas?.[0]?.valorTotalReserva || 0,
-    }));
+    // **LÓGICA REFORÇADA:** Filtra os resultados para garantir que apenas quartos com disponibilidade e preço válidos sejam retornados.
+    const results = (data.categorias || []).reduce((acc: any[], categoria: any) => {
+      const tariff = categoria.tarifas?.[0];
+      
+      // Apenas incluir quartos que têm uma tarifa válida E disponibilidade positiva.
+      if (tariff && typeof tariff.valorTotalReserva === 'number' && categoria.disponibilidade > 0) {
+        acc.push({
+          idQuarto: categoria.id,
+          nomeQuarto: categoria.nome,
+          disponibilidade: categoria.disponibilidade,
+          valorTotal: tariff.valorTotalReserva,
+        });
+      }
+      return acc;
+    }, []);
 
     return new Response(JSON.stringify(results), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
