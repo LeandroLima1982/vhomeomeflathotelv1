@@ -53,7 +53,7 @@ const BookingV2 = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const searchFormRef = useRef<HTMLDivElement>(null);
-  const resultsContainerRef = useRef<HTMLDivElement>(null); // Nova referência para o contêiner de resultados
+  const resultsContainerRef = useRef<HTMLDivElement>(null);
   const [urlSearchParams] = useSearchParams();
 
   const handleSearch = useCallback(async (params: SearchParams) => {
@@ -62,8 +62,8 @@ const BookingV2 = () => {
     setError(null);
     setSearchParams(params);
 
-    // Rola para a seção de resultados assim que a busca é iniciada
-    resultsContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Removido: Rolagem para a seção de resultados no início da busca.
+    // Será acionada após a conclusão da busca no useEffect abaixo.
 
     if (!supabase) {
       const errorMessage = "Cliente Supabase não está disponível. Verifique a configuração.";
@@ -276,6 +276,13 @@ const BookingV2 = () => {
     setDisplayedResults(sortedResults);
   }, [rawResults, sortOrder]);
 
+  // NOVO useEffect para rolar para os resultados após a conclusão da busca
+  useEffect(() => {
+    if (!isLoading && (displayedResults || error)) {
+      resultsContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [isLoading, displayedResults, error]);
+
   const scrollToSearchForm = () => {
     searchFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -311,7 +318,7 @@ const BookingV2 = () => {
           <AvailabilitySearchForm 
             onSearch={handleSearch} 
             isLoading={isLoading} 
-            initialSearchParams={searchParams || undefined} // Passando os parâmetros de busca para o formulário
+            initialSearchParams={searchParams || undefined}
           />
         </div>
 
