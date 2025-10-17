@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import Image from 'next/image';
 
 const About = () => {
   return (
@@ -25,7 +24,7 @@ const About = () => {
             </div>
           </div>
           <div className="md:w-1/2">
-            <Image
+            <img
               src="/images/about-us.jpg" // Substitua pelo caminho da sua imagem
               alt="Sobre V-Home"
               width={600}
