@@ -38,7 +38,8 @@ interface Room {
   details: Record<string, string | null>;
   description: string | null;
   additional_features: FeatureCategory[] | null;
-  details_order: string[] | null; // Nova propriedade
+  details_order: string[] | null;
+  base_price: number | null;
 }
 
 interface DetailItem {
@@ -185,7 +186,12 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const isNumberInput = (e.target as HTMLInputElement).type === 'number';
+
+    setFormData(prev => ({
+      ...prev,
+      [name]: isNumberInput ? (value === '' ? null : parseFloat(value)) : value,
+    }));
   };
 
   const addDetail = () => {
@@ -364,6 +370,7 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
           details: updatedDetails,
           details_order: detailsOrder,
           additional_features: additionalFeatures,
+          base_price: formData.base_price,
         })
         .eq('id', room.id);
 
@@ -415,6 +422,17 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
           <div>
             <Label htmlFor={`special_name-${room.id}`}>Nome Especial (Badge)</Label>
             <Input id={`special_name-${room.id}`} name="special_name" value={formData.special_name || ''} onChange={handleInputChange} />
+          </div>
+          <div>
+            <Label htmlFor={`base_price-${room.id}`}>Preço Base (A partir de)</Label>
+            <Input
+              id={`base_price-${room.id}`}
+              name="base_price"
+              type="number"
+              value={formData.base_price || ''}
+              onChange={handleInputChange}
+              placeholder="Ex: 250.00"
+            />
           </div>
           <div>
             <Label htmlFor={`description-${room.id}`}>Descrição</Label>
