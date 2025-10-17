@@ -104,8 +104,8 @@ serve(async (req) => {
       categoriaPessoa: "ADULTO",
     }));
 
-    // CORREÇÃO: Removendo o ajuste de ID. Usar idQuarto diretamente.
-    // const adjustedIdtarifa = idQuarto + 3; // Esta linha foi removida
+    // CORREÇÃO: Aplicando o ajuste de ID subtraindo 3 para a API de reserva externa
+    const adjustedIdtarifa = idQuarto - 3;
 
     const reservationRequestBody = {
       identificador: identificadorReserva,
@@ -113,7 +113,7 @@ serve(async (req) => {
       fim: parseDate(checkout),
       acomodacoes: [
         {
-          idtarifa: idQuarto, // Usando o ID original da API diretamente
+          idtarifa: adjustedIdtarifa, // Usando o ID ajustado aqui
           valorTotal: valorTotal,
           numeroAdultos: adults,
           confirmada: "true",
@@ -124,7 +124,7 @@ serve(async (req) => {
             email: email,
           },
           integrantes: integrantes,
-          // **CORREÇÃO:** A API externa requer o campo 'pagamentos', mesmo que vazio.
+          // A API externa requer o campo 'pagamentos', mesmo que vazio.
           // Enviando uma lista vazia para sinalizar "pague no hotel" sem causar erro.
           pagamentos: [],
         }
