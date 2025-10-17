@@ -53,6 +53,7 @@ const BookingV2 = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const searchFormRef = useRef<HTMLDivElement>(null);
+  const resultsContainerRef = useRef<HTMLDivElement>(null); // Nova referência para o contêiner de resultados
   const [urlSearchParams] = useSearchParams();
 
   const handleSearch = useCallback(async (params: SearchParams) => {
@@ -60,6 +61,9 @@ const BookingV2 = () => {
     setRawResults(null);
     setError(null);
     setSearchParams(params);
+
+    // Rola para a seção de resultados assim que a busca é iniciada
+    resultsContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     if (!supabase) {
       const errorMessage = "Cliente Supabase não está disponível. Verifique a configuração.";
@@ -311,7 +315,7 @@ const BookingV2 = () => {
           />
         </div>
 
-        <div id="results-container" className="container mx-auto px-4 max-w-5xl pt-4 pb-16">
+        <div id="results-container" ref={resultsContainerRef} className="container mx-auto px-4 max-w-5xl pt-4 pb-16">
           {isLoading && (
             <div className="flex flex-col items-center justify-center text-center p-10 bg-white rounded-lg shadow-md">
               <Loader2 className="h-12 w-12 animate-spin text-blue-600 mb-4" />
