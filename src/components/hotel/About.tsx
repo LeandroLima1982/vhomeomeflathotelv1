@@ -9,7 +9,7 @@ const About = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="md:w-1/2">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-2 text-blue-900">
+              <h2 className="text-3xl md:text-4xl font-bold mb-2 text-blue-900 drop-shadow-lg">
                 Bem-vindo ao V-Home
               </h2>
               <p className="text-xl text-gray-700 mb-6">
