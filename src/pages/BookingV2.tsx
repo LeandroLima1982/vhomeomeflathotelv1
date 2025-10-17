@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react"; // Adicionado useCallback
+import { useState, useEffect, useRef, useCallback } from "react";
 import Header from "@/components/hotel/Header";
 import { AvailabilitySearchForm } from "@/components/hotel/AvailabilitySearchForm";
 import SimpleFooter from "@/components/hotel/SimpleFooter";
@@ -6,12 +6,12 @@ import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
 import { Loader2, ServerCrash } from "lucide-react";
 import { AvailabilityResults } from "@/components/hotel/AvailabilityResults";
-import { format, parse, addDays, parseISO } from "date-fns"; // Adicionado parseISO
+import { format, parse, addDays, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { InitialBookingState } from "@/components/hotel/InitialBookingState";
 import { BookingStickyControls } from "@/components/hotel/BookingStickyControls";
-import { useSearchParams } from "react-router-dom"; // Importando useSearchParams
+import { useSearchParams } from "react-router-dom";
 
 interface LocalRoom {
   id: number;
@@ -24,7 +24,7 @@ interface LocalRoom {
 
 interface AvailabilityResult {
   idQuarto: number;
-  apiRoomId: number; // Campo para o ID original da API
+  apiRoomId: number;
   nomeQuarto: string;
   disponibilidade: number;
   valorTotal: number;
@@ -53,7 +53,7 @@ const BookingV2 = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const searchFormRef = useRef<HTMLDivElement>(null);
-  const [urlSearchParams] = useSearchParams(); // Hook para ler parâmetros da URL
+  const [urlSearchParams] = useSearchParams();
 
   const handleSearch = useCallback(async (params: SearchParams) => {
     setIsLoading(true);
@@ -89,7 +89,7 @@ const BookingV2 = () => {
         return {
           ...apiRoom,
           idQuarto: adjustedRoomId,
-          apiRoomId: apiRoom.idQuarto, // Armazena o ID original da API
+          apiRoomId: apiRoom.idQuarto,
           imageUrl: localRoom?.imageUrl || null,
           details: localRoom?.details || null,
           details_order: localRoom?.details_order || null,
@@ -108,7 +108,7 @@ const BookingV2 = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [localRoomsData]); // Adicionado localRoomsData como dependência
+  }, [localRoomsData]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -236,7 +236,7 @@ const BookingV2 = () => {
 
   // Efeito para ler os parâmetros da URL e disparar a busca
   useEffect(() => {
-    if (localRoomsData.length > 0) { // Garante que os dados locais dos quartos já foram carregados
+    if (localRoomsData.length > 0) {
       const checkinParam = urlSearchParams.get('checkin');
       const checkoutParam = urlSearchParams.get('checkout');
       const adultsParam = urlSearchParams.get('adults');
@@ -249,12 +249,12 @@ const BookingV2 = () => {
             checkout: checkoutParam,
             adults: parsedAdults,
           };
-          setSearchParams(paramsFromUrl); // Define os parâmetros de busca
-          handleSearch(paramsFromUrl); // Dispara a busca
+          setSearchParams(paramsFromUrl);
+          handleSearch(paramsFromUrl);
         }
       }
     }
-  }, [urlSearchParams, localRoomsData, handleSearch]); // Adicionado handleSearch como dependência
+  }, [urlSearchParams, localRoomsData, handleSearch]);
 
   useEffect(() => {
     if (!rawResults) {
@@ -267,8 +267,6 @@ const BookingV2 = () => {
     } else if (sortOrder === 'price_desc') {
       sortedResults.sort((a, b) => b.valorTotal - a.valorTotal);
     } else if (sortOrder === 'relevance') {
-      // Quando 'relevance' é selecionado, usamos a ordem original da API (rawResults)
-      // Não aplicamos nenhuma ordenação adicional aqui.
       sortedResults = [...rawResults]; 
     }
     setDisplayedResults(sortedResults);
@@ -306,7 +304,11 @@ const BookingV2 = () => {
         </section>
 
         <div ref={searchFormRef} className="relative z-10 -mt-16">
-          <AvailabilitySearchForm onSearch={handleSearch} isLoading={isLoading} />
+          <AvailabilitySearchForm 
+            onSearch={handleSearch} 
+            isLoading={isLoading} 
+            initialSearchParams={searchParams || undefined} // Passando os parâmetros de busca para o formulário
+          />
         </div>
 
         <div id="results-container" className="container mx-auto px-4 max-w-5xl pt-4 pb-16">
