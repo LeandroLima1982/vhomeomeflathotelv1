@@ -16,10 +16,8 @@ export default function Header() {
   const navigate = useNavigate();
   const isLightPage = location.pathname === '/institucional';
   const isBookingV2Page = location.pathname === '/booking-v2';
-  const isBookingV3Page = location.pathname === '/booking-v3';
-  const isCheckoutPage = location.pathname === '/checkout';
-  const isCheckoutV3Page = location.pathname === '/checkout-v3';
-  const isSpecialPage = isCheckoutPage || isBookingV2Page || isBookingV3Page || isCheckoutV3Page;
+  const isCheckoutPage = location.pathname === '/checkout'; // Nova variável para identificar a página de checkout
+  const isSpecialPage = isCheckoutPage || isBookingV2Page; 
 
   useEffect(() => {
     const handleScroll = () => {
@@ -67,7 +65,7 @@ export default function Header() {
         <Link to="/">
           <Logo 
             isScrolled={useDarkTextAndSolidBg} 
-            isTransparentHeaderOnLightBackground={isCheckoutPage || isCheckoutV3Page}
+            isTransparentHeaderOnLightBackground={isCheckoutPage} // Agora passa 'true' apenas para a página de checkout
           />
         </Link>        
         {!isSpecialPage && (

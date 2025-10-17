@@ -13,11 +13,9 @@ import ScrollToTopOnNavigate from "./components/ScrollToTopOnNavigate";
 import BookingV2 from "./pages/BookingV2";
 import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
-import UpdatePassword from "./pages/UpdatePassword";
+import UpdatePassword from "./pages/UpdatePassword"; // Importando a nova página
 import { AuthProvider } from "./components/AuthProvider";
 import ProtectedRoute from "./components/ProtectedRoute";
-import BookingV3 from "./pages/BookingV3"; // Importando a nova página de busca
-import CheckoutV3 from "./pages/CheckoutV3"; // Importando a nova página de checkout
 
 const queryClient = new QueryClient();
 
@@ -44,7 +42,7 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<Hotel />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/update-password" element={<UpdatePassword />} />
+                <Route path="/update-password" element={<UpdatePassword />} /> {/* Adicionando a nova rota */}
                 <Route 
                   path="/admin" 
                   element={
@@ -56,8 +54,6 @@ const App = () => {
                 <Route path="/institucional" element={<Institutional />} />
                 <Route path="/booking-v2" element={<BookingV2 />} />
                 <Route path="/checkout" element={<Checkout />} />
-                <Route path="/booking-v3" element={<BookingV3 />} /> {/* Nova rota de busca */}
-                <Route path="/checkout-v3" element={<CheckoutV3 />} /> {/* Nova rota de checkout */}
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
