@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -58,6 +60,8 @@ const Checkout = () => {
       showError("Detalhes da reserva não encontrados. Por favor, inicie uma nova busca.");
       navigate('/booking-v2');
     }
+    // Garante que o estado de sucesso seja redefinido ao carregar ou alterar os detalhes da reserva
+    setReservationSuccess(false); 
   }, [room, searchParams, navigate]);
 
   const form = useForm<z.infer<typeof formSchema>>({
