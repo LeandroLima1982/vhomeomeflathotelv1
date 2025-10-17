@@ -1,18 +1,17 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react"; // Adicionado useCallback
 import Header from "@/components/hotel/Header";
 import { AvailabilitySearchForm } from "@/components/hotel/AvailabilitySearchForm";
 import SimpleFooter from "@/components/hotel/SimpleFooter";
 import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
-import { Loader2, ServerCrash, Calendar, Users, Search } from "lucide-react";
+import { Loader2, ServerCrash } from "lucide-react";
 import { AvailabilityResults } from "@/components/hotel/AvailabilityResults";
-import { format, parse } from "date-fns";
+import { format, parse, addDays, parseISO } from "date-fns"; // Adicionado parseISO
 import { ptBR } from "date-fns/locale";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { InitialBookingState } from "@/components/hotel/InitialBookingState";
-import { BookingStickyControls } from "@/components/hotel/BookingStickyControls"; // Importando o novo componente
+import { BookingStickyControls } from "@/components/hotel/BookingStickyControls";
+import { useSearchParams } from "react-router-dom"; // Importando useSearchParams
 
 interface LocalRoom {
   id: number;
@@ -46,15 +45,70 @@ const BookingV2 = () => {
   const [rawResults, setRawResults] = useState<AvailabilityResult[] | null>(null);
   const [displayedResults, setDisplayedResults] = useState<AvailabilityResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [localRoomsData, setLocalRoomsData] = useState<LocalRoom[]>([]
-);
+  const [localRoomsData, setLocalRoomsData] = useState<LocalRoom[]>([]);
   const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
-  const [sortOrder, setSortOrder] = useState('relevance'); // Alterado para 'relevance' como padrão
+  const [sortOrder, setSortOrder] = useState('relevance');
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list'); // Estado para o modo de visualização
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const searchFormRef = useRef<HTMLDivElement>(null);
+  const [urlSearchParams] = useSearchParams(); // Hook para ler parâmetros da URL
+
+  const handleSearch = useCallback(async (params: SearchParams) => {
+    setIsLoading(true);
+    setRawResults(null);
+    setError(null);
+    setSearchParams(params);
+
+    if (!supabase) {
+      const errorMessage = "Cliente Supabase não está disponível. Verifique a configuração.";
+      setError(errorMessage);
+      showError(errorMessage);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { data, error: functionError } = await supabase.functions.invoke('get-availability', {
+        body: params,
+      });
+
+      if (functionError) {
+        const errorDetails = await functionError.context.json();
+        if (errorDetails && errorDetails.error) throw new Error(errorDetails.error);
+        throw new Error(functionError.message || "Erro na comunicação com a função.");
+      }
+      
+      if (data.error) throw new Error(data.error);
+
+      const mergedResults = data.map((apiRoom: any) => {
+        // REVERTENDO CORREÇÃO: Subtraindo 3 para alinhar o ID da API externa com o ID local do Supabase
+        const adjustedRoomId = apiRoom.idQuarto - 3; 
+        const localRoom = localRoomsData.find(lr => lr.id === adjustedRoomId);
+        return {
+          ...apiRoom,
+          idQuarto: adjustedRoomId,
+          apiRoomId: apiRoom.idQuarto, // Armazena o ID original da API
+          imageUrl: localRoom?.imageUrl || null,
+          details: localRoom?.details || null,
+          details_order: localRoom?.details_order || null,
+          special_name: localRoom?.special_name || null,
+        };
+      });
+
+      const pricedResults = mergedResults.filter(room => room.valorTotal > 0);
+      setRawResults(pricedResults);
+
+    } catch (e: any) {
+      console.error("Erro ao buscar disponibilidade:", e);
+      const errorMessage = e.message || "Ocorreu um erro ao buscar a disponibilidade. Tente novamente.";
+      setError(errorMessage);
+      showError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [localRoomsData]); // Adicionado localRoomsData como dependência
 
   useEffect(() => {
     setIsMounted(true);
@@ -180,6 +234,28 @@ const BookingV2 = () => {
     fetchInitialData();
   }, []);
 
+  // Efeito para ler os parâmetros da URL e disparar a busca
+  useEffect(() => {
+    if (localRoomsData.length > 0) { // Garante que os dados locais dos quartos já foram carregados
+      const checkinParam = urlSearchParams.get('checkin');
+      const checkoutParam = urlSearchParams.get('checkout');
+      const adultsParam = urlSearchParams.get('adults');
+
+      if (checkinParam && checkoutParam && adultsParam) {
+        const parsedAdults = parseInt(adultsParam, 10);
+        if (!isNaN(parsedAdults) && parsedAdults > 0) {
+          const paramsFromUrl = {
+            checkin: checkinParam,
+            checkout: checkoutParam,
+            adults: parsedAdults,
+          };
+          setSearchParams(paramsFromUrl); // Define os parâmetros de busca
+          handleSearch(paramsFromUrl); // Dispara a busca
+        }
+      }
+    }
+  }, [urlSearchParams, localRoomsData, handleSearch]); // Adicionado handleSearch como dependência
+
   useEffect(() => {
     if (!rawResults) {
       setDisplayedResults(null);
@@ -197,66 +273,6 @@ const BookingV2 = () => {
     }
     setDisplayedResults(sortedResults);
   }, [rawResults, sortOrder]);
-
-  const handleSearch = async (params: SearchParams) => {
-    setIsLoading(true);
-    setRawResults(null);
-    setError(null);
-    setSearchParams(params);
-
-    if (!supabase) {
-      const errorMessage = "Cliente Supabase não está disponível. Verifique a configuração.";
-      setError(errorMessage);
-      showError(errorMessage);
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const { data, error: functionError } = await supabase.functions.invoke('get-availability', {
-        body: params,
-      });
-
-      if (functionError) {
-        const errorDetails = await functionError.context.json();
-        if (errorDetails && errorDetails.error) throw new Error(errorDetails.error);
-        throw new Error(functionError.message || "Erro na comunicação com a função.");
-      }
-      
-      if (data.error) throw new Error(data.error);
-
-      const mergedResults = data.map((apiRoom: any) => {
-        // REVERTENDO CORREÇÃO: Subtraindo 3 para alinhar o ID da API externa com o ID local do Supabase
-        const adjustedRoomId = apiRoom.idQuarto - 3; 
-        const localRoom = localRoomsData.find(lr => lr.id === adjustedRoomId);
-        return {
-          ...apiRoom,
-          idQuarto: adjustedRoomId,
-          apiRoomId: apiRoom.idQuarto, // Armazena o ID original da API
-          imageUrl: localRoom?.imageUrl || null,
-          details: localRoom?.details || null,
-          details_order: localRoom?.details_order || null,
-          special_name: localRoom?.special_name || null,
-        };
-      });
-
-      const pricedResults = mergedResults.filter(room => room.valorTotal > 0);
-      setRawResults(pricedResults); // Usando pricedResults diretamente
-
-    } catch (e: any) {
-      console.error("Erro ao buscar disponibilidade:", e);
-      const errorMessage = e.message || "Ocorreu um erro ao buscar a disponibilidade. Tente novamente.";
-      setError(errorMessage);
-      showError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const formatDate = (dateStr: string) => {
-    const date = parse(dateStr, "yyyyMMdd", new Date());
-    return format(date, "dd 'de' LLLL 'de' yyyy", { locale: ptBR });
-  };
 
   const scrollToSearchForm = () => {
     searchFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -326,7 +342,7 @@ const BookingV2 = () => {
               <AvailabilityResults 
                 results={displayedResults} 
                 searchParams={searchParams} 
-                viewMode={viewMode} // Passando viewMode para AvailabilityResults
+                viewMode={viewMode}
               />
             </>
           )}

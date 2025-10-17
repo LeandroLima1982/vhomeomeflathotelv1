@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Calendar as CalendarIcon, Users } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useNavigate } from "react-router-dom"; // Importando useNavigate
 
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -20,6 +21,7 @@ export function BookingForm() {
   const [checkoutDate, setCheckoutDate] = useState<Date | undefined>();
   const [guests, setGuests] = useState(1);
   const [isMounted, setIsMounted] = useState(false);
+  const navigate = useNavigate(); // Inicializando useNavigate
 
   useEffect(() => {
     setIsMounted(true);
@@ -43,12 +45,9 @@ export function BookingForm() {
     const checkin = format(checkinDate, "yyyyMMdd");
     const checkout = format(checkoutDate, "yyyyMMdd");
     const adults = guests;
-    const categoryId = 3; // ID da categoria conforme o exemplo
 
-    const baseUrl = "https://vhomeflathotel.motordereservas.com.br/novareserva";
-    const finalUrl = `${baseUrl}?inicio=${checkin}&fim=${checkout}&adultos=${adults}&idquartoCategoria=${categoryId}`;
-
-    window.open(finalUrl, '_blank', 'noopener,noreferrer');
+    // Redireciona para /booking-v2 com os parâmetros de busca
+    navigate(`/booking-v2?checkin=${checkin}&checkout=${checkout}&adults=${adults}`);
   };
 
   return (

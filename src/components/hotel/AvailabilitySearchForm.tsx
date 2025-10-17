@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Calendar as CalendarIcon, Users, Loader2 } from "lucide-react";
-import { format, addDays, parseISO } from "date-fns"; // Importando addDays e parseISO
+import { format, addDays, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
@@ -14,42 +14,50 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils"; // Importando cn para classes condicionais
+import { cn } from "@/lib/utils";
 
 interface AvailabilitySearchFormProps {
   onSearch: (params: { checkin: string; checkout: string; adults: number }) => void;
   isLoading: boolean;
+  initialSearchParams?: { checkin: string; checkout: string; adults: number }; // Nova prop
 }
 
-export function AvailabilitySearchForm({ onSearch, isLoading }: AvailabilitySearchFormProps) {
+export function AvailabilitySearchForm({ onSearch, isLoading, initialSearchParams }: AvailabilitySearchFormProps) {
   const [checkinDate, setCheckinDate] = useState<Date | undefined>();
   const [checkoutDate, setCheckoutDate] = useState<Date | undefined>();
-  const [guests, setGuests] = useState(2); // Default para 2 hóspedes
+  const [guests, setGuests] = useState(2);
   const [isMounted, setIsMounted] = useState(false);
-  const [showDateError, setShowDateError] = useState(false); // Novo estado para validação visual
+  const [showDateError, setShowDateError] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
 
-    // Tenta carregar os últimos valores pesquisados do localStorage
-    const savedCheckin = localStorage.getItem('lastCheckinDate');
-    const savedCheckout = localStorage.getItem('lastCheckoutDate');
-    const savedGuests = localStorage.getItem('lastGuests');
-
-    if (savedCheckin && savedCheckout && savedGuests) {
-      setCheckinDate(parseISO(savedCheckin));
-      setCheckoutDate(parseISO(savedCheckout));
-      setGuests(Number(savedGuests));
+    if (initialSearchParams) {
+      // Se houver parâmetros iniciais da URL, use-os
+      setCheckinDate(parseISO(initialSearchParams.checkin));
+      setCheckoutDate(parseISO(initialSearchParams.checkout));
+      setGuests(Number(initialSearchParams.adults));
     } else {
-      // Define valores padrão: check-in em 2 dias, check-out em 4 dias (2 diárias), 2 hóspedes
-      const today = new Date();
-      const defaultCheckin = addDays(today, 2);
-      const defaultCheckout = addDays(defaultCheckin, 2);
-      setCheckinDate(defaultCheckin);
-      setCheckoutDate(defaultCheckout);
-      setGuests(2);
+      // Tenta carregar os últimos valores pesquisados do localStorage
+      const savedCheckin = localStorage.getItem('lastCheckinDate');
+      const savedCheckout = localStorage.getItem('lastCheckoutDate');
+      const savedGuests = localStorage.getItem('lastGuests');
+
+      if (savedCheckin && savedCheckout && savedGuests) {
+        setCheckinDate(parseISO(savedCheckin));
+        setCheckoutDate(parseISO(savedCheckout));
+        setGuests(Number(savedGuests));
+      } else {
+        // Define valores padrão: check-in em 2 dias, check-out em 4 dias (2 diárias), 2 hóspedes
+        const today = new Date();
+        const defaultCheckin = addDays(today, 2);
+        const defaultCheckout = addDays(defaultCheckin, 2);
+        setCheckinDate(defaultCheckin);
+        setCheckoutDate(defaultCheckout);
+        setGuests(2);
+      }
     }
-  }, []);
+  }, [initialSearchParams]); // Adicionado initialSearchParams como dependência
 
   // Reseta a data de checkout se for anterior ou igual à de check-in
   useEffect(() => {
