@@ -133,7 +133,11 @@ export const Hero = () => {
             <span className={cn("block text-5xl font-light tracking-wide md:text-7xl lg:text-8xl", animationClasses("delay-500"))}>
               Seu Flat Hotel
             </span>
-            <span className={cn("mt-2 block text-3xl font-extralight tracking-widest text-white/90 md:text-4xl lg:text-5xl text-right", animationClasses("delay-700"))}>
+            <span className={cn(
+              "mt-2 block text-3xl font-extralight tracking-widest text-white/90 md:text-4xl lg:text-5xl text-right",
+              animationClasses("delay-700"), // Animação de montagem inicial
+              currentIndex !== 0 && "opacity-0 translate-y-4" // Esconde e desloca se não for o primeiro slide
+            )}>
               à Beira Mar em Macaé
             </span>
           </h1>
