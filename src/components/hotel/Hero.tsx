@@ -127,7 +127,11 @@ export const Hero = () => {
       <div className="relative z-10 flex h-full items-center justify-center px-4">
         <div className="max-w-5xl">
           {/* Decorative Line */}
-          <div className={cn("mb-8 flex items-center justify-center gap-4", animationClasses("delay-300"))}>
+          <div className={cn(
+            "mb-8 flex items-center justify-center gap-4", 
+            animationClasses("delay-300"),
+            currentIndex !== 0 && "opacity-0 translate-y-4 duration-300" // Adicionado para desaparecer
+          )}>
             <div className="h-px w-12 bg-white/60" />
             <div className="h-1.5 w-1.5 rotate-45 bg-white/60" />
             <div className="h-px w-12 bg-white/60" />
@@ -161,7 +165,11 @@ export const Hero = () => {
           </p>
 
           {/* Decorative Bottom Line */}
-          <div className={cn("mt-12 flex items-center justify-center gap-4", animationClasses("delay-[1100ms]"))}>
+          <div className={cn(
+            "mt-12 flex items-center justify-center gap-4", 
+            animationClasses("delay-[1100ms]"),
+            currentIndex !== 0 && "opacity-0 translate-y-4 duration-300" // Adicionado para desaparecer
+          )}>
             <div className="h-px w-16 bg-white/40" />
             <div className="h-1 w-1 rounded-full bg-white/40" />
             <div className="h-px w-16 bg-white/40" />
