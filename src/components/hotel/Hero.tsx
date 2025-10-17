@@ -154,8 +154,8 @@ export const Hero = () => {
           {/* Subtitle */}
           <p className={cn(
             "mt-8 text-lg font-light tracking-wide text-white/95 md:text-xl lg:text-2xl text-center", 
-            animationClasses("delay-[900ms]"), // Mantém o delay para aparecer depois dos títulos
-            currentIndex !== 0 && "opacity-0 translate-y-4" // Esconde e desloca se não for o primeiro slide
+            animationClasses("delay-[1300ms]"), // Aumentado o delay para aparecer por último
+            currentIndex !== 0 && "opacity-0 translate-y-4 duration-300" // Adicionado duration-300 para desaparecer mais rápido
           )}>
             Onde Conforto, Sofisticação e Natureza se Entrelaçam
           </p>
