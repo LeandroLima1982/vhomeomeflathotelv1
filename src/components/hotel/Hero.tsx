@@ -130,7 +130,11 @@ export const Hero = () => {
 
           {/* Main Heading */}
           <h1 className="text-white text-center">
-            <span className={cn("block text-5xl font-light tracking-wide md:text-7xl lg:text-8xl", animationClasses("delay-500"))}>
+            <span className={cn(
+              "block text-5xl font-light tracking-wide md:text-7xl lg:text-8xl",
+              animationClasses("delay-500"),
+              currentIndex !== 0 && "opacity-0 translate-y-4" // Adicionado para o efeito no primeiro slide
+            )}>
               Seu Flat Hotel
             </span>
             <span className={cn(
