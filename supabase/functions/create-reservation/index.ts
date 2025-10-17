@@ -99,9 +99,6 @@ serve(async (req) => {
 
     // --- PASSO 2: CRIAR A RESERVA (SE A DISPONIBILIDADE FOR CONFIRMADA) ---
     const identificadorReserva = crypto.randomUUID();
-    
-    // **CORREÇÃO DEFINITIVA:** A API externa soma o 'responsavel' (1) com a lista de 'integrantes'.
-    // Para a contagem ser correta, a lista de 'integrantes' deve conter apenas os acompanhantes adicionais.
     const integrantes = Array.from({ length: Math.max(0, adults - 1) }, (_, i) => ({
       nomeCompleto: `Acompanhante ${i + 1}`,
       categoriaPessoa: "ADULTO",
@@ -124,15 +121,8 @@ serve(async (req) => {
             email: email,
           },
           integrantes: integrantes,
-          pagamentos: [
-            {
-              id: `pagamento-${identificadorReserva}`,
-              valor: valorTotal,
-              codigoFormaPagamento: 1,
-              liquidado: "false",
-              vencimento: parseDate(checkin),
-            }
-          ]
+          // **CORREÇÃO CRÍTICA:** Removido o bloco 'pagamentos' para sinalizar
+          // uma reserva do tipo "pague no hotel", que deve atualizar o inventário.
         }
       ]
     };
