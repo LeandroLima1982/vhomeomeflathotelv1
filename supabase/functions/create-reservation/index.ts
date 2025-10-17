@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
-import * as uuid from "https://deno.land/std@0.224.0/uuid/mod.ts"; // Importando o módulo UUID completo
 
 // Headers CORS para permitir requisições do navegador
 const corsHeaders = {
@@ -82,8 +81,8 @@ serve(async (req) => {
       throw new Error('O segredo API_RESERVAS_TOKEN não foi configurado na Supabase.');
     }
 
-    // Gerar um identificador único para a reserva
-    const identificadorReserva = uuid.v4.generate();
+    // Gerar um identificador único para a reserva usando a API nativa
+    const identificadorReserva = crypto.randomUUID();
 
     // Criar array de integrantes com base no número de adultos
     const integrantes = Array.from({ length: adults }, (_, i) => ({
