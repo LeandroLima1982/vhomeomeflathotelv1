@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { cn } from '@/lib/utils';
-import { TypingEffect } from './TypingEffect'; // Importando o novo componente
+// TypingEffect não é mais necessário aqui
 
 const BUCKET_NAME = 'gallery';
 const FOLDER = 'hero';
@@ -14,7 +14,7 @@ export const Hero = () => {
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showTypingEffect, setShowTypingEffect] = useState(false); // Novo estado para controlar o TypingEffect
+  // showTypingEffect não é mais necessário
 
   useEffect(() => {
     setIsMounted(true);
@@ -85,24 +85,7 @@ export const Hero = () => {
     }
   }, [currentIndex, images.length]);
 
-  // NOVO useEffect para controlar o início do TypingEffect
-  useEffect(() => {
-    if (isMounted && currentIndex === 0) {
-      // O título principal tem delay-700 e duration-1000, então termina em 1.7s.
-      // Vamos iniciar o TypingEffect um pouco depois, por exemplo, em 1.8s.
-      const typingStartTimer = setTimeout(() => {
-        setShowTypingEffect(true);
-      }, 1800); // 1.8 segundos
-
-      return () => {
-        clearTimeout(typingStartTimer);
-        setShowTypingEffect(false); // Reseta ao mudar de slide ou desmontar
-      };
-    } else {
-      setShowTypingEffect(false); // Desativa se não for o primeiro slide
-    }
-  }, [isMounted, currentIndex]);
-
+  // O useEffect para showTypingEffect foi removido
 
   const defaultImage = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto-format&fit=crop&q=80";
 
@@ -171,14 +154,10 @@ export const Hero = () => {
           {/* Subtitle */}
           <p className={cn(
             "mt-8 text-lg font-light tracking-wide text-white/95 md:text-xl lg:text-2xl text-center", 
-            animationClasses("delay-[900ms]"),
+            animationClasses("delay-[900ms]"), // Mantém o delay para aparecer depois dos títulos
             currentIndex !== 0 && "opacity-0 translate-y-4" // Esconde e desloca se não for o primeiro slide
           )}>
-            <TypingEffect 
-              text="Onde Conforto, Sofisticação e Natureza se Entrelaçam" 
-              delay={50} // Velocidade de digitação (ajuste conforme necessário)
-              active={showTypingEffect} // Ativo apenas quando showTypingEffect é true
-            />
+            Onde Conforto, Sofisticação e Natureza se Entrelaçam
           </p>
 
           {/* Decorative Bottom Line */}
