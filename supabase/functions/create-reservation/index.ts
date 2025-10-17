@@ -121,8 +121,9 @@ serve(async (req) => {
             email: email,
           },
           integrantes: integrantes,
-          // **CORREÇÃO CRÍTICA:** Removido o bloco 'pagamentos' para sinalizar
-          // uma reserva do tipo "pague no hotel", que deve atualizar o inventário.
+          // **CORREÇÃO:** A API externa requer o campo 'pagamentos', mesmo que vazio.
+          // Enviando uma lista vazia para sinalizar "pague no hotel" sem causar erro.
+          pagamentos: [],
         }
       ]
     };
