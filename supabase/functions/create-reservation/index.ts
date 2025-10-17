@@ -84,11 +84,18 @@ serve(async (req) => {
     // Gerar um identificador único para a reserva usando a API nativa
     const identificadorReserva = crypto.randomUUID();
 
-    // Criar array de integrantes com base no número de adultos
-    const integrantes = Array.from({ length: adults }, (_, i) => ({
-      nomeCompleto: `Hóspede ${i + 1}`, // Nome genérico para integrantes
-      categoriaPessoa: "ADULTO",
-    }));
+    // CORREÇÃO: O responsável é o primeiro integrante. Os demais são acompanhantes.
+    const integrantes = [
+      {
+        nomeCompleto: `${nome} ${sobrenome}`,
+        categoriaPessoa: "ADULTO",
+      },
+      // Adiciona os acompanhantes, se houver (adults - 1)
+      ...Array.from({ length: Math.max(0, adults - 1) }, (_, i) => ({
+        nomeCompleto: `Acompanhante ${i + 1}`,
+        categoriaPessoa: "ADULTO",
+      }))
+    ];
 
     // Monta o corpo da requisição para a API externa, seguindo a documentação
     const requestBody = {
