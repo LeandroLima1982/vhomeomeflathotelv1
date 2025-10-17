@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { cn } from '@/lib/utils';
+import { TypingEffect } from './TypingEffect'; // Importando o novo componente
 
 const BUCKET_NAME = 'gallery';
 const FOLDER = 'hero';
@@ -152,7 +153,11 @@ export const Hero = () => {
             animationClasses("delay-[900ms]"),
             currentIndex !== 0 && "opacity-0 translate-y-4" // Esconde e desloca se não for o primeiro slide
           )}>
-            Onde Conforto, Sofisticação e Natureza se Entrelaçam
+            <TypingEffect 
+              text="Onde Conforto, Sofisticação e Natureza se Entrelaçam" 
+              delay={50} // Velocidade de digitação (ajuste conforme necessário)
+              active={currentIndex === 0 && isMounted} // Ativo apenas no primeiro slide e após a montagem
+            />
           </p>
 
           {/* Decorative Bottom Line */}
