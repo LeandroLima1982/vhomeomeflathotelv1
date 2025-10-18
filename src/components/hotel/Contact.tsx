@@ -4,7 +4,7 @@ const contactInfo = [
   {
     icon: <MapPin className="w-8 h-8 text-blue-600" />,
     title: 'Endereço',
-    text: 'Av. Atlântica, 433, Macaé - RJ, CEP 27920-325',
+    text: 'Av. Atlântica, 342, Macaé - RJ, CEP 27920-325',
   },
   {
     icon: <Phone className="w-8 h-8 text-blue-600" />,
