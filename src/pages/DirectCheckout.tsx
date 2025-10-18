@@ -417,7 +417,6 @@ const DirectCheckout = () => {
                                         </Tooltip>
                                         {form.formState.touchedFields.cpf && (
                                           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                            {fieldValidity.cpf ? <CheckCircle className="<dyad-write path="src/pages/DirectCheckout.tsx" description="Completing the DirectCheckout.tsx file with the remaining sections properly closed.">
                                             {fieldValidity.cpf ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
                                           </div>
                                         )}
