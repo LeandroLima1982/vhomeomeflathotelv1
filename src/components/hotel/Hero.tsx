@@ -97,7 +97,7 @@ export const Hero = () => {
     );
 
   return (
-    <div className="relative h-[25vh] md:h-[95vh] w-full overflow-hidden">
+    <div className="relative h-[35vh] md:h-[90vh] w-full overflow-hidden">
       {/* Background Images */}
       {loading ? (
         <div className="absolute inset-0 bg-gray-100" />
