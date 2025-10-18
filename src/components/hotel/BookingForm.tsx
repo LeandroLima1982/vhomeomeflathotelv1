@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { toast } from 'react-hot-toast';
+import { showError } from '@/utils/toast'; // Importando showError do utilitário
 
 interface BookingFormProps {
   roomName?: string;
@@ -34,7 +34,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ roomName }) => {
     e.preventDefault();
 
     if (!date?.from || !date?.to) {
-      toast.error('Por favor, selecione as datas de check-in e check-out.');
+      showError('Por favor, selecione as datas de check-in e check-out.'); // Usando showError
       return;
     }
 
