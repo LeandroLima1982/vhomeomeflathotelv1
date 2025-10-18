@@ -218,7 +218,7 @@ const Checkout = () => {
                       )}
                     </div>
                     {room.special_name && (
-                      <div className="inline-block bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md mb-2">
+                      <div className="inline-block mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md mb-2">
                         {room.special_name}
                       </div>
                     )}
@@ -323,7 +323,6 @@ const Checkout = () => {
                                   name={`companionNames.${index}`}
                                   render={({ field }) => (
                                     <FormItem>
-                                      <FormLabel>Nome Completo do Acompanhante {index + 1}</FormLabel>
                                       <FormControl>
                                         <Input placeholder={`Nome completo do acompanhante ${index + 1}`} {...field} />
                                       </FormControl>
