@@ -61,6 +61,7 @@ const Checkout = () => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: "onChange", // Validação em tempo real
     defaultValues: {
       nome: "",
       sobrenome: "",
@@ -101,6 +102,16 @@ const Checkout = () => {
     const digits = value.replace(/\D/g, '');
     return digits.length <= 10 ? "(99) 9999-9999" : "(99) 99999-9999";
   };
+
+  // Verifica se todos os campos obrigatórios foram validados e são válidos
+  const numberOfCompanions = Math.max(0, searchParams?.adults - 1 || 0);
+  const requiredFields = ['nome', 'sobrenome', 'email', 'cpf', 'telefone'];
+  if (numberOfCompanions > 0) {
+    for (let i = 0; i < numberOfCompanions; i++) {
+      requiredFields.push(`companionNames.${i}`);
+    }
+  }
+  const allFieldsValid = requiredFields.every(field => fieldValidity[field] === true) && form.formState.isValid;
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
@@ -197,17 +208,6 @@ const Checkout = () => {
   };
 
   const roomDetails = getRoomDetails(room);
-
-  const numberOfCompanions = Math.max(0, searchParams.adults - 1);
-
-  // Verifica se todos os campos obrigatórios foram validados e são válidos
-  const requiredFields = ['nome', 'sobrenome', 'email', 'cpf', 'telefone'];
-  if (numberOfCompanions > 0) {
-    for (let i = 0; i < numberOfCompanions; i++) {
-      requiredFields.push(`companionNames.${i}`);
-    }
-  }
-  const allFieldsValid = requiredFields.every(field => fieldValidity[field] === true) && form.formState.isValid;
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
