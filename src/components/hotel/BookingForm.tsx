@@ -1,123 +1,142 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Calendar as CalendarIcon, Users } from "lucide-react";
-import { format, addDays } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { useNavigate } from "react-router-dom"; // Importando useNavigate
+import React, { useState, useEffect } from 'react';
+import { DateRange } from 'react-day-picker';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { CalendarIcon, Users } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { toast } from 'react-hot-toast';
 
-import { Button } from "@/components/ui/button";
-import { DatePicker } from "@/components/ui/date-picker";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+interface BookingFormProps {
+  roomName?: string;
+}
 
-export function BookingForm() {
-  // Define valores padrão: check-in na data atual, check-out no dia seguinte, 2 hóspedes
-  const today = new Date();
-  const defaultCheckin = today;
-  const defaultCheckout = addDays(today, 1); // Dia seguinte
-
-  const [checkinDate, setCheckinDate] = useState<Date | undefined>(defaultCheckin);
-  const [checkoutDate, setCheckoutDate] = useState<Date | undefined>(defaultCheckout);
-  const [guests, setGuests] = useState(2);
+const BookingForm: React.FC<BookingFormProps> = ({ roomName }) => {
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: undefined,
+    to: undefined,
+  });
+  const [guests, setGuests] = useState<string>('1');
   const [isMounted, setIsMounted] = useState(false);
-  const navigate = useNavigate(); // Inicializando useNavigate
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Reseta a data de checkout se for anterior ou igual à de check-in
-  useEffect(() => {
-    if (checkinDate && checkoutDate && checkoutDate <= checkinDate) {
-      setCheckoutDate(undefined);
-    }
-  }, [checkinDate, checkoutDate]);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!checkinDate || !checkoutDate) {
-      alert("Por favor, selecione as datas de check-in e check-out.");
+    if (!date?.from || !date?.to) {
+      toast.error('Por favor, selecione as datas de check-in e check-out.');
       return;
     }
 
-    const checkin = format(checkinDate, "yyyyMMdd");
-    const checkout = format(checkoutDate, "yyyyMMdd");
-    const adults = guests;
+    const checkInDate = format(date.from, 'dd/MM/yyyy', { locale: ptBR });
+    const checkOutDate = format(date.to, 'dd/MM/yyyy', { locale: ptBR });
 
-    // Redireciona para /booking-v2 com os parâmetros de busca
-    navigate(`/booking-v2?checkin=${checkin}&checkout=${checkout}&adults=${adults}`);
+    const message = `Olá! Gostaria de fazer uma reserva para ${roomName ? `o quarto ${roomName}` : 'um quarto'} de ${checkInDate} a ${checkOutDate} para ${guests} pessoa(s).`;
+    const whatsappUrl = `https://wa.me/5511999999999?text=${encodeURIComponent(message)}`; // Substitua pelo seu número de WhatsApp
+    window.open(whatsappUrl, '_blank');
   };
 
   return (
-    <div className="relative -mt-12 md:-mt-16 z-10">
+    <section className="relative z-10 -mt-20 md:-mt-24 lg:-mt-28">
       <div className="px-4">
-        <div className={`max-w-lg md:max-w-3xl mx-auto bg-white border border-white/50 p-4 md:p-6 rounded-xl shadow-xl transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+        <div className={`max-w-md md:max-w-3xl mx-auto bg-white border border-white/50 p-4 md:p-6 rounded-xl shadow-xl transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-2 md:gap-4 md:grid-cols-4 md:items-end">
             {/* Check-in */}
             <div className="space-y-2 text-left">
-              <label className="font-medium text-gray-800 flex items-center gap-2 text-sm pl-1">
-                <CalendarIcon className="h-4 w-4" />
-                Check-in
-              </label>
-              <DatePicker
-                date={checkinDate}
-                setDate={setCheckinDate}
-                disabled={{ before: new Date() }}
-                placeholder="Selecione a data"
-              />
+              <Label htmlFor="check-in-date">Check-in</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="check-in-date"
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !date?.from && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date?.from ? format(date.from, "PPP", { locale: ptBR }) : <span>Selecione a data</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={date?.from}
+                    onSelect={(selectedDate) => setDate(prev => ({ ...prev, from: selectedDate }))}
+                    initialFocus
+                    locale={ptBR}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
 
             {/* Check-out */}
             <div className="space-y-2 text-left">
-              <label className="font-medium text-gray-800 flex items-center gap-2 text-sm pl-1">
-                <CalendarIcon className="h-4 w-4" />
-                Check-out
-              </label>
-              <DatePicker
-                date={checkoutDate}
-                setDate={setCheckoutDate}
-                triggerDisabled={!checkinDate}
-                disabled={(date) => !checkinDate || date <= checkinDate}
-                placeholder="Selecione a data"
-              />
+              <Label htmlFor="check-out-date">Check-out</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="check-out-date"
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !date?.to && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date?.to ? format(date.to, "PPP", { locale: ptBR }) : <span>Selecione a data</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={date?.to}
+                    onSelect={(selectedDate) => setDate(prev => ({ ...prev, to: selectedDate }))}
+                    initialFocus
+                    locale={ptBR}
+                    fromDate={date?.from} // Ensure check-out is after check-in
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
 
-            {/* Guests */}
+            {/* Hóspedes */}
             <div className="space-y-2 text-left">
-              <label htmlFor="guests" className="font-medium text-gray-800 flex items-center gap-2 text-sm pl-1">
-                <Users className="h-4 w-4" />
-                Hóspedes
-              </label>
-              <Select onValueChange={(value) => setGuests(Number(value))} defaultValue={String(guests)}>
-                <SelectTrigger id="guests" className="w-full bg-white/80 hover:bg-white">
-                  <SelectValue placeholder="Número de hóspedes" />
+              <Label htmlFor="guests">Hóspedes</Label>
+              <Select value={guests} onValueChange={setGuests}>
+                <SelectTrigger id="guests" className="w-full">
+                  <Users className="mr-2 h-4 w-4" />
+                  <SelectValue placeholder="1 Hóspede" />
                 </SelectTrigger>
                 <SelectContent>
-                  {[...Array(8)].map((_, i) => (
-                    <SelectItem key={i + 1} value={String(i + 1)}>
-                      {i + 1} Hóspede{i > 0 ? 's' : ''}
+                  {[1, 2, 3, 4, 5, 6].map((num) => (
+                    <SelectItem key={num} value={String(num)}>
+                      {num} Hóspede{num > 1 ? 's' : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Submit Button */}
-            <div>
-              <Button type="submit" className="w-full font-bold bg-blue-700 hover:bg-blue-750 text-white">
-                Verificar
-              </Button>
-            </div>
+            {/* Botão de Enviar */}
+            <Button type="submit" className="w-full md:col-span-1">
+              Verificar Disponibilidade
+            </Button>
           </form>
         </div>
       </div>
-    </div>
+    </section>
   );
-}
+};
+
+export default BookingForm;
