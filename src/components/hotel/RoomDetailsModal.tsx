@@ -638,8 +638,3 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
 };
 
 export default RoomDetailsModal;
-</dyad-chat-summary>Added missing import for RoomBookingForm in RoomDetailsModal.tsx</dyad-chat-summary><dyad-chat-summary>Added missing import for RoomBookingForm in RoomDetailsModal.tsx</dyad-chat-summary><dyad-write path="src/pages/BookingV2.tsx" description="Removing the imageUrl filter condition to allow rooms 8 and 9 to be listed even if they don't have images, as the issue is likely that they are being filtered out due to missing images.">
-      // Filtrar quartos que têm valor total > 0 E uma imagem de capa
-      const pricedAndImagedResults = mergedResults.filter((room: AvailabilityResult) => 
-        room.valorTotal > 0 // Removed the && room.imageUrl condition
-      );
