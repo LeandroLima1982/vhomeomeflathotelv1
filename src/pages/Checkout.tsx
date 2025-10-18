@@ -96,6 +96,12 @@ const Checkout = () => {
     setFieldValidity(prev => ({ ...prev, [fieldName]: isValid }));
   };
 
+  // Função para determinar a máscara do telefone baseada no valor
+  const getPhoneMask = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    return digits.length <= 10 ? "(99) 9999-9999" : "(99) 99999-9999";
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     const toastId = showLoading("Processando sua reserva...");
@@ -194,7 +200,14 @@ const Checkout = () => {
 
   const numberOfCompanions = Math.max(0, searchParams.adults - 1);
 
-  const allFieldsValid = Object.values(fieldValidity).every(valid => valid) && form.formState.isValid;
+  // Verifica se todos os campos obrigatórios foram validados e são válidos
+  const requiredFields = ['nome', 'sobrenome', 'email', 'cpf', 'telefone'];
+  if (numberOfCompanions > 0) {
+    for (let i = 0; i < numberOfCompanions; i++) {
+      requiredFields.push(`companionNames.${i}`);
+    }
+  }
+  const allFieldsValid = requiredFields.every(field => fieldValidity[field] === true) && form.formState.isValid;
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
@@ -401,7 +414,7 @@ const Checkout = () => {
                                 <FormControl>
                                   <div className="relative">
                                     <InputMask
-                                      mask="(99) 99999-9999"
+                                      mask={getPhoneMask(field.value)}
                                       value={field.value}
                                       onChange={field.onChange}
                                       onBlur={(e) => {
