@@ -131,7 +131,7 @@ const Checkout = () => {
     return digits.length <= 10 ? "(99) 9999-9999" : "(99) 99999-9999";
   };
 
-  // Verifica se todos os campos obrigatórios foram tocados e são válidos
+  // Verifica se todos os campos obrigatórios são válidos (removida condição de touched para ativar botão mais cedo)
   const numberOfCompanions = Math.max(0, searchParams?.adults - 1 || 0);
   const requiredFields = ['nome', 'sobrenome', 'email', 'cpf', 'telefone'];
   if (numberOfCompanions > 0) {
@@ -139,7 +139,7 @@ const Checkout = () => {
       requiredFields.push(`companionNames.${i}`);
     }
   }
-  const allFieldsValid = requiredFields.every(field => form.formState.touchedFields[field] && !form.formState.errors[field]);
+  const allFieldsValid = requiredFields.every(field => !form.formState.errors[field]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
@@ -369,7 +369,7 @@ const Checkout = () => {
                                             <p>Seu nome completo como consta no documento de identidade.</p>
                                           </TooltipContent>
                                         </Tooltip>
-                                        {fieldValidity.nome !== undefined && (
+                                        {form.formState.touchedFields.nome && (
                                           <div className="absolute right-3 top-1/2 -translate-y-1/2">
                                             {fieldValidity.nome ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
                                           </div>
@@ -398,7 +398,7 @@ const Checkout = () => {
                                             <p>Seu sobrenome completo como consta no documento de identidade.</p>
                                           </TooltipContent>
                                         </Tooltip>
-                                        {fieldValidity.sobrenome !== undefined && (
+                                        {form.formState.touchedFields.sobrenome && (
                                           <div className="absolute right-3 top-1/2 -translate-y-1/2">
                                             {fieldValidity.sobrenome ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
                                           </div>
@@ -434,7 +434,7 @@ const Checkout = () => {
                                           <p>Endereço de e-mail para confirmação da reserva e comunicações.</p>
                                         </TooltipContent>
                                       </Tooltip>
-                                      {fieldValidity.email !== undefined && (
+                                      {form.formState.touchedFields.email && (
                                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
                                           {fieldValidity.email ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
                                         </div>
@@ -465,7 +465,7 @@ const Checkout = () => {
                                             <p>Número de identificação usado para a reserva e check-in.</p>
                                           </TooltipContent>
                                         </Tooltip>
-                                        {fieldValidity.cpf !== undefined && (
+                                        {form.formState.touchedFields.cpf && (
                                           <div className="absolute right-3 top-1/2 -translate-y-1/2">
                                             {fieldValidity.cpf ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
                                           </div>
@@ -495,7 +495,7 @@ const Checkout = () => {
                                             <p>Telefone para contato em caso de emergências ou confirmações.</p>
                                           </TooltipContent>
                                         </Tooltip>
-                                        {fieldValidity.telefone !== undefined && (
+                                        {form.formState.touchedFields.telefone && (
                                           <div className="absolute right-3 top-1/2 -translate-y-1/2">
                                             {fieldValidity.telefone ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
                                           </div>
@@ -529,7 +529,7 @@ const Checkout = () => {
                                               onBlur={(e) => { field.onBlur(); updateFieldValidity(`companionNames.${index}`, !form.formState.errors.companionNames?.[index]); }}
                                               aria-describedby={`error-companion-${index}`}
                                             />
-                                            {fieldValidity[`companionNames.${index}`] !== undefined && (
+                                            {form.formState.touchedFields[`companionNames.${index}`] && (
                                               <div className="absolute right-3 top-1/2 -translate-y-1/2">
                                                 {fieldValidity[`companionNames.${index}`] ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
                                               </div>
