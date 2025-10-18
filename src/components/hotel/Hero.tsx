@@ -25,7 +25,7 @@ export const Hero = () => {
     setLoading(true);
     
     if (!supabase) {
-      console.error('Supabase client not available');
+      console.error('Supabase client is not available');
       setLoading(false);
       return;
     }
@@ -97,7 +97,7 @@ export const Hero = () => {
     );
 
   return (
-    <div className="relative h-[80vh] md:h-[65vh] sm:h-[55vh] w-full overflow-hidden">
+    <div className="relative h-[85vh] md:h-[70vh] sm:h-[50vh] w-full overflow-hidden">
       {/* Background Images */}
       {loading ? (
         <div className="absolute inset-0 bg-gray-100" />
