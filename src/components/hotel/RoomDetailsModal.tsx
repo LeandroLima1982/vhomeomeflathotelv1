@@ -42,7 +42,7 @@ import DetailIcon from './DetailIcon'; // Importando o DetailIcon
 // Interface para o objeto 'room' que vem do estado da localização
 interface RoomResultForCheckout {
   idQuarto: number; // ID do Supabase (ajustado)
-  apiRoomId: number; // ID original da API externa
+  apiRoomId: number; // ID original da API
   nomeQuarto: string;
   disponibilidade: number;
   valorTotal: number;
@@ -167,6 +167,10 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
     }
 
     try {
+      // Mapeamento personalizado para quartos com offset +4 (Supabase IDs 8 e 9)
+      const supabaseToApiMapping = { 8: 12, 9: 13 };
+      const targetApiRoomId = supabaseToApiMapping[room.id] || (room.id + 3); // Usa +4 para IDs 8 e 9, +3 como fallback
+
       const { data, error: functionError } = await supabase.functions.invoke('get-availability', {
         body: { checkin, checkout, adults },
       });
@@ -182,7 +186,6 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
       // A Edge Function retorna o idQuarto como o ID original da API.
       // Precisamos encontrar o quarto que corresponde ao nosso room.id do Supabase.
       // A correção de ID é -3 para ir da API para o Supabase, então para ir do Supabase para a API é +3.
-      const targetApiRoomId = room.id + 3; 
       const foundRoom = data.find((apiRoom: any) => apiRoom.idQuarto === targetApiRoomId);
 
       if (foundRoom && foundRoom.disponibilidade > 0 && foundRoom.valorTotal > 0) {
@@ -301,7 +304,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
       const unorderedKeys = validKeys.filter(key => !roomData.details_order.includes(key));
       const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
   
-      return [...orderedDetails, ...unorderedDetails].slice(0, 9);
+      return [...orderedDetails, ...unorderedDetails].slice(0, 9); // Limita a 9 detalhes para não sobrecarregar
     }
   
     return validKeys.map(key => detailsObject[key] as string).slice(0, 9);
