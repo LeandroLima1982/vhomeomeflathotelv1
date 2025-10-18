@@ -135,9 +135,8 @@ const DirectBooking = () => {
 
       // NO ID ALIGNMENT OR LOCAL IMAGE/DETAIL MAPPING HERE
       const directResults = data.map((apiRoom: any) => {
-        // Mapeamento personalizado para quartos com offset -4 (API IDs 12 e 13)
-        const apiToSupabaseMapping = { 12: 8, 13: 9 };
-        const adjustedRoomId = apiToSupabaseMapping[apiRoom.idQuarto] || (apiRoom.idQuarto - 3); // Usa -4 para IDs 12 e 13, -3 como fallback
+        // Mapeamento personalizado para quartos com offset -4 (API IDs 7, 12 e 13)
+        const adjustedRoomId = (apiRoom.idQuarto === 7 || apiRoom.idQuarto === 12 || apiRoom.idQuarto === 13) ? apiRoom.idQuarto - 4 : apiRoom.idQuarto - 3; // Usa -4 para IDs 7, 12 e 13, -3 como fallback
         return {
           ...apiRoom,
           idQuarto: adjustedRoomId, // Usar o ID ajustado

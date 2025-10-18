@@ -32,7 +32,6 @@ import {
 } from 'lucide-react';
 import FeatureListDisplay, { FeatureCategory } from './FeatureListDisplay';
 import { supabase } from '@/lib/supabaseClient';
-import { RoomBookingForm } from './RoomBookingForm';
 import { showError } from '@/utils/toast';
 import { useNavigate } from 'react-router-dom';
 import { format, parse, differenceInDays } from 'date-fns';
@@ -167,9 +166,9 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
     }
 
     try {
-      // Mapeamento personalizado para quartos com offset +4 (Supabase IDs 8 e 9)
-      const supabaseToApiMapping = { 8: 12, 9: 13 };
-      const targetApiRoomId = supabaseToApiMapping[room.id] || (room.id + 3); // Usa +4 para IDs 8 e 9, +3 como fallback
+      // Mapeamento personalizado para quartos com offset +4 (Supabase IDs 3, 8 e 9)
+      const supabaseToApiMapping = { 3: 7, 8: 12, 9: 13 };
+      const targetApiRoomId = supabaseToApiMapping[room.id] || (room.id + 3); // Usa +4 para IDs 3, 8 e 9, +3 como fallback
 
       const { data, error: functionError } = await supabase.functions.invoke('get-availability', {
         body: { checkin, checkout, adults },
