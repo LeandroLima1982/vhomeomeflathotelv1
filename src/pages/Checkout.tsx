@@ -9,7 +9,7 @@ import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 import Header from "@/components/hotel/Header";
-import SimpleFooter from "@/components/hotel/SimpleFooter"; // Importando o rodapé simplificado
+import SimpleFooter from "@/components/hotel/SimpleFooter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -17,8 +17,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/lib/supabaseClient";
 import { showError, showSuccess, showLoading, dismissToast } from "@/utils/toast";
-import { BedDouble, Calendar, Users, Tag, Loader2, PartyPopper, ArrowLeft } from "lucide-react";
-import DetailIcon from '@/components/hotel/DetailIcon'; // Importando o DetailIcon
+import { BedDouble, Calendar, Users, Tag, Loader2, PartyPopper, ArrowLeft, CheckCircle, XCircle } from "lucide-react";
+import DetailIcon from '@/components/hotel/DetailIcon';
+import InputMask from 'react-input-mask';
+import { nameSchema, emailSchema, cpfSchema, phoneSchema, companionSchema } from '@/utils/validation';
 
 // Interface para o objeto 'room' que vem do estado da localização
 interface RoomResult {
@@ -40,16 +42,14 @@ interface SearchParams {
   adults: number;
 }
 
-// Esquema de validação atualizado para incluir nomes dos acompanhantes
+// Esquema de validação atualizado
 const formSchema = z.object({
-  nome: z.string().min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
-  sobrenome: z.string().min(2, { message: "O sobrenome deve ter pelo menos 2 caracteres." }),
-  email: z.string().email({ message: "Por favor, insira um e-mail válido." }),
-  cpf: z.string().regex(/^\d{11}$/, { message: "CPF inválido. Digite 11 números, sem pontos ou traços." }),
-  telefone: z.string().min(10, { message: "Telefone inválido. Inclua o DDD." }),
-  companionNames: z.array(
-    z.string().min(2, { message: "O nome do acompanhante deve ter pelo menos 2 caracteres." })
-  ).optional(), // Opcional no esquema, a validação de tamanho será feita no onSubmit
+  nome: nameSchema,
+  sobrenome: nameSchema,
+  email: emailSchema,
+  cpf: cpfSchema,
+  telefone: phoneSchema,
+  companionNames: companionSchema.optional(),
 });
 
 const Checkout = () => {
@@ -67,30 +67,34 @@ const Checkout = () => {
       email: "",
       cpf: "",
       telefone: "",
-      // Inicializa companionNames com base no número de adultos
       companionNames: Array.from({ length: Math.max(0, (searchParams?.adults || 1) - 1) }).map(() => ""),
     },
   });
+
+  const [fieldValidity, setFieldValidity] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!room || !searchParams) {
       showError("Detalhes da reserva não encontrados. Por favor, inicie uma nova busca.");
       navigate('/booking-v2');
     }
-    // Garante que o estado de sucesso seja redefinido ao carregar ou alterar os detalhes da reserva
-    setReservationSuccess(false); 
+    setReservationSuccess(false);
   }, [room, searchParams, navigate]);
 
   // Atualiza os defaultValues de companionNames quando searchParams.adults muda
   useEffect(() => {
     if (searchParams) {
       form.reset({
-        ...form.getValues(), // Mantém os valores existentes para outros campos
+        ...form.getValues(),
         companionNames: Array.from({ length: Math.max(0, searchParams.adults - 1) }).map(() => ""),
       });
     }
   }, [searchParams?.adults, form]);
 
+  // Função para atualizar validade do campo
+  const updateFieldValidity = (fieldName: string, isValid: boolean) => {
+    setFieldValidity(prev => ({ ...prev, [fieldName]: isValid }));
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
@@ -111,14 +115,14 @@ const Checkout = () => {
       checkin: searchParams.checkin,
       checkout: searchParams.checkout,
       adults: searchParams.adults,
-      idQuarto: room.apiRoomId, // REVERTIDO: Enviando o ID original da API externa
+      idQuarto: room.apiRoomId,
       valorTotal: room.valorTotal,
       nome: values.nome,
       sobrenome: values.sobrenome,
       email: values.email,
       cpf: values.cpf,
       telefone: values.telefone,
-      companionNames: values.companionNames, // Inclui os nomes dos acompanhantes
+      companionNames: values.companionNames,
     };
 
     try {
@@ -144,7 +148,7 @@ const Checkout = () => {
   }
 
   if (!room || !searchParams) {
-    return null; // Evita renderizar antes do redirecionamento
+    return null;
   }
 
   const formatDate = (dateStr: string) => {
@@ -157,7 +161,6 @@ const Checkout = () => {
     currency: 'BRL',
   }).format(room.valorTotal);
 
-  // Função para obter os detalhes do quarto com base na ordem
   const getRoomDetails = (roomData: RoomResult) => {
     if (!roomData.details || typeof roomData.details !== 'object') return [];
   
@@ -170,18 +173,18 @@ const Checkout = () => {
   
     if (roomData.details_order && Array.isArray(roomData.details_order)) {
       const orderedDetails = roomData.details_order
-        .map(key => {
+        .map((key: string) => {
           if (validKeys.includes(key)) {
             return detailsObject[key];
           }
           return null;
         })
-        .filter((value): value is string => value !== null);
+        .filter((value: string | null): value is string => value !== null);
       
       const unorderedKeys = validKeys.filter(key => !roomData.details_order.includes(key));
       const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
   
-      return [...orderedDetails, ...unorderedDetails].slice(0, 9); // Limita a 9 detalhes para não sobrecarregar
+      return [...orderedDetails, ...unorderedDetails].slice(0, 9);
     }
   
     return validKeys.map(key => detailsObject[key] as string).slice(0, 9);
@@ -190,6 +193,8 @@ const Checkout = () => {
   const roomDetails = getRoomDetails(room);
 
   const numberOfCompanions = Math.max(0, searchParams.adults - 1);
+
+  const allFieldsValid = Object.values(fieldValidity).every(valid => valid) && form.formState.isValid;
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
@@ -293,25 +298,131 @@ const Checkout = () => {
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <FormField control={form.control} name="nome" render={({ field }) => (
-                              <FormItem><FormLabel>Nome</FormLabel><FormControl><Input placeholder="Seu nome" {...field} /></FormControl><FormMessage /></FormItem>
+                              <FormItem>
+                                <FormLabel>Nome</FormLabel>
+                                <FormControl>
+                                  <div className="relative">
+                                    <Input 
+                                      placeholder="Seu nome" 
+                                      {...field} 
+                                      onBlur={(e) => {
+                                        field.onBlur();
+                                        updateFieldValidity('nome', !form.formState.errors.nome);
+                                      }}
+                                    />
+                                    {fieldValidity.nome !== undefined && (
+                                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                        {fieldValidity.nome ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
+                                      </div>
+                                    )}
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
                             )} />
                             <FormField control={form.control} name="sobrenome" render={({ field }) => (
-                              <FormItem><FormLabel>Sobrenome</FormLabel><FormControl><Input placeholder="Seu sobrenome" {...field} /></FormControl><FormMessage /></FormItem>
+                              <FormItem>
+                                <FormLabel>Sobrenome</FormLabel>
+                                <FormControl>
+                                  <div className="relative">
+                                    <Input 
+                                      placeholder="Seu sobrenome" 
+                                      {...field} 
+                                      onBlur={(e) => {
+                                        field.onBlur();
+                                        updateFieldValidity('sobrenome', !form.formState.errors.sobrenome);
+                                      }}
+                                    />
+                                    {fieldValidity.sobrenome !== undefined && (
+                                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                        {fieldValidity.sobrenome ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
+                                      </div>
+                                    )}
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
                             )} />
                           </div>
                           <FormField control={form.control} name="email" render={({ field }) => (
-                            <FormItem><FormLabel>E-mail</FormLabel><FormControl><Input type="email" placeholder="seu@email.com" {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem>
+                              <FormLabel>E-mail</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input 
+                                    type="email" 
+                                    placeholder="seu@email.com" 
+                                    {...field} 
+                                    onBlur={(e) => {
+                                      field.onBlur();
+                                      updateFieldValidity('email', !form.formState.errors.email);
+                                    }}
+                                  />
+                                  {fieldValidity.email !== undefined && (
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                      {fieldValidity.email ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
+                                    </div>
+                                  )}
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
                           )} />
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <FormField control={form.control} name="cpf" render={({ field }) => (
-                              <FormItem><FormLabel>CPF</FormLabel><FormControl><Input placeholder="Apenas números" {...field} /></FormControl><FormMessage /></FormItem>
+                              <FormItem>
+                                <FormLabel>CPF</FormLabel>
+                                <FormControl>
+                                  <div className="relative">
+                                    <InputMask
+                                      mask="999.999.999-99"
+                                      value={field.value}
+                                      onChange={field.onChange}
+                                      onBlur={(e) => {
+                                        field.onBlur();
+                                        updateFieldValidity('cpf', !form.formState.errors.cpf);
+                                      }}
+                                    >
+                                      {(inputProps: any) => <Input placeholder="123.456.789-01" {...inputProps} />}
+                                    </InputMask>
+                                    {fieldValidity.cpf !== undefined && (
+                                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                        {fieldValidity.cpf ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
+                                      </div>
+                                    )}
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
                             )} />
                             <FormField control={form.control} name="telefone" render={({ field }) => (
-                              <FormItem><FormLabel>Telefone</FormLabel><FormControl><Input placeholder="(DDD) 99999-9999" {...field} /></FormControl><FormMessage /></FormItem>
+                              <FormItem>
+                                <FormLabel>Telefone</FormLabel>
+                                <FormControl>
+                                  <div className="relative">
+                                    <InputMask
+                                      mask="(99) 99999-9999"
+                                      value={field.value}
+                                      onChange={field.onChange}
+                                      onBlur={(e) => {
+                                        field.onBlur();
+                                        updateFieldValidity('telefone', !form.formState.errors.telefone);
+                                      }}
+                                    >
+                                      {(inputProps: any) => <Input placeholder="(21) 98765-4321" {...inputProps} />}
+                                    </InputMask>
+                                    {fieldValidity.telefone !== undefined && (
+                                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                        {fieldValidity.telefone ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
+                                      </div>
+                                    )}
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
                             )} />
                           </div>
 
-                          {/* Campos para hóspedes acompanhantes */}
                           {numberOfCompanions > 0 && (
                             <div className="space-y-4 pt-4 border-t mt-6">
                               <h3 className="text-lg font-semibold text-gray-800">Hóspedes Acompanhantes</h3>
@@ -324,7 +435,21 @@ const Checkout = () => {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormControl>
-                                        <Input placeholder={`Nome completo do acompanhante ${index + 1}`} {...field} />
+                                        <div className="relative">
+                                          <Input 
+                                            placeholder={`Nome completo do acompanhante ${index + 1}`} 
+                                            {...field} 
+                                            onBlur={(e) => {
+                                              field.onBlur();
+                                              updateFieldValidity(`companionNames.${index}`, !form.formState.errors.companionNames?.[index]);
+                                            }}
+                                          />
+                                          {fieldValidity[`companionNames.${index}`] !== undefined && (
+                                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                              {fieldValidity[`companionNames.${index}`] ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
+                                            </div>
+                                          )}
+                                        </div>
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -335,8 +460,8 @@ const Checkout = () => {
                             </div>
                           )}
 
-                          <Button type="submit" className="w-full" disabled={isSubmitting}>
-                            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                          <Button type="submit" className="w-full" disabled={isSubmitting || !allFieldsValid}>
+                            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                             {isSubmitting ? "Confirmando..." : "Confirmar Reserva"}
                           </Button>
                         </form>
@@ -354,7 +479,7 @@ const Checkout = () => {
           </div>
         </div>
       </main>
-      <SimpleFooter /> {/* Usando o SimpleFooter aqui */}
+      <SimpleFooter />
     </div>
   );
 };
