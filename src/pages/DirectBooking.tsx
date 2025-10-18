@@ -134,15 +134,20 @@ const DirectBooking = () => {
       if (data.error) throw new Error(data.error);
 
       // NO ID ALIGNMENT OR LOCAL IMAGE/DETAIL MAPPING HERE
-      const directResults = data.map((apiRoom: any) => ({
-        ...apiRoom,
-        idQuarto: apiRoom.idQuarto, // Usar o ID da API diretamente
-        apiRoomId: apiRoom.idQuarto, // Armazena o ID original da API para o checkout
-        imageUrl: null, // Não há imagem da API externa no momento
-        details: null, // Não há detalhes da API externa no momento
-        details_order: null,
-        special_name: null,
-      }));
+      const directResults = data.map((apiRoom: any) => {
+        // Mapeamento personalizado para quartos com offset -4 (API IDs 12 e 13)
+        const apiToSupabaseMapping = { 12: 8, 13: 9 };
+        const adjustedRoomId = apiToSupabaseMapping[apiRoom.idQuarto] || (apiRoom.idQuarto - 3); // Usa -4 para IDs 12 e 13, -3 como fallback
+        return {
+          ...apiRoom,
+          idQuarto: adjustedRoomId, // Usar o ID ajustado
+          apiRoomId: apiRoom.idQuarto, // Armazena o ID original da API para o checkout
+          imageUrl: null, // Não há imagem da API externa no momento
+          details: null, // Não há detalhes da API externa no momento
+          details_order: null,
+          special_name: null,
+        };
+      });
 
       const pricedResults = directResults.filter((room: AvailabilityResult) => room.valorTotal > 0);
       setRawResults(pricedResults);
@@ -203,7 +208,7 @@ const DirectBooking = () => {
           {error && (
             <div className="flex flex-col items-center justify-center text-center p-10 bg-red-50 rounded-lg shadow-md border border-red-200">
               <ServerCrash className="h-12 w-12 text-red-500 mb-4" />
-              <p className="text-lg font-semibold text-red-700">Ocorreu um Erro</p>
+              <h3 className="text-xl font-semibold text-red-700">Ocorreu um Erro</h3>
               <p className="text-red-600 max-w-md">{error}</p>
             </div>
           )}
