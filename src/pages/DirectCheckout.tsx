@@ -349,168 +349,175 @@ const DirectCheckout = () => {
                                           </TooltipContent>
                                         </Tooltip>
                                         {fieldValidity.sobrenome !== undefined && (
-                                          <div className="absolute right-3 top-1/<dyad-write path="src/pages/DirectCheckout.tsx" description="Completing the DirectCheckout.tsx file with the remaining form sections, validation, and UI elements.">
-                                <FormMessage role="alert" />
-                              </FormItem>
-                            )} />
-                          </div>
-                        </div>
-
-                        {/* Seção 2: Contato */}
-                        <div className="space-y-4">
-                          <h3 className="text-lg font-semibold text-gray-800">2/3 Contato</h3>
-                          <FormField control={form.control} name="email" render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>E-mail *</FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Input 
-                                        type="email" 
-                                        placeholder="seu@email.com" 
-                                        {...field} 
-                                        onChange={(e) => { field.onChange(e); updateFieldValidity('email', !form.formState.errors.email); }}
-                                        onBlur={(e) => { field.onBlur(); updateFieldValidity('email', !form.formState.errors.email); }}
-                                        aria-describedby="error-email"
-                                      />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>Endereço de e-mail para confirmação da reserva e comunicações.</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                  {fieldValidity.email !== undefined && (
-                                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                      {fieldValidity.email ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
-                                    </div>
-                                  )}
-                                </div>
-                              </FormControl>
-                              <FormMessage role="alert" />
-                            </FormItem>
-                          )} />
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <FormField control={form.control} name="cpf" render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>CPF *</FormLabel>
-                                <FormControl>
-                                  <div className="relative">
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <InputMask
-                                          mask="999.999.999-99"
-                                          value={field.value}
-                                          onChange={(e) => { field.onChange(e); updateFieldValidity('cpf', !form.formState.errors.cpf); }}
-                                          onBlur={(e) => { field.onBlur(); updateFieldValidity('cpf', !form.formState.errors.cpf); }}
-                                        >
-                                          {(inputProps: any) => <Input placeholder="123.456.789-01" {...inputProps} aria-describedby="error-cpf" />}
-                                        </InputMask>
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p>Número de identificação usado para a reserva e check-in.</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                    {fieldValidity.cpf !== undefined && (
-                                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                        {fieldValidity.cpf ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
-                                      </div>
-                                    )}
-                                  </div>
-                                </FormControl>
-                                <FormMessage role="alert" />
-                              </FormItem>
-                            )} />
-                            <FormField control={form.control} name="telefone" render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Telefone *</FormLabel>
-                                <FormControl>
-                                  <div className="relative">
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <InputMask
-                                          mask={getPhoneMask(field.value)}
-                                          value={field.value}
-                                          onChange={(e) => { field.onChange(e); updateFieldValidity('telefone', !form.formState.errors.telefone); }}
-                                          onBlur={(e) => { field.onBlur(); updateFieldValidity('telefone', !form.formState.errors.telefone); }}
-                                        >
-                                          {(inputProps: any) => <Input placeholder="(21) 98765-4321" {...inputProps} aria-describedby="error-telefone" />}
-                                        </InputMask>
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p>Telefone para contato em caso de emergências ou confirmações.</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                    {fieldValidity.telefone !== undefined && (
-                                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                        {fieldValidity.telefone ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
-                                      </div>
-                                    )}
-                                  </div>
-                                </FormControl>
-                                <FormMessage role="alert" />
-                              </FormItem>
-                            )} />
-                          </div>
-                        </div>
-
-                        {/* Seção 3: Acompanhantes */}
-                        {numberOfCompanions > 0 && (
-                          <div className="space-y-4 pt-4 border-t mt-6">
-                            <h3 className="text-lg font-semibold text-gray-800">3/3 Hóspedes Acompanhantes</h3>
-                            <p className="text-sm text-gray-600">Por favor, preencha o nome completo de cada acompanhante.</p>
-                            {fields.map((field, index) => (
-                              <FormField
-                                key={field.id}
-                                control={form.control}
-                                name={`companionNames.${index}`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <div className="relative">
-                                        <Input 
-                                          placeholder={`Nome completo do acompanhante ${index + 1}`} 
-                                          {...field} 
-                                          onChange={(e) => { field.onChange(e); updateFieldValidity(`companionNames.${index}`, !form.formState.errors.companionNames?.[index]); }}
-                                          onBlur={(e) => { field.onBlur(); updateFieldValidity(`companionNames.${index}`, !form.formState.errors.companionNames?.[index]); }}
-                                          aria-describedby={`error-companion-${index}`}
-                                        />
-                                        {fieldValidity[`companionNames.${index}`] !== undefined && (
                                           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                            {fieldValidity[`companionNames.${index}`] ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
+                                            {fieldValidity.sobrenome ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
                                           </div>
                                         )}
                                       </div>
                                     </FormControl>
                                     <FormMessage role="alert" />
                                   </FormItem>
-                                )}
-                              />
-                            ))}
-                            <FormMessage>{form.formState.errors.companionNames?.message}</FormMessage>
-                          </div>
-                        )}
+                                )} />
+                              </div>
+                            </div>
 
-                        {!allFieldsValid && (
-                          <p className="text-sm text-red-500">Preencha todos os campos obrigatórios para continuar.</p>
-                        )}
+                            {/* Seção 2: Contato */}
+                            <div className="space-y-4">
+                              <h3 className="text-lg font-semibold text-gray-800">2/3 Contato</h3>
+                              <FormField control={form.control} name="email" render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>E-mail *</FormLabel>
+                                  <FormControl>
+                                    <div className="relative">
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Input 
+                                            type="email" 
+                                            placeholder="seu@email.com" 
+                                            {...field} 
+                                            onChange={(e) => { field.onChange(e); updateFieldValidity('email', !form.formState.errors.email); }}
+                                            onBlur={(e) => { field.onBlur(); updateFieldValidity('email', !form.formState.errors.email); }}
+                                            aria-describedby="error-email"
+                                          />
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p>Endereço de e-mail para confirmação da reserva e comunicações.</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                      {fieldValidity.email !== undefined && (
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                          {fieldValidity.email ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </FormControl>
+                                  <FormMessage role="alert" />
+                                </FormItem>
+                              )} />
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="cpf" render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>CPF *</FormLabel>
+                                    <FormControl>
+                                      <div className="relative">
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <InputMask
+                                              mask="999.999.999-99"
+                                              value={field.value}
+                                              onChange={(e) => { field.onChange(e); updateFieldValidity('cpf', !form.formState.errors.cpf); }}
+                                              onBlur={(e) => { field.onBlur(); updateFieldValidity('cpf', !form.formState.errors.cpf); }}
+                                            >
+                                              {(inputProps: any) => <Input placeholder="123.456.789-01" {...inputProps} aria-describedby="error-cpf" />}
+                                            </InputMask>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Número de identificação usado para a reserva e check-in.</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                        {fieldValidity.cpf !== undefined && (
+                                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                            {fieldValidity.cpf ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </FormControl>
+                                    <FormMessage role="alert" />
+                                  </FormItem>
+                                )} />
+                                <FormField control={form.control} name="telefone" render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Telefone *</FormLabel>
+                                    <FormControl>
+                                      <div className="relative">
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <InputMask
+                                              mask={getPhoneMask(field.value)}
+                                              value={field.value}
+                                              onChange={(e) => { field.onChange(e); updateFieldValidity('telefone', !form.formState.errors.telefone); }}
+                                              onBlur={(e) => { field.onBlur(); updateFieldValidity('telefone', !form.formState.errors.telefone); }}
+                                            >
+                                              {(inputProps: any) => <Input placeholder="(21) 98765-4321" {...inputProps} aria-describedby="error-telefone" />}
+                                            </InputMask>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Telefone para contato em caso de emergências ou confirmações.</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                        {fieldValidity.telefone !== undefined && (
+                                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                            {fieldValidity.telefone ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </FormControl>
+                                    <FormMessage role="alert" />
+                                  </FormItem>
+                                )} />
+                              </div>
+                            </div>
 
-                        <p className="text-xs text-gray-500 mt-4">Seus dados são protegidos conforme nossa <Link to="/politica-privacidade" className="underline">política de privacidade</Link>.</p>
+                            {/* Seção 3: Acompanhantes */}
+                            {numberOfCompanions > 0 && (
+                              <div className="space-y-4 pt-4 border-t mt-6">
+                                <h3 className="text-lg font-semibold text-gray-800">3/3 Hóspedes Acompanhantes</h3>
+                                <p className="text-sm text-gray-600">Por favor, preencha o nome completo de cada acompanhante.</p>
+                                {fields.map((field, index) => (
+                                  <FormField
+                                    key={field.id}
+                                    control={form.control}
+                                    name={`companionNames.${index}`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormControl>
+                                          <div className="relative">
+                                            <Input 
+                                              placeholder={`Nome completo do acompanhante ${index + 1}`} 
+                                              {...field} 
+                                              onChange={(e) => { field.onChange(e); updateFieldValidity(`companionNames.${index}`, !form.formState.errors.companionNames?.[index]); }}
+                                              onBlur={(e) => { field.onBlur(); updateFieldValidity(`companionNames.${index}`, !form.formState.errors.companionNames?.[index]); }}
+                                              aria-describedby={`error-companion-${index}`}
+                                            />
+                                            {fieldValidity[`companionNames.${index}`] !== undefined && (
+                                              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                                {fieldValidity[`companionNames.${index}`] ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
+                                              </div>
+                                            )}
+                                          </div>
+                                        </FormControl>
+                                        <FormMessage role="alert" />
+                                      </FormItem>
+                                    )}
+                                  />
+                                ))}
+                                <FormMessage>{form.formState.errors.companionNames?.message}</FormMessage>
+                              </div>
+                            )}
 
-                        <Button type="submit" className="w-full" disabled={isSubmitting || !allFieldsValid}>
-                          {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                          {isSubmitting ? "Confirmando..." : "Confirmar Reserva"}
-                        </Button>
-                      </form>
-                    </Form>
-                  </TooltipProvider>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="link" asChild className="text-gray-600">
-                    <Link to="/direct-booking"><ArrowLeft className="w-4 h-4 mr-2" />Voltar para a busca</Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            )}
+                            {!allFieldsValid && (
+                              <p className="text-sm text-red-500">Preencha todos os campos obrigatórios para continuar.</p>
+                            )}
+
+                            <p className="text-xs text-gray-500 mt-4">Seus dados são protegidos conforme nossa <Link to="/politica-privacidade" className="underline">política de privacidade</Link>.</p>
+
+                            <Button type="submit" className="w-full" disabled={isSubmitting || !allFieldsValid}>
+                              {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                              {isSubmitting ? "Confirmando..." : "Confirmar Reserva"}
+                            </Button>
+                          </form>
+                        </Form>
+                      </TooltipProvider>
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="link" asChild className="text-gray-600">
+                        <Link to="/direct-booking"><ArrowLeft className="w-4 h-4 mr-2" />Voltar para a busca</Link>
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </main>
