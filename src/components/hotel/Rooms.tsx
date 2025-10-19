@@ -62,8 +62,25 @@ const Rooms: React.FC<RoomsProps> = ({ rooms }) => {
   };
 
   const renderAdditionalFeatures = (room: Room) => {
-    if (!room.additional_features) return null;
+    if (!room.additional_features || typeof room.additional_features !== 'object') return null;
 
+    // If it's an array (as per schema), render it properly
+    if (Array.isArray(room.additional_features)) {
+      return room.additional_features.map((category, index) => (
+        <div key={index} className="mb-2">
+          <span className="font-medium text-sm">{category.title}:</span>
+          <div className="flex flex-wrap gap-1 mt-1">
+            {category.items.map((item, itemIndex) => (
+              <Badge key={itemIndex} variant="secondary" className="text-xs">
+                {item.text}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      ));
+    }
+
+    // If it's an object, use the original logic
     return Object.entries(room.additional_features).map(([key, value]) => (
       <Badge key={key} variant="secondary" className="mr-2 mb-2">
         {key}: {String(value)}
