@@ -151,7 +151,7 @@ const Rooms = () => {
 
   if (loading) {
     return (
-      <section id="rooms" className="py-20 bg-white">
+      <section id="rooms" className="pt-24 py-20 bg-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-2xl font-bold text-gray-800">Acomodações</h2>
           <p className="text-gray-600 mt-2 mb-12">Carregando nossas acomodações...</p>
@@ -167,7 +167,7 @@ const Rooms = () => {
 
   return (
     <>
-      <section id="rooms" className="py-20 bg-white">
+      <section id="rooms" className="pt-24 py-20 bg-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-2xl font-bold text-gray-800">Acomodações</h2>
           <p className="text-gray-600 mt-2 mb-12">Conheça nossas opções de hospedagem</p>

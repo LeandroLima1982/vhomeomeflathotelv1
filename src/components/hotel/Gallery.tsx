@@ -80,7 +80,7 @@ export function Gallery() {
 
   return (
     <>
-      <section id="galeria" className="py-20 bg-gray-100">
+      <section id="galeria" className="pt-24 py-20 bg-gray-100">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-2xl font-bold text-gray-800">Conheça Nosso Flat Hotel</h2>
           <p className="text-gray-600 mt-2 mb-12">Conheça nossos ambientes</p>
