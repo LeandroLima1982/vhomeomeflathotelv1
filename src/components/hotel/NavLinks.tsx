@@ -4,7 +4,7 @@ import { SheetClose } from "@/components/ui/sheet";
 import { useLocation } from "react-router-dom";
 
 const navLinks = [
-  { name: "Sobre", href: "#about" },
+  { name: "Sobre nós", href: "#about" },
   { name: "Acomodações", href: "#rooms" },
   { name: "Comodidades", href: "#comodidades" },
   { name: "Imagens", href: "#galeria" },
