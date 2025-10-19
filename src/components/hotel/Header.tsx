@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
   const lastScrollY = useRef(0);
   const location = useLocation();
   const navigate = useNavigate();
@@ -25,13 +24,8 @@ export default function Header() {
 
       setIsScrolled(currentScrollY > 10);
 
-      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-        setIsVisible(false);
-      } else {
-        setIsVisible(true);
-      }
-
-      lastScrollY.current = currentScrollY;
+      // Removida a lógica de isVisible para manter o header sempre visível
+      // lastScrollY.current = currentScrollY;
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -43,9 +37,7 @@ export default function Header() {
 
   const useDarkTextAndSolidBg = isLightPage || isScrolled;
   
-  const headerIsVisible = isVisible || isSpecialPage;
-
-
+  // Removida a variável headerIsVisible, sempre true
   const headerClasses = cn(
     "top-0 left-0 right-0 z-50 transition-all duration-300",
     {
@@ -53,7 +45,7 @@ export default function Header() {
       "absolute": isSpecialPage,
       "bg-white shadow-md py-2 border-b border-gray-200": useDarkTextAndSolidBg && !isSpecialPage,
       "bg-transparent py-4": !useDarkTextAndSolidBg || isSpecialPage,
-      "-translate-y-full": !headerIsVisible && !isSpecialPage,
+      // Removida a classe "-translate-y-full" para manter sempre visível
     }
   );
 

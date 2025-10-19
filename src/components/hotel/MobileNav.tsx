@@ -11,7 +11,11 @@ const MobileNav = () => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button 
+          variant="ghost" 
+          size="icon"
+          className="bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 animate-pulse shadow-lg"
+        >
           <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
