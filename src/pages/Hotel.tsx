@@ -17,7 +17,7 @@ const Hotel = () => {
       <main>
         <Hero />
         <BookingForm />
-        <About className="pt-[84px]" />
+        <About className="pt-[97px]" />
         <Rooms className="pt-48" />
         <Amenities className="pt-48" />
         <Gallery className="pt-48" />
