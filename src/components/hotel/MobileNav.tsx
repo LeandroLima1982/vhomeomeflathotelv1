@@ -26,7 +26,12 @@ const MobileNav = () => {
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-bold">Menu</h2>
         </div>
-        <div className="mb-6">
+        <nav>
+          <ul className="space-y-4">
+            <NavLinks isMobile={true} />
+          </ul>
+        </nav>
+        <div className="mt-6">
           <Button
             onClick={() => navigate('/booking-v2')}
             className="w-full bg-blue-800 hover:bg-blue-900 text-white"
@@ -34,11 +39,6 @@ const MobileNav = () => {
             Reservar Agora
           </Button>
         </div>
-        <nav>
-          <ul className="space-y-4">
-            <NavLinks isMobile={true} />
-          </ul>
-        </nav>
       </SheetContent>
     </Sheet>
   );
