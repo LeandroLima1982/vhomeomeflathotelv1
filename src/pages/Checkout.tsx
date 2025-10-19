@@ -19,6 +19,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { showError, showSuccess, showLoading, dismissToast } from "@/utils/toast";
 import { BedDouble, Calendar, Users, Tag, Loader2, PartyPopper, ArrowLeft } from "lucide-react";
 import DetailIcon from '@/components/hotel/DetailIcon'; // Importando o DetailIcon
+import InputMask from 'react-input-mask'; // Importando a biblioteca para máscaras
 
 // Interface para o objeto 'room' que vem do estado da localização
 interface RoomResult {
@@ -90,7 +91,6 @@ const Checkout = () => {
       });
     }
   }, [searchParams?.adults, form]);
-
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
@@ -304,10 +304,54 @@ const Checkout = () => {
                           )} />
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <FormField control={form.control} name="cpf" render={({ field }) => (
-                              <FormItem><FormLabel>CPF</FormLabel><FormControl><Input placeholder="Apenas números" {...field} /></FormControl><FormMessage /></FormItem>
+                              <FormItem>
+                                <FormLabel>CPF</FormLabel>
+                                <FormControl>
+                                  <InputMask
+                                    mask="999.999.999-99"
+                                    value={field.value}
+                                    onChange={(e) => {
+                                      // Remove a máscara para enviar apenas números
+                                      const cleanedValue = e.target.value.replace(/\D/g, '');
+                                      field.onChange(cleanedValue);
+                                    }}
+                                    maskChar={null} // Não permite caracteres extras
+                                  >
+                                    {(inputProps: any) => <Input {...inputProps} placeholder="000.000.000-00" />}
+                                  </InputMask>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
                             )} />
                             <FormField control={form.control} name="telefone" render={({ field }) => (
-                              <FormItem><FormLabel>Telefone</FormLabel><FormControl><Input placeholder="(DDD) 99999-9999" {...field} /></FormControl><FormMessage /></FormItem>
+                              <FormItem>
+                                <FormLabel>Telefone</FormLabel>
+                                <FormControl>
+                                  <InputMask
+                                    mask="(99) 99999-9999"
+                                    value={field.value}
+                                    onChange={(e) => {
+                                      // Remove a máscara para enviar apenas números
+                                      const cleanedValue = e.target.value.replace(/\D/g, '');
+                                      field.onChange(cleanedValue);
+                                    }}
+                                    maskChar={null} // Não permite caracteres extras
+                                    beforeMaskedValueChange={(newState, oldState, userInput) => {
+                                      // Detecta dinamicamente se é celular (11 dígitos) ou fixo (10 dígitos)
+                                      const { value } = newState;
+                                      const cleanedValue = value.replace(/\D/g, '');
+                                      if (cleanedValue.length >= 11) {
+                                        return { ...newState, mask: "(99) 99999-9999" }; // Celular
+                                      } else {
+                                        return { ...newState, mask: "(99) 9999-9999" }; // Fixo
+                                      }
+                                    }}
+                                  >
+                                    {(inputProps: any) => <Input {...inputProps} placeholder="(00) 00000-0000" />}
+                                  </InputMask>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
                             )} />
                           </div>
 
@@ -323,6 +367,7 @@ const Checkout = () => {
                                   name={`companionNames.${index}`}
                                   render={({ field }) => (
                                     <FormItem>
+                                      <FormLabel>Nome Completo do Acompanhante {index + 1}</FormLabel>
                                       <FormControl>
                                         <Input placeholder={`Nome completo do acompanhante ${index + 1}`} {...field} />
                                       </FormControl>
