@@ -22,7 +22,7 @@ const features = [
   { icon: Coffee, text: "Café da Manhã Incluso" },
 ];
 
-export default function About() {
+export default function About({ className }: { className?: string }) {
   const [images, setImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -56,7 +56,9 @@ export default function About() {
           url: supabase.storage.from("gallery").getPublicUrl(`about/${file.name}`).data.publicUrl,
         }));
 
-        const { data: orderFileData } = await supabase.storage.from("gallery").download("about/_order.json");
+        const { data: orderFileData } = await supabase.storage
+          .from("gallery")
+          .download("about/_order.json");
 
         if (!orderFileData) {
           setImages(imageUrls.map(img => img.url));
@@ -81,7 +83,7 @@ export default function About() {
   }, []);
 
   return (
-    <section id="about" className="pt-16 md:pt-24 py-16 md:py-24 bg-white">
+    <section id="about" className={`pt-16 md:pt-24 py-16 md:py-24 bg-white ${className || ''}`}>
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
