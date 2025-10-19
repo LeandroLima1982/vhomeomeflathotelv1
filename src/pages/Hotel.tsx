@@ -17,12 +17,12 @@ const Hotel = () => {
       <main>
         <Hero />
         <BookingForm />
-        <About className="pt-40" />
-        <Rooms className="pt-40" />
-        <Amenities className="pt-40" />
-        <Gallery className="pt-40" />
-        <Nearby className="pt-40" />
-        <Contact className="pt-40" />
+        <About className="pt-48" />
+        <Rooms className="pt-48" />
+        <Amenities className="pt-48" />
+        <Gallery className="pt-48" />
+        <Nearby className="pt-48" />
+        <Contact className="pt-48" />
       </main>
       <Footer />
       <ScrollToTop />
