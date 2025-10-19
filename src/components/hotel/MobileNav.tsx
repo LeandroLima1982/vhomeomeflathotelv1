@@ -14,7 +14,7 @@ const MobileNav = () => {
         <Button 
           variant="ghost" 
           size="icon"
-          className="bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 animate-pulse shadow-lg"
+          className="bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 shadow-sm"
         >
           <Menu className="h-6 w-6" />
         </Button>
