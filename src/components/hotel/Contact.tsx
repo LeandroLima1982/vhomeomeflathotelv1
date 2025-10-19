@@ -50,7 +50,7 @@ export default function Contact() {
           <div className="h-full min-h-[500px]">
             <div className="rounded-lg overflow-hidden shadow-lg h-full">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x963b2e00000001%3A0x1e9f5d5a5d5a5d5a!2sAv.%20Atl%C3%A2ntica%2C%20433%20-%20Praia%20Campista%2C%20Maca%C3%A9%20-%20RJ%2C%2027920-325!5e0!3m2!1sen!2sbr!4v1678886400000!5m2!1sen!2sbr"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3677.1234567890123!2d-41.7856!3d-22.3708!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x963b2e00000001%3A0x1e9f5d5a5d5a5d5a!2sAv.%20Atl%C3%A2ntica%2C%20342%20-%20Praia%20Campista%2C%20Maca%C3%A9%20-%20RJ%2C%2027920-325!5e0!3m2!1sen!2sbr!4v1690000000000!5m2!1sen!2sbr"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
