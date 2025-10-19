@@ -48,18 +48,11 @@ serve(async (req) => {
   }
 
   try {
-    const body = await req.json();
-    const checkin = body.checkin;
-    const checkout = body.checkout;
-    const adults = body.adults;
-    const idQuarto = body.idQuarto;
-    const valorTotal = body.valorTotal;
-    const nome = body.nome;
-    const sobrenome = body.sobrenome;
-    const email = body.email;
-    const cpf = body.cpf;
-    const telefone = body.telefone;
-    const companionNames = body.companionNames || [];
+    const { 
+      checkin, checkout, adults, idQuarto, valorTotal,
+      nome, sobrenome, email, cpf, telefone,
+      companionNames // Novo campo para os nomes dos acompanhantes
+    } = await req.json();
 
     const requiredFields = { checkin, checkout, adults, idQuarto, valorTotal, nome, sobrenome, email, cpf, telefone };
     for (const [field, value] of Object.entries(requiredFields)) {
