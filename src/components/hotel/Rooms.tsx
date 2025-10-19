@@ -25,7 +25,7 @@ interface RoomsProps {
 
 const Rooms: React.FC<RoomsProps> = ({ rooms }) => {
   const renderDetails = (room: Room) => {
-    if (!room.details || !room.details_order) return null;
+    if (!room.details || !room.details_order || !Array.isArray(room.details_order)) return null;
 
     return room.details_order.map((key: string) => {
       const detail = room.details[key];
