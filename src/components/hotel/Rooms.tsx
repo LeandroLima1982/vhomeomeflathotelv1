@@ -72,50 +72,49 @@ export default function Rooms() {
               }
 
               // If no cover image, try to find the first image in the room's gallery subfolder
-              if (!imageUrl) {
-                const { data: galleryFiles } = await supabase.storage
-                  .from('gallery')
-                  .list(`rooms/${room.id}/gallery`, { 
-                    limit: 100,
-                    sortBy: { column: 'created_at', order: 'desc' }
-                  });
+              let imageUrl: string | null = null;
+              const { data: galleryFiles } = await supabase.storage
+                .from('gallery')
+                .list(`rooms/${room.id}/gallery`, { 
+                  limit: 100,
+                  sortBy: { column: 'created_at', order: 'desc' }
+                });
 
-                if (galleryFiles && galleryFiles.length > 0) {
-                  const validFiles = galleryFiles.filter(
-                    file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json'
-                  );
+              if (galleryFiles && galleryFiles.length > 0) {
+                const validFiles = galleryFiles.filter(
+                  file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json'
+                );
 
-                  if (validFiles.length > 0) {
-                    let firstImageName: string | null = null;
-                    const { data: orderFileData } = await supabase.storage
-                      .from('gallery')
-                      .download(`rooms/${room.id}/gallery/_order.json`);
+                if (validFiles.length > 0) {
+                  let firstImageName: string | null = null;
+                  const { data: orderFileData } = await supabase.storage
+                    .from('gallery')
+                    .download(`rooms/${room.id}/gallery/_order.json`);
 
-                    if (orderFileData) {
-                      try {
-                        const orderJson = await orderFileData.text();
-                        const orderedNames = JSON.parse(orderJson) as string[];
-                        const validOrderedName = orderedNames.find(name => 
-                          validFiles.some(file => file.name === name)
-                        );
-                        if (validOrderedName) {
-                          firstImageName = validOrderedName;
-                        }
-                      } catch (e) {
-                        console.warn(`Could not parse order file for room ${room.id}:`, e);
+                  if (orderFileData) {
+                    try {
+                      const orderJson = await orderFileData.text();
+                      const orderedNames = JSON.parse(orderJson) as string[];
+                      const validOrderedName = orderedNames.find(name => 
+                        validFiles.some(file => file.name === name)
+                      );
+                      if (validOrderedName) {
+                        firstImageName = validOrderedName;
                       }
+                    } catch (e) {
+                      console.warn(`Could not parse order file for room ${room.id}:`, e);
                     }
-
-                    if (!firstImageName) {
-                      firstImageName = validFiles[0].name;
-                    }
-                    
-                    const { data: { publicUrl } } = supabase.storage
-                      .from('gallery')
-                      .getPublicUrl(`rooms/${room.id}/gallery/${firstImageName}`);
-                    
-                    imageUrl = `${publicUrl}?t=${new Date().getTime()}`;
                   }
+
+                  if (!firstImageName) {
+                    firstImageName = validFiles[0].name;
+                  }
+                  
+                  const { data: { publicUrl } } = supabase.storage
+                    .from('gallery')
+                    .getPublicUrl(`rooms/${room.id}/gallery/${firstImageName}`);
+                  
+                  imageUrl = `${publicUrl}?t=${new Date().getTime()}`;
                 }
               }
               return { ...room, imageUrl };
@@ -137,6 +136,36 @@ export default function Rooms() {
 
     fetchRooms();
   }, []);
+
+  // Função para obter os detalhes do quarto com base na ordem
+  const getRoomDetails = (roomData: Room) => {
+    if (!roomData.details || typeof roomData.details !== 'object') return [];
+  
+    const detailsObject = roomData.details;
+  
+    const validKeys = Object.keys(detailsObject).filter(key => {
+      const value = detailsObject[key];
+      return value && typeof value === 'string' && value.trim() !== '' && key !== 'description';
+    });
+  
+    if (roomData.details_order && Array.isArray(roomData.details_order)) {
+      const orderedDetails = roomData.details_order
+        .map(key => {
+          if (validKeys.includes(key)) {
+            return detailsObject[key];
+          }
+          return null;
+        })
+        .filter((value): value is string => value !== null);
+      
+      const unorderedKeys = validKeys.filter(key => !roomData.details_order.includes(key));
+      const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
+  
+      return [...orderedDetails, ...unorderedDetails].slice(0, 9); // Limita a 9 detalhes para não sobrecarregar
+    }
+  
+    return validKeys.map(key => detailsObject[key] as string).slice(0, 9);
+  };
 
   if (loading) {
     return (
