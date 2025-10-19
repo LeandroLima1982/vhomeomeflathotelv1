@@ -1,315 +1,123 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { BedDouble, Star, MousePointerClick } from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient';
-import { Skeleton } from '@/components/ui/skeleton';
-import RoomDetailsModal from './RoomDetailsModal';
-import DetailIcon from './DetailIcon';
+import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Users, Wifi, Coffee, Car, Dumbbell } from 'lucide-react';
 
 interface Room {
   id: number;
   name: string;
-  special_name: string | null;
-  booking_url: string | null;
-  details: Record<string, string | null> | null;
-  description: string | null;
-  custom_description: string | null;
-  additional_features: any[] | null;
-  details_order: string[] | null; // Nova propriedade
-  imageUrl?: string | null;
+  special_name?: string;
+  booking_url?: string;
+  details?: any;
+  description?: string;
+  custom_description?: string;
+  additional_features?: any;
+  details_order?: any;
+  base_price?: number;
 }
 
-export default function Rooms() {
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+interface RoomsProps {
+  rooms: Room[];
+}
 
-  useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        setLoading(true);
+const Rooms: React.FC<RoomsProps> = ({ rooms }) => {
+  const renderDetails = (room: Room) => {
+    if (!room.details || !room.details_order) return null;
 
-        if (!supabase) {
-          console.error('Supabase client not available');
-          setRooms([]);
-          setLoading(false);
-          return;
-        }
+    return room.details_order.map((key: string) => {
+      const detail = room.details[key];
+      if (!detail) return null;
 
-        const { data: roomData, error: roomError } = await supabase
-          .from('rooms')
-          .select('*')
-          .order('id');
-
-        if (roomError) {
-          console.error('Error fetching rooms:', roomError);
-          setRooms([]);
-          setLoading(false);
-          return;
-        }
-
-        if (!roomData) {
-          setRooms([]);
-          setLoading(false);
-          return;
-        }
-
-        const roomsWithImages = await Promise.all(
-          roomData.map(async (room) => {
-            try {
-              // Try to find a cover image directly in 'rooms/' folder
-              const { data: coverFiles } = await supabase.storage
-                .from('gallery')
-                .list('rooms', { search: `${room.id}.` });
-
-              if (coverFiles && coverFiles.length > 0) {
-                const coverFile = coverFiles[0];
-                const { data: { publicUrl } } = supabase.storage
-                  .from('gallery')
-                  .getPublicUrl(`rooms/${coverFile.name}`);
-                return { ...room, imageUrl: `${publicUrl}?t=${new Date().getTime()}` };
-              }
-
-              // If no cover image, try to find the first image in the room's gallery subfolder
-              let imageUrl: string | null = null;
-              const { data: galleryFiles } = await supabase.storage
-                .from('gallery')
-                .list(`rooms/${room.id}/gallery`, { 
-                  limit: 100,
-                  sortBy: { column: 'created_at', order: 'desc' }
-                });
-
-              if (galleryFiles && galleryFiles.length > 0) {
-                const validFiles = galleryFiles.filter(
-                  file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json'
-                );
-
-                if (validFiles.length > 0) {
-                  let firstImageName: string | null = null;
-                  const { data: orderFileData } = await supabase.storage
-                    .from('gallery')
-                    .download(`rooms/${room.id}/gallery/_order.json`);
-
-                  if (orderFileData) {
-                    try {
-                      const orderJson = await orderFileData.text();
-                      const orderedNames = JSON.parse(orderJson) as string[];
-                      const validOrderedName = orderedNames.find(name => 
-                        validFiles.some(file => file.name === name)
-                      );
-                      if (validOrderedName) {
-                        firstImageName = validOrderedName;
-                      }
-                    } catch (e) {
-                      console.warn(`Could not parse order file for room ${room.id}:`, e);
-                    }
-                  }
-
-                  if (!firstImageName) {
-                    firstImageName = validFiles[0].name;
-                  }
-                  
-                  const { data: { publicUrl } } = supabase.storage
-                    .from('gallery')
-                    .getPublicUrl(`rooms/${room.id}/gallery/${firstImageName}`);
-                  
-                  imageUrl = `${publicUrl}?t=${new Date().getTime()}`;
-                }
-              }
-              return { ...room, imageUrl };
-            } catch (error) {
-              console.error(`Error fetching image for room ${room.id}:`, error);
-              return { ...room, imageUrl: null };
-            }
-          })
-        );
-
-        setRooms(roomsWithImages);
-      } catch (error) {
-        console.error('Error in fetchRooms:', error);
-        setRooms([]);
-      } finally {
-        setLoading(false);
+      let icon = null;
+      switch (key) {
+        case 'capacity':
+          icon = <Users className="w-4 h-4" />;
+          break;
+        case 'wifi':
+          icon = <Wifi className="w-4 h-4" />;
+          break;
+        case 'breakfast':
+          icon = <Coffee className="w-4 h-4" />;
+          break;
+        case 'parking':
+          icon = <Car className="w-4 h-4" />;
+          break;
+        case 'gym':
+          icon = <Dumbbell className="w-4 h-4" />;
+          break;
+        default:
+          break;
       }
-    };
 
-    fetchRooms();
-  }, []);
-
-  // Função para obter os detalhes do quarto com base na ordem
-  const getRoomDetails = (roomData: Room) => {
-    if (!roomData.details || typeof roomData.details !== 'object') return [];
-  
-    const detailsObject = roomData.details;
-  
-    const validKeys = Object.keys(detailsObject).filter(key => {
-      const value = detailsObject[key];
-      return value && typeof value === 'string' && value.trim() !== '' && key !== 'description';
+      return (
+        <div key={key} className="flex items-center space-x-2">
+          {icon}
+          <span className="text-sm">{detail}</span>
+        </div>
+      );
     });
-  
-    if (roomData.details_order && Array.isArray(roomData.details_order)) {
-      const orderedDetails = roomData.details_order
-        .map(key => {
-          if (validKeys.includes(key)) {
-            return detailsObject[key];
-          }
-          return null;
-        })
-        .filter((value): value is string => value !== null);
-      
-      const unorderedKeys = validKeys.filter(key => !roomData.details_order.includes(key));
-      const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
-  
-      return [...orderedDetails, ...unorderedDetails].slice(0, 9); // Limita a 9 detalhes para não sobrecarregar
-    }
-  
-    return validKeys.map(key => detailsObject[key] as string).slice(0, 9);
   };
 
-  if (loading) {
-    return (
-      <section id="rooms" className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold text-gray-800">Nossas Acomodações</h2>
-            <p className="text-gray-600 mt-2">Escolha o quarto ideal para sua estadia</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                <Skeleton className="h-64 w-full" />
-                <div className="p-6">
-                  <Skeleton className="h-6 w-3/4 mb-2" />
-                  <Skeleton className="h-4 w-full mb-1" />
-                  <Skeleton className="h-4 w-2/3" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
+  const renderAdditionalFeatures = (room: Room) => {
+    if (!room.additional_features) return null;
 
-  if (!rooms || rooms.length === 0) {
-    return (
-      <section id="rooms" className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold text-gray-800">Nossas Acomodações</h2>
-            <p className="text-gray-600 mt-2">Escolha o quarto ideal para sua estadia</p>
-          </div>
-          <div className="text-center py-12">
-            <BedDouble className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">Nenhuma acomodação disponível no momento.</p>
-          </div>
-        </div>
-      </section>
-    );
-  }
+    return Object.entries(room.additional_features).map(([key, value]) => (
+      <Badge key={key} variant="secondary" className="mr-2 mb-2">
+        {key}: {String(value)}
+      </Badge>
+    ));
+  };
 
   return (
-    <>
-      <section id="rooms" className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold text-gray-800">Nossas Acomodações</h2>
-          <p className="text-gray-600 mt-2 mb-12">Escolha o quarto ideal para sua estadia</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {rooms.map((room) => {
-              const details = getRoomDetails(room);
-              
-              return (
-                <div
-                  key={room.id}
-                  className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group"
-                  onClick={() => setSelectedRoom(room)}
-                >
-                  <div className="h-64 relative overflow-hidden">
-                    {room.imageUrl ? (
-                      <img
-                        src={room.imageUrl}
-                        alt={room.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          const parent = e.currentTarget.parentElement;
-                          if (parent) {
-                            const placeholder = document.createElement('div');
-                            placeholder.className = 'w-full h-full bg-gray-200 flex items-center justify-center';
-                            placeholder.innerHTML = '<svg class="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>';
-                            parent.appendChild(placeholder);
-                          }
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <BedDouble className="h-16 w-16 text-gray-400" />
-                      </div>
-                    )}
-
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
-                      <div className="p-3 bg-white/20 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-300 ease-in-out">
-                        <MousePointerClick className="h-6 w-6 text-white animate-click" />
-                      </div>
-                    </div>
-
-                    <div className="absolute bottom-4 right-4 z-10 bg-black/20 backdrop-blur-sm rounded-md px-3 py-1 border border-white/10">
-                      <p className="text-white text-sm font-medium">Ver detalhes</p>
-                    </div>
-
-                    {room.special_name && (
-                      <div className="absolute top-12 left-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 z-10">
-                        {[...Array(4)].map((_, i) => (
-                          <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" style={{ filter: 'drop-shadow(0 0 4px rgba(251, 191, 36, 0.8))' }} />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-6">
-                    {room.special_name && (
-                      <div className="inline-block mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1 rounded-full text-sm font-semibold transition-all duration-300 group-hover:bg-yellow-500">
-                        {room.special_name}
-                      </div>
-                    )}
-                    <h3 className="text-xl font-semibold mb-2 text-gray-800">{room.name}</h3>
-                    <p className="text-gray-600 leading-relaxed line-clamp-2 mb-4 text-sm">
-                      {room.custom_description || room.description || 'Descrição não disponível'}
-                    </p>
-                    
-                    {details.length > 0 && (
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-3 mt-4 mb-4">
-                        {details.map((detail, index) => (
-                          <div key={index} className="flex items-center gap-2">
-                            <DetailIcon detailText={detail} />
-                            <span className="text-sm text-gray-600">{detail}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    
-                    <div className="mt-4 flex items-center justify-between border-t pt-4">
-                      <span className="text-sm text-gray-500">Clique para ver detalhes</span>
-                      <div className="text-blue-600 group-hover:text-blue-800 transition-colors">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {selectedRoom && (
-        <RoomDetailsModal
-          room={selectedRoom}
-          onClose={() => setSelectedRoom(null)}
-        />
-      )}
-    </>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {rooms.map((room) => (
+        <Card key={room.id} className="group hover:shadow-lg transition-shadow duration-300">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>{room.name}</span>
+              {room.base_price && (
+                <span className="text-lg font-bold text-green-600">
+                  R$ {room.base_price.toFixed(2)}
+                </span>
+              )}
+            </CardTitle>
+            {room.description && (
+              <CardDescription>{room.description}</CardDescription>
+            )}
+          </CardHeader>
+          <CardContent className="p-6 flex flex-row items-start space-x-4">
+            {room.special_name && (
+              <div className="inline-block mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1 rounded-full text-sm font-semibold transition-all duration-300 group-hover:bg-yellow-500">
+                {room.special_name}
+              </div>
+            )}
+            <div className="flex-1">
+              {room.custom_description && (
+                <p className="text-sm text-gray-600 mb-4">{room.custom_description}</p>
+              )}
+              <div className="space-y-2 mb-4">
+                {renderDetails(room)}
+              </div>
+              <div className="mb-4">
+                {renderAdditionalFeatures(room)}
+              </div>
+              {room.booking_url && (
+                <Button asChild className="w-full">
+                  <a href={room.booking_url} target="_blank" rel="noopener noreferrer">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Reservar Agora
+                  </a>
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
-}
+};
+
+export default Rooms;
