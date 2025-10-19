@@ -331,8 +331,12 @@ const Checkout = () => {
                                     mask="(99) 99999-9999"
                                     value={field.value}
                                     onChange={(e) => {
-                                      // Remove a máscara para enviar apenas números
-                                      const cleanedValue = e.target.value.replace(/\D/g, '');
+                                      // Remove a máscara para enviar apenas números, e ajusta o DDD para exatamente 2 dígitos removendo zeros à esquerda
+                                      let cleanedValue = e.target.value.replace(/\D/g, '');
+                                      // Ajusta o DDD: se o primeiro dígito for '0', remove-o para garantir 2 dígitos (ex.: '022' vira '02')
+                                      if (cleanedValue.length >= 2 && cleanedValue[0] === '0') {
+                                        cleanedValue = cleanedValue.substring(1);
+                                      }
                                       field.onChange(cleanedValue);
                                     }}
                                     maskChar={null} // Não permite caracteres extras
