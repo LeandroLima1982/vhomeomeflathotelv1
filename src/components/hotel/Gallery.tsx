@@ -82,7 +82,7 @@ export function Gallery() {
     <>
       <section id="galeria" className="py-20 bg-gray-100">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-gray-800">Conheça Nosso Flat Hotel</h2>
+          <h2 className="text-2xl font-bold text-gray-800">Conheça Nosso Flat Hotel</h2>
           <p className="text-gray-600 mt-2 mb-12">Conheça nossos ambientes</p>
           <div className="grid grid-cols-3 gap-4">
             {loading ? (

@@ -58,6 +58,7 @@ export default function Rooms() {
         const roomsWithImages = await Promise.all(
           roomData.map(async (room) => {
             try {
+              // Try to find a cover image directly in 'rooms/' folder
               const { data: coverFiles } = await supabase.storage
                 .from('gallery')
                 .list('rooms', { search: `${room.id}.` });
@@ -70,53 +71,54 @@ export default function Rooms() {
                 return { ...room, imageUrl: `${publicUrl}?t=${new Date().getTime()}` };
               }
 
-              const { data: galleryFiles } = await supabase.storage
-                .from('gallery')
-                .list(`rooms/${room.id}/gallery`, { 
-                  limit: 100,
-                  sortBy: { column: 'created_at', order: 'desc' }
-                });
+              // If no cover image, try to find the first image in the room's gallery subfolder
+              if (!imageUrl) {
+                const { data: galleryFiles } = await supabase.storage
+                  .from('gallery')
+                  .list(`rooms/${room.id}/gallery`, { 
+                    limit: 100,
+                    sortBy: { column: 'created_at', order: 'desc' }
+                  });
 
-              if (galleryFiles && galleryFiles.length > 0) {
-                const validFiles = galleryFiles.filter(
-                  file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json'
-                );
+                if (galleryFiles && galleryFiles.length > 0) {
+                  const validFiles = galleryFiles.filter(
+                    file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json'
+                  );
 
-                if (validFiles.length > 0) {
-                  const { data: orderFileData } = await supabase.storage
-                    .from('gallery')
-                    .download(`rooms/${room.id}/gallery/_order.json`);
+                  if (validFiles.length > 0) {
+                    let firstImageName: string | null = null;
+                    const { data: orderFileData } = await supabase.storage
+                      .from('gallery')
+                      .download(`rooms/${room.id}/gallery/_order.json`);
 
-                  let firstImageName: string | null = null;
-
-                  if (orderFileData) {
-                    try {
-                      const orderJson = await orderFileData.text();
-                      const orderedNames = JSON.parse(orderJson) as string[];
-                      const validOrderedName = orderedNames.find(name => 
-                        validFiles.some(file => file.name === name)
-                      );
-                      if (validOrderedName) {
-                        firstImageName = validOrderedName;
+                    if (orderFileData) {
+                      try {
+                        const orderJson = await orderFileData.text();
+                        const orderedNames = JSON.parse(orderJson) as string[];
+                        const validOrderedName = orderedNames.find(name => 
+                          validFiles.some(file => file.name === name)
+                        );
+                        if (validOrderedName) {
+                          firstImageName = validOrderedName;
+                        }
+                      } catch (e) {
+                        console.warn(`Could not parse order file for room ${room.id}:`, e);
                       }
-                    } catch (e) {
-                      console.warn(`Could not parse order file for room ${room.id}`);
                     }
-                  }
 
-                  if (!firstImageName) {
-                    firstImageName = validFiles[0].name;
+                    if (!firstImageName) {
+                      firstImageName = validFiles[0].name;
+                    }
+                    
+                    const { data: { publicUrl } } = supabase.storage
+                      .from('gallery')
+                      .getPublicUrl(`rooms/${room.id}/gallery/${firstImageName}`);
+                    
+                    imageUrl = `${publicUrl}?t=${new Date().getTime()}`;
                   }
-                  
-                  const { data: { publicUrl } } = supabase.storage
-                    .from('gallery')
-                    .getPublicUrl(`rooms/${room.id}/gallery/${firstImageName}`);
-                  
-                  return { ...room, imageUrl: `${publicUrl}?t=${new Date().getTime()}` };
                 }
               }
-
-              return { ...room, imageUrl: null };
+              return { ...room, imageUrl };
             } catch (error) {
               console.error(`Error fetching image for room ${room.id}:`, error);
               return { ...room, imageUrl: null };
@@ -136,41 +138,12 @@ export default function Rooms() {
     fetchRooms();
   }, []);
 
-  const getRoomDetails = (room: Room) => {
-    if (!room.details || typeof room.details !== 'object') return [];
-  
-    const detailsObject = room.details;
-  
-    const validKeys = Object.keys(detailsObject).filter(key => {
-      const value = detailsObject[key];
-      return value && typeof value === 'string' && value.trim() !== '' && key !== 'description';
-    });
-  
-    if (room.details_order && Array.isArray(room.details_order)) {
-      const orderedDetails = room.details_order
-        .map(key => {
-          if (validKeys.includes(key)) {
-            return detailsObject[key];
-          }
-          return null;
-        })
-        .filter((value): value is string => value !== null);
-      
-      const unorderedKeys = validKeys.filter(key => !room.details_order.includes(key));
-      const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
-  
-      return [...orderedDetails, ...unorderedDetails].slice(0, 9);
-    }
-  
-    return validKeys.map(key => detailsObject[key] as string).slice(0, 9);
-  };
-
   if (loading) {
     return (
       <section id="rooms" className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-800">Nossas Acomodações</h2>
+            <h2 className="text-2xl font-bold text-gray-800">Nossas Acomodações</h2>
             <p className="text-gray-600 mt-2">Escolha o quarto ideal para sua estadia</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -195,7 +168,7 @@ export default function Rooms() {
       <section id="rooms" className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-800">Nossas Acomodações</h2>
+            <h2 className="text-2xl font-bold text-gray-800">Nossas Acomodações</h2>
             <p className="text-gray-600 mt-2">Escolha o quarto ideal para sua estadia</p>
           </div>
           <div className="text-center py-12">
@@ -210,11 +183,9 @@ export default function Rooms() {
   return (
     <>
       <section id="rooms" className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-800">Nossas Acomodações</h2>
-            <p className="text-gray-600 mt-2">Escolha o quarto ideal para sua estadia</p>
-          </div>
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl font-bold text-gray-800">Nossas Acomodações</h2>
+          <p className="text-gray-600 mt-2 mb-12">Escolha o quarto ideal para sua estadia</p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {rooms.map((room) => {
               const details = getRoomDetails(room);
@@ -261,18 +232,14 @@ export default function Rooms() {
                     {room.special_name && (
                       <div className="absolute top-12 left-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 z-10">
                         {[...Array(4)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className="h-5 w-5 text-yellow-400 fill-current"
-                            style={{ filter: 'drop-shadow(0 0 4px rgba(251, 191, 36, 0.8))' }}
-                          />
+                          <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" style={{ filter: 'drop-shadow(0 0 4px rgba(251, 191, 36, 0.8))' }} />
                         ))}
                       </div>
                     )}
                   </div>
                   <div className="p-6">
                     {room.special_name && (
-                      <div className="inline-block mb-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white px-3 py-1 rounded-full text-sm font-semibold transition-all duration-300 group-hover:bg-yellow-500">
+                      <div className="inline-block mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1 rounded-full text-sm font-semibold transition-all duration-300 group-hover:bg-yellow-500">
                         {room.special_name}
                       </div>
                     )}

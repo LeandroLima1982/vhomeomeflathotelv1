@@ -25,7 +25,7 @@ export function Amenities() {
   return (
     <section id="comodidades" className="py-20 bg-gray-50">
       <div className="container mx-auto px-4 text-center">
-        <h2 className="text-3xl font-bold text-gray-800">Comodidades</h2>
+        <h2 className="text-2xl font-bold text-gray-800">Comodidades</h2>
         <p className="text-gray-600 mt-2 mb-12">Tudo para o seu conforto</p>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {amenities.map((amenity, index) => (

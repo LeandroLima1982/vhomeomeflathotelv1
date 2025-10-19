@@ -17,7 +17,7 @@ const features = [
   { icon: Star, text: "Flat Hotel 4 Estrelas" },
   { icon: MapPin, text: "Localização Privilegiada" },
   { icon: Waves, text: "Beira-Mar" },
-  { icon: Wifi, text: "Wi-Fi Grátis" },
+  { icon: Wifi, text: "Wi-Fi Gratuito" },
   { icon: Car, text: "Estacionamento Grátis" },
   { icon: Coffee, text: "Café da Manhã Incluso" },
 ];
@@ -29,7 +29,7 @@ export default function About() {
   useEffect(() => {
     const fetchImages = async () => {
       if (!supabase) {
-        console.error("Supabase client is not available.");
+        console.error('Supabase client is not available');
         setIsLoading(false);
         return;
       }
@@ -52,26 +52,26 @@ export default function About() {
       if (files) {
         const imageFiles = files.filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json');
         const imageUrls = imageFiles.map(file => ({
-            name: file.name,
-            url: supabase.storage.from("gallery").getPublicUrl(`about/${file.name}`).data.publicUrl,
+          name: file.name,
+          url: supabase.storage.from("gallery").getPublicUrl(`about/${file.name}`).data.publicUrl,
         }));
 
         const { data: orderFileData } = await supabase.storage.from("gallery").download("about/_order.json");
 
         if (!orderFileData) {
-            setImages(imageUrls.map(img => img.url));
+          setImages(imageUrls.map(img => img.url));
         } else {
-            const orderJson = await orderFileData.text();
-            try {
-                const orderedNames = JSON.parse(orderJson) as string[];
-                const imageMap = new Map(imageUrls.map(img => [img.name, img.url]));
-                const sortedUrls = orderedNames.map(name => imageMap.get(name)).filter((url): url is string => !!url);
-                const newImageUrls = imageUrls.filter(img => !orderedNames.includes(img.name)).map(img => img.url);
-                setImages([...sortedUrls, ...newImageUrls]);
-            } catch (e) {
-                console.error("Error parsing order file, using default order", e);
-                setImages(imageUrls.map(img => img.url));
-            }
+          const orderJson = await orderFileData.text();
+          try {
+            const orderedNames = JSON.parse(orderJson) as string[];
+            const imageMap = new Map(imageUrls.map(img => [img.name, img.url]));
+            const sortedUrls = orderedNames.map(name => imageMap.get(name)).filter((url): url is string => !!url);
+            const newImageUrls = imageUrls.filter(img => !orderedNames.includes(img.name)).map(img => img.url);
+            setImages([...sortedUrls, ...newImageUrls]);
+          } catch (e) {
+            console.error("Error parsing order file, using default order", e);
+            setImages(imageUrls.map(img => img.url));
+          }
         }
       }
       setIsLoading(false);
@@ -86,7 +86,7 @@ export default function About() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-blue-900 mb-2 drop-shadow-lg">
+              <h2 className="text-2xl md:text-3xl font-bold text-blue-900 mb-2 drop-shadow-lg">
                 Bem-vindo ao V-Home
               </h2>
               <p className="text-xl text-gray-700 mb-6">

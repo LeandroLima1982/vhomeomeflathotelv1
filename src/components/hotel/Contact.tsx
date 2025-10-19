@@ -30,7 +30,7 @@ export default function Contact() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           <div>
             <div className="mb-8">
-              <h2 className="text-4xl font-bold text-gray-800">Entre em Contato</h2>
+              <h2 className="text-3xl font-bold text-gray-800">Entre em Contato</h2>
               <p className="text-gray-600 mt-2 text-lg">Estamos aqui para ajudá-lo</p>
             </div>
             <div className="space-y-6">
@@ -50,7 +50,7 @@ export default function Contact() {
           <div className="h-full min-h-[500px]">
             <div className="rounded-lg overflow-hidden shadow-lg h-full">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3694.031489498118!2d-41.76609782470799!3d-22.31461997976391!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x963b2e00000001%3A0x1e9f5d5a5d5a5d5a!2sAv.%20Atl%C3%A2ntica%2C%20433%20-%20Praia%20Campista%2C%20Maca%C3%A9%20-%20RJ%2C%2027920-325!5e0!3m2!1sen!2sbr!4v1678886400000!5m2!1sen!2sbr"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x963b2e00000001%3A0x1e9f5d5a5d5a5d5a!2sAv.%20Atl%C3%A2ntica%2C%20433%20-%20Praia%20Campista%2C%20Maca%C3%A9%20-%20RJ%2C%2027920-325!5e0!3m2!1sen!2sbr!4v1678886400000!5m2!1sen!2sbr"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}

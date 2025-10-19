@@ -96,25 +96,11 @@ export function Nearby() {
     scrollContainerRef.current.scrollLeft = scrollLeft - walk;
   };
 
-  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!scrollContainerRef.current) return;
-    setIsDragging(true);
-    setStartX(e.touches[0].pageX - scrollContainerRef.current.offsetLeft);
-    setScrollLeft(scrollContainerRef.current.scrollLeft);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!isDragging || !scrollContainerRef.current) return;
-    const x = e.touches[0].pageX - scrollContainerRef.current.offsetLeft;
-    const walk = x - startX;
-    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
-  };
-
   return (
     <section id="perto" className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-800">O que há por perto?</h2>
+          <h2 className="text-2xl font-bold text-gray-800">O que há por perto?</h2>
           <p className="text-gray-600 mt-2 mb-12">Explore as atrações e comodidades próximas ao hotel</p>
         </div>
         <div 
@@ -123,9 +109,6 @@ export function Nearby() {
           onMouseLeave={handleMouseLeaveOrUp}
           onMouseUp={handleMouseLeaveOrUp}
           onMouseMove={handleMouseMove}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleMouseLeaveOrUp}
-          onTouchMove={handleTouchMove}
           className="flex overflow-x-auto space-x-8 pb-4 -mx-4 px-4 cursor-grab active:cursor-grabbing select-none"
         >
           {nearbyData.map((categoryItem) => (
