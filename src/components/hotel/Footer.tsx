@@ -31,7 +31,7 @@ export default function Footer() {
           <div>
             <h3 className="font-bold text-lg text-white">Links Rápidos</h3>
             <ul className="mt-4 space-y-2">
-              <li><a href={getLinkHref("#about")} className="text-gray-300 hover:text-white">Sobre</a></li>
+              <li><a href={getLinkHref("#about")} className="text-gray-300 hover:text-white">Sobre nós</a></li>
               <li><a href={getLinkHref("#galeria")} className="text-gray-300 hover:text-white">Imagens</a></li>
               <li><a href={getLinkHref("#comodidades")} className="text-gray-300 hover:text-white">Comodidades</a></li>
               <li><a href={getLinkHref("#rooms")} className="text-gray-300 hover:text-white">Acomodações</a></li>
