@@ -1,4 +1,177 @@
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+"use client";
+
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { BedDouble, Star, MousePointerClick } from "lucide-react";
+import DetailIcon from './DetailIcon';
+import RoomDetailsModal from './RoomDetailsModal';
+
+interface Room {
+  id: number;
+  name: string;
+  special_name: string | null;
+  imageUrl: string | null;
+  details: Record<string, string | null> | null;
+  details_order: string[] | null;
+  custom_description: string | null;
+  description: string | null;
+}
+
+const Rooms = () => {
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      setLoading(true);
+      const { data: roomData, error } = await supabase
+        .from('rooms')
+        .select('*')
+        .order('id');
+
+      if (error) {
+        console.error("Error fetching rooms:", error);
+        setLoading(false);
+        return;
+      }
+
+      if (!roomData) {
+        setRooms([]);
+        setLoading(false);
+        return;
+      }
+
+      const roomsWithImages = await Promise.all(
+        roomData.map(async (room) => {
+          let imageUrl: string | null = null;
+          try {
+            // Try to find a cover image directly in 'rooms/' folder
+            const { data: coverFiles } = await supabase.storage
+              .from('gallery')
+              .list('rooms', { search: `${room.id}.` });
+
+            if (coverFiles && coverFiles.length > 0) {
+              const coverFile = coverFiles[0];
+              const { data: { publicUrl } } = supabase.storage
+                .from('gallery')
+                .getPublicUrl(`rooms/${coverFile.name}`);
+              imageUrl = `${publicUrl}?t=${new Date().getTime()}`;
+            }
+
+            // If no cover image, try to find the first image in the room's gallery subfolder
+            if (!imageUrl) {
+              const { data: galleryFiles } = await supabase.storage
+                .from('gallery')
+                .list(`rooms/${room.id}/gallery`, { 
+                  limit: 100,
+                  sortBy: { column: 'created_at', order: 'desc' }
+                });
+
+              if (galleryFiles && galleryFiles.length > 0) {
+                const validFiles = galleryFiles.filter(
+                  file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json'
+                );
+
+                if (validFiles.length > 0) {
+                  let firstImageName: string | null = null;
+                  const { data: orderFileData } = await supabase.storage
+                    .from('gallery')
+                    .download(`rooms/${room.id}/gallery/_order.json`);
+
+                  if (orderFileData) {
+                    try {
+                      const orderJson = await orderFileData.text();
+                      const orderedNames = JSON.parse(orderJson) as string[];
+                      const validOrderedName = orderedNames.find(name => 
+                        validFiles.some(file => file.name === name)
+                      );
+                      if (validOrderedName) {
+                        firstImageName = validOrderedName;
+                      }
+                    } catch (e) {
+                      console.warn(`Could not parse order file for room ${room.id}:`, e);
+                    }
+                  }
+
+                  if (!firstImageName) {
+                    firstImageName = validFiles[0].name;
+                  }
+                  
+                  const { data: { publicUrl } } = supabase.storage
+                    .from('gallery')
+                    .getPublicUrl(`rooms/${room.id}/gallery/${firstImageName}`);
+                  
+                  imageUrl = `${publicUrl}?t=${new Date().getTime()}`;
+                }
+              }
+            }
+            return { ...room, imageUrl };
+          } catch (error) {
+            console.error(`Error fetching image for room ${room.id}:`, error);
+            return { ...room, imageUrl: null };
+          }
+        })
+      );
+      setRooms(roomsWithImages);
+      setLoading(false);
+    };
+
+    fetchRooms();
+  }, []);
+
+  const getRoomDetails = (room: Room) => {
+    if (!room.details || typeof room.details !== 'object') return [];
+  
+    const detailsObject = room.details;
+  
+    const validKeys = Object.keys(detailsObject).filter(key => {
+      const value = detailsObject[key];
+      return value && typeof value === 'string' && value.trim() !== '' && key !== 'description';
+    });
+  
+    if (room.details_order && Array.isArray(room.details_order)) {
+      const orderedDetails = room.details_order
+        .map(key => {
+          if (validKeys.includes(key)) {
+            return detailsObject[key];
+          }
+          return null;
+        })
+        .filter((value): value is string => value !== null);
+      
+      const unorderedKeys = validKeys.filter(key => !room.details_order.includes(key));
+      const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
+  
+      return [...orderedDetails, ...unorderedDetails].slice(0, 9);
+    }
+  
+    return validKeys.map(key => detailsObject[key] as string).slice(0, 9);
+  };
+
+  if (loading) {
+    return (
+      <section id="rooms" className="py-20 bg-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl font-bold text-gray-800">Acomodações</h2>
+          <p className="text-gray-600 mt-2 mb-12">Carregando nossas acomodações...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className="bg-gray-200 rounded-lg h-96 animate-pulse"></div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <>
+      <section id="rooms" className="py-20 bg-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl font-bold text-gray-800">Acomodações</h2>
+          <p className="text-gray-600 mt-2 mb-12">Conheça nossas opções de hospedagem</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {rooms.map((room) => {
               const details = getRoomDetails(room);
               
@@ -84,3 +257,14 @@
               );
             })}
           </div>
+        </div>
+      </section>
+
+      {selectedRoom && (
+        <RoomDetailsModal room={selectedRoom} onClose={() => setSelectedRoom(null)} />
+      )}
+    </>
+  );
+};
+
+export default Rooms;
