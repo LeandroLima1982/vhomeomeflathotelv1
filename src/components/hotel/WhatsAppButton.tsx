@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { MessageSquareText } from 'lucide-react';
+import { MessageCircle } from 'lucide-react'; // Alterado para MessageCircle
 
 export function WhatsAppButton() {
   const phoneNumber = "5522998990430"; // Número do WhatsApp sem o '+'
@@ -15,7 +15,7 @@ export function WhatsAppButton() {
       aria-label="Fale conosco pelo WhatsApp"
     >
       <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-        <MessageSquareText className="h-7 w-7 group-hover:scale-110 transition-transform duration-200" />
+        <MessageCircle className="h-7 w-7 group-hover:scale-110 transition-transform duration-200" />
       </a>
     </Button>
   );
