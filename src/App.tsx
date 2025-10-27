@@ -16,8 +16,9 @@ import Login from "./pages/Login";
 import UpdatePassword from "./pages/UpdatePassword";
 import { AuthProvider } from "./components/AuthProvider";
 import ProtectedRoute from "./components/ProtectedRoute";
-import DirectBooking from "./pages/DirectBooking"; // Importando a nova página
-import DirectCheckout from "./pages/DirectCheckout"; // Importando a nova página
+import DirectBooking from "./pages/DirectBooking";
+import DirectCheckout from "./pages/DirectCheckout";
+import { WhatsAppButton } from "./components/hotel/WhatsAppButton"; // Importando o novo componente
 
 const queryClient = new QueryClient();
 
@@ -56,11 +57,12 @@ const App = () => {
                 <Route path="/institucional" element={<Institutional />} />
                 <Route path="/booking-v2" element={<BookingV2 />} />
                 <Route path="/checkout" element={<Checkout />} />
-                <Route path="/direct-booking" element={<DirectBooking />} /> {/* Nova rota */}
-                <Route path="/direct-checkout" element={<DirectCheckout />} /> {/* Nova rota */}
+                <Route path="/direct-booking" element={<DirectBooking />} />
+                <Route path="/direct-checkout" element={<DirectCheckout />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              <WhatsAppButton /> {/* Adicionando o botão do WhatsApp aqui */}
             </AuthProvider>
           </SupabaseProvider>
         </BrowserRouter>
