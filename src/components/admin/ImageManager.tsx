@@ -160,7 +160,19 @@ export default function ImageManager({ folder, title, description }: ImageManage
 
     setUploading(true);
     const toastId = showLoading('Enviando imagem...');
-    const fileName = `${Date.now()}-${selectedFile.name.replace(/\s/g, '_')}`;
+    
+    // Sanitize the file name
+    const originalFileName = selectedFile.name;
+    const fileExtension = originalFileName.split('.').pop();
+    const baseFileName = originalFileName.substring(0, originalFileName.lastIndexOf('.'));
+    const sanitizedBaseFileName = baseFileName
+      .normalize("NFD") // Normalize to decompose combined characters (e.g., é -> e + ´)
+      .replace(/[\u0300-\u036f]/g, "") // Remove diacritics (accents)
+      .replace(/[^a-zA-Z0-9_.-]/g, '_') // Replace non-alphanumeric, non-underscore, non-hyphen, non-dot with underscore
+      .replace(/__+/g, '_') // Replace multiple underscores with a single one
+      .toLowerCase(); // Convert to lowercase for consistency
+
+    const fileName = `${Date.now()}-${sanitizedBaseFileName}.${fileExtension}`;
     const filePath = `${folder}/${fileName}`;
 
     const { error } = await supabase.storage.from(BUCKET_NAME).upload(filePath, selectedFile);
