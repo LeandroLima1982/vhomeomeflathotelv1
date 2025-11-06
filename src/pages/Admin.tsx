@@ -37,7 +37,7 @@ const Admin = () => {
         <Tabs defaultValue="rooms" className="w-full">
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="rooms">Acomodações</TabsTrigger>
-            <TabsTrigger value="gallery">Galeria Principal</TabsTrigger>
+            <TabsTrigger value="gallery_categories">Galeria Principal</TabsTrigger> {/* Nova aba para as categorias */}
             <TabsTrigger value="hero">Banner Principal (Hero)</TabsTrigger>
             <TabsTrigger value="about">Seção "Sobre"</TabsTrigger>
             <TabsTrigger value="room_covers">Imagens de Capa</TabsTrigger>
@@ -46,13 +46,46 @@ const Admin = () => {
           <TabsContent value="rooms" className="mt-6">
             <RoomManager />
           </TabsContent>
-          <TabsContent value="gallery" className="mt-6">
-            <ImageManager 
-              folder="main"
-              title="Galeria Principal"
-              description="Estas imagens aparecem na seção 'Conheça Nossos Ambientes'. O ideal é ter 9 imagens."
-            />
+          {/* Nova seção de abas para as categorias da galeria principal */}
+          <TabsContent value="gallery_categories" className="mt-6">
+            <Tabs defaultValue="todos" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="todos">Todos</TabsTrigger>
+                <TabsTrigger value="quartos">Quartos</TabsTrigger>
+                <TabsTrigger value="areas_comuns">Áreas Comuns</TabsTrigger>
+                <TabsTrigger value="lazer">Lazer</TabsTrigger>
+              </TabsList>
+              <TabsContent value="todos" className="mt-6">
+                <ImageManager 
+                  folder="main/todos"
+                  title="Galeria Principal - Todos"
+                  description="Estas imagens aparecem na seção 'Conheça Nossos Ambientes' na aba 'Todos'. O ideal é ter até 12 imagens."
+                />
+              </TabsContent>
+              <TabsContent value="quartos" className="mt-6">
+                <ImageManager 
+                  folder="main/quartos"
+                  title="Galeria Principal - Quartos"
+                  description="Estas imagens aparecem na seção 'Conheça Nossos Ambientes' na aba 'Quartos'. O ideal é ter até 12 imagens."
+                />
+              </TabsContent>
+              <TabsContent value="areas_comuns" className="mt-6">
+                <ImageManager 
+                  folder="main/areas_comuns"
+                  title="Galeria Principal - Áreas Comuns"
+                  description="Estas imagens aparecem na seção 'Conheça Nossos Ambientes' na aba 'Áreas Comuns'. O ideal é ter até 12 imagens."
+                />
+              </TabsContent>
+              <TabsContent value="lazer" className="mt-6">
+                <ImageManager 
+                  folder="main/lazer"
+                  title="Galeria Principal - Lazer"
+                  description="Estas imagens aparecem na seção 'Conheça Nossos Ambientes' na aba 'Lazer'. O ideal é ter até 12 imagens."
+                />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
+          {/* Fim da nova seção de abas para as categorias da galeria principal */}
           <TabsContent value="hero" className="mt-6">
             <ImageManager 
               folder="hero"
