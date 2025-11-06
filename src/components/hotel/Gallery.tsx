@@ -38,7 +38,7 @@ export function Gallery() {
       const { data: orderFileData } = await supabase.storage.from(BUCKET_NAME).download(`${FOLDER}/${ORDER_FILE_NAME}`);
 
       if (!orderFileData) {
-        setImages(imageUrls.map(img => img.url).slice(0, 9));
+        setImages(imageUrls.map(img => img.url).slice(0, 12)); // Alterado de 9 para 12
       } else {
         const orderJson = await orderFileData.text();
         try {
@@ -46,10 +46,10 @@ export function Gallery() {
           const imageMap = new Map(imageUrls.map(img => [img.name, img.url]));
           const sortedUrls = orderedNames.map(name => imageMap.get(name)).filter((url): url is string => !!url);
           const newImageUrls = imageUrls.filter(img => !orderedNames.includes(img.name)).map(img => img.url);
-          setImages([...sortedUrls, ...newImageUrls].slice(0, 9));
+          setImages([...sortedUrls, ...newImageUrls].slice(0, 12)); // Alterado de 9 para 12
         } catch (e) {
           console.error("Error parsing order file, using default order", e);
-          setImages(imageUrls.map(img => img.url).slice(0, 9));
+          setImages(imageUrls.map(img => img.url).slice(0, 12)); // Alterado de 9 para 12
         }
       }
       setLoading(false);
@@ -86,7 +86,7 @@ export function Gallery() {
           <p className="text-gray-600 mt-2 mb-12">Conheça nossos ambientes</p>
           <div className="grid grid-cols-3 gap-4">
             {loading ? (
-              Array.from({ length: 9 }).map((_, index) => (
+              Array.from({ length: 12 }).map((_, index) => ( // Alterado para 12 esqueletos
                 <Skeleton key={index} className="aspect-square w-full rounded-lg" />
               ))
             ) : (
