@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Calendar as CalendarIcon, Users, Loader2 } from "lucide-react";
-import { format, addDays, parseISO } from "date-fns";
+import { format, addDays, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
@@ -33,19 +33,19 @@ export function AvailabilitySearchForm({ onSearch, isLoading, initialSearchParam
     setIsMounted(true);
 
     if (initialSearchParams) {
-      // Se houver parâmetros iniciais da URL, use-os
-      setCheckinDate(parseISO(initialSearchParams.checkin));
-      setCheckoutDate(parseISO(initialSearchParams.checkout));
+      // Se houver parâmetros iniciais da URL, use-os (formato yyyyMMdd)
+      setCheckinDate(parse(initialSearchParams.checkin, "yyyyMMdd", new Date()));
+      setCheckoutDate(parse(initialSearchParams.checkout, "yyyyMMdd", new Date()));
       setGuests(Number(initialSearchParams.adults));
     } else {
-      // Tenta carregar os últimos valores pesquisados do localStorage
+      // Tenta carregar os últimos valores pesquisados do localStorage (formato yyyyMMdd)
       const savedCheckin = localStorage.getItem('lastCheckinDate');
       const savedCheckout = localStorage.getItem('lastCheckoutDate');
       const savedGuests = localStorage.getItem('lastGuests');
 
       if (savedCheckin && savedCheckout && savedGuests) {
-        setCheckinDate(parseISO(savedCheckin));
-        setCheckoutDate(parseISO(savedCheckout));
+        setCheckinDate(parse(savedCheckin, "yyyyMMdd", new Date()));
+        setCheckoutDate(parse(savedCheckout, "yyyyMMdd", new Date()));
         setGuests(Number(savedGuests));
       } else {
         // Define valores padrão: check-in na data atual, check-out no dia seguinte, 2 hóspedes
@@ -78,9 +78,9 @@ export function AvailabilitySearchForm({ onSearch, isLoading, initialSearchParam
       return;
     }
 
-    // Salva os parâmetros da busca no localStorage
-    localStorage.setItem('lastCheckinDate', checkinDate.toISOString());
-    localStorage.setItem('lastCheckoutDate', checkoutDate.toISOString());
+    // Salva os parâmetros da busca no localStorage no formato yyyyMMdd
+    localStorage.setItem('lastCheckinDate', format(checkinDate, "yyyyMMdd"));
+    localStorage.setItem('lastCheckoutDate', format(checkoutDate, "yyyyMMdd"));
     localStorage.setItem('lastGuests', String(guests));
 
     const checkin = format(checkinDate, "yyyyMMdd");

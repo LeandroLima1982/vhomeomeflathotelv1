@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Calendar as CalendarIcon, Users } from "lucide-react";
 import { format, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -46,6 +45,11 @@ export function BookingForm() {
       alert("Por favor, selecione as datas de check-in e check-out.");
       return;
     }
+
+    // Salva os parâmetros da busca no localStorage no formato yyyyMMdd
+    localStorage.setItem('lastCheckinDate', format(checkinDate, "yyyyMMdd"));
+    localStorage.setItem('lastCheckoutDate', format(checkoutDate, "yyyyMMdd"));
+    localStorage.setItem('lastGuests', String(guests));
 
     const checkin = format(checkinDate, "yyyyMMdd");
     const checkout = format(checkoutDate, "yyyyMMdd");
