@@ -89,9 +89,9 @@ const BookingV2 = () => {
       if (data.error) throw new Error(data.error);
 
       const mergedResults = data.map((apiRoom: any) => {
-        // Mapeamento personalizado para quartos com offset -4 (API IDs 12 e 13)
+        // Mapeamento personalizado para quartos com offset +4 (API IDs 12 e 13)
         const apiToSupabaseMapping = { 12: 8, 13: 9 };
-        const adjustedRoomId = apiToSupabaseMapping[apiRoom.idQuarto] || (apiRoom.idQuarto - 3); // Usa -4 para IDs 12 e 13, -3 como fallback
+        const adjustedRoomId = apiToSupabaseMapping[apiRoom.idQuarto] || (apiRoom.idQuarto - 3); // Usa +4 para IDs 12 e 13, +3 como fallback
         const localRoom = localRoomsData.find(lr => lr.id === adjustedRoomId);
         return {
           ...apiRoom,
@@ -207,7 +207,8 @@ const BookingV2 = () => {
                   let firstImageName: string | null = null;
                   const { data: orderFileData } = await supabase.storage
                     .from('gallery')
-                    .download(`rooms/${room.id}/gallery/_order.json`);
+                    .list(`rooms/${room.id}/gallery`)
+                    .then(() => supabase.storage.from('gallery').download(`rooms/${room.id}/gallery/_order.json`));
 
                   if (orderFileData) {
                     try {
@@ -326,7 +327,7 @@ const BookingV2 = () => {
         </section>
 
         <div ref={searchFormRef} className="relative z-10 -mt-16">
-          <AvailabilitySearchForm onSearch={handleSearch} isLoading={isLoading} />
+          <AvailabilitySearchForm onSearch={handleSearch} isLoading={isLoading} initialSearchParams={searchParams} />
         </div>
 
         <div id="results-container" ref={resultsContainerRef} className="container mx-auto px-4 max-w-5xl pt-4 pb-16">
