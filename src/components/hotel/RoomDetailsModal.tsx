@@ -38,6 +38,7 @@ import { useNavigate } from 'react-router-dom';
 import { format, parse, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import DetailIcon from './DetailIcon'; // Importando o DetailIcon
+import { generateReservationLink } from '@/utils/reservationLinks'; // Importando a função para gerar o link externo
 
 // Interface para o objeto 'room' que vem do estado da localização
 interface RoomResultForCheckout {
@@ -216,15 +217,15 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
     }
   };
 
-  const handleReserveClick = (isDirectBooking: boolean) => {
+  const handleReserveClick = () => {
     if (roomAvailabilityResult && currentSearchParams) {
-      const targetPath = isDirectBooking ? '/direct-checkout' : '/checkout';
-      navigate(targetPath, {
-        state: {
-          room: roomAvailabilityResult,
-          searchParams: currentSearchParams,
-        },
-      });
+      try {
+        const reservationLink = generateReservationLink(roomAvailabilityResult.idQuarto, currentSearchParams);
+        window.location.href = reservationLink; // Redireciona diretamente para o link externo
+      } catch (error) {
+        console.error("Erro ao gerar link de reserva:", error);
+        showError("Erro ao redirecionar para reserva. Tente novamente.");
+      }
     }
   };
 
@@ -304,10 +305,10 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
       const unorderedKeys = validKeys.filter(key => !roomData.details_order.includes(key));
       const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
   
-      return [...orderedDetails, ...unorderedDetails].slice(0, 9); // Limita a 9 detalhes para não sobrecarregar
+      return [...orderedDetails, ...unorderedDetails];
     }
   
-    return validKeys.map(key => detailsObject[key] as string).slice(0, 9);
+    return validKeys.map(key => detailsObject[key] as string);
   };
 
   const roomDetails = getRoomDetails(room);
@@ -409,9 +410,11 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                     <Calendar className="h-5 w-5 text-blue-600" />
                     <span>Check-in: {format(parse(currentSearchParams!.checkin, "yyyyMMdd", new Date()), "dd/MM/yyyy", { locale: ptBR })}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <Calendar className="h-5 w-5 text-blue-600" />
-                    <span>Check-out: {format(parse(currentSearchParams!.checkout, "yyyyMMdd", new Date()), "dd/MM/yyyy", { locale: ptBR })}</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <Calendar className="h-5 w-5 text-blue-600" />
+                      <span>Check-out: {format(parse(currentSearchParams!.checkout, "yyyyMMdd", new Date()), "dd/MM/yyyy", { locale: ptBR })}</span>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2 text-gray-700">
                     <Users className="h-5 w-5 text-blue-600" />
@@ -432,7 +435,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                     </p>
                   </div>
                   <Button
-                    onClick={() => handleReserveClick(false)} // Passa false para indicar que não é direct booking
+                    onClick={handleReserveClick}
                     size="lg"
                     className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105 w-full sm:w-auto"
                   >
