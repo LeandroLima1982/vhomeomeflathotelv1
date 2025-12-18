@@ -3,11 +3,13 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BedDouble, Tag, Users } from "lucide-react"; // Importando Users
+import { BedDouble, Tag, Users } from "lucide-react";
 import DetailIcon from './DetailIcon';
 import { parse, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Badge } from "@/components/ui/badge"; // Importando Badge
+import { Badge } from "@/components/ui/badge";
+import { generateReservationLink } from "@/utils/reservationLinks";
+import { showError } from "@/utils/toast";
 
 interface RoomResult {
   idQuarto: number;
@@ -18,6 +20,7 @@ interface RoomResult {
   details: Record<string, string | null> | null;
   details_order: string[] | null;
   special_name?: string | null;
+  apiRoomId: number; // Adicionado para o link externo
   [key: string]: any;
 }
 
@@ -45,15 +48,15 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
   const numberOfNights = differenceInDays(checkoutDateObj, checkinDateObj);
 
   const handleSelectRoom = () => {
-    navigate('/checkout', {
-      state: {
-        room,
-        searchParams,
-      },
-    });
+    try {
+      const reservationLink = generateReservationLink(room.apiRoomId, searchParams);
+      window.location.href = reservationLink; // Redireciona diretamente para o link externo
+    } catch (error) {
+      console.error("Erro ao gerar link de reserva:", error);
+      showError("Erro ao redirecionar para reserva. Tente novamente.");
+    }
   };
 
-  // Função para extrair a capacidade de hóspedes
   const getCapacityDisplay = (details: Record<string, string | null> | null) => {
     if (!details) return null;
     const capacityDetail = Object.entries(details).find(([key, value]) => 
@@ -71,13 +74,7 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
   
     const validKeys = Object.keys(detailsObject).filter(key => {
       const value = detailsObject[key];
-      // Exclui 'description' e qualquer detalhe identificado como capacidade
-      const isCapacityDetail = 
-        key.toLowerCase().includes('capacidade') || 
-        (value && value.toLowerCase().includes('hóspedes')) || 
-        (value && value.toLowerCase().includes('adultos'));
-
-      return value && typeof value === 'string' && value.trim() !== '' && key !== 'description' && !isCapacityDetail;
+      return value && typeof value === 'string' && value.trim() !== '' && key !== 'description';
     });
   
     if (roomData.details_order && Array.isArray(roomData.details_order)) {
