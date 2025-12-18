@@ -26,18 +26,29 @@ interface SearchParams {
 /**
  * Gera o link externo de reserva baseado no apiRoomId e parâmetros de busca.
  * Inclui inicio, fim, adultos e idquartoCategoria para pré-preencher o formulário externo.
- * Se o apiRoomId não for válido (1-9), usa o link geral sem parâmetros.
+ * Mapeia o apiRoomId para o idquartoCategoria correto baseado nos nomes dos quartos.
  */
 export function generateReservationLink(apiRoomId: number | undefined, searchParams: SearchParams): string {
-  const baseLink = RESERVATION_LINKS[apiRoomId!] || GENERAL_RESERVATION_LINK;
+  if (!apiRoomId) return GENERAL_RESERVATION_LINK;
+
+  // Mapeamento especial para quartos com IDs da API 12 e 13
+  const apiToCategoryMapping: Record<number, number> = {
+    12: 8, // Quarto Quádruplo com varanda
+    13: 9, // Quarto duplo deluxe c/varanda
+  };
+
+  // Calcula o idquartoCategoria: para 12 e 13 usa o mapeamento, para outros subtrai 3
+  const idquartoCategoria = apiToCategoryMapping[apiRoomId] || (apiRoomId - 3);
+
+  const baseLink = RESERVATION_LINKS[idquartoCategoria] || GENERAL_RESERVATION_LINK;
   
   // Adiciona parâmetros apenas se o link for específico (não o geral)
-  if (RESERVATION_LINKS[apiRoomId!]) {
+  if (RESERVATION_LINKS[idquartoCategoria]) {
     const params = new URLSearchParams({
       inicio: searchParams.checkin,
       fim: searchParams.checkout,
       adultos: searchParams.adults.toString(),
-      idquartoCategoria: apiRoomId!.toString(),
+      idquartoCategoria: idquartoCategoria.toString(),
     });
     return `${baseLink}?${params.toString()}`;
   }
