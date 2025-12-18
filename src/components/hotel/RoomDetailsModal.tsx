@@ -167,7 +167,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
     }
 
     try {
-      // Mapeamento personalizado para quartos com offset +4 (Supabase IDs 8 e 9)
+      // Mapeamento personalizado para quartos com offset +4 (API IDs 12 e 13)
       const supabaseToApiMapping = { 8: 12, 9: 13 };
       const targetApiRoomId = supabaseToApiMapping[room.id] || (room.id + 3); // Usa +4 para IDs 8 e 9, +3 como fallback
 
@@ -574,67 +574,15 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                 {room.details?.description && room.details.description !== (room.custom_description || room.description) && (
                   <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl p-4 sm:p-6 border border-slate-200/60 mb-4">
                     <h4 className="text-base font-semibold text-slate-800 mb-2">Detalhes adicionais</h4>
-                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
-                      {room.details.description}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Destaques */}
-              {renderDetails()}
-
-              {/* Características Adicionais */}
-              {room.additional_features && Array.isArray(room.additional_features) && room.additional_features.length > 0 && (
-                <div className="mb-6 sm:mb-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-1 h-6 bg-gradient-to-b from-indigo-500 to-purple-600 rounded-full"></div>
-                    <h3 className="text-lg sm:text-xl font-bold text-slate-800">Características</h3>
-                  </div>
-                  <div className="bg-white rounded-xl shadow-sm border border-slate-200/60 overflow-hidden">
-                    <FeatureListDisplay features={room.additional_features as FeatureCategory[]} />
-                  </div>
-                </div>
-              )}
-
-              {/* Informações adicionais */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 sm:mb-8">
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100/50">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-blue-500 rounded-lg">
-                      <Clock className="w-4 h-4 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-slate-800 text-sm">Check-in/out</h4>
-                  </div>
-                  <p className="text-xs text-slate-600">Check-in: 14:00<br />Check-out: 12:00</p>
-                </div>
-                
-                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-100/50">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-emerald-500 rounded-lg">
-                      <Wifi className="w-4 h-4 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-slate-800 text-sm">Conectividade</h4>
-                  </div>
-                  <p className="text-xs text-slate-600">Wi-Fi gratuito<br />em todas as áreas</p>
-                </div>
-                
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100/50 sm:col-span-2 lg:col-span-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-purple-500 rounded-lg">
-                      <MapPin className="w-4 h-4 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-slate-800 text-sm">Localização</h4>
-                  </div>
-                  <p className="text-xs text-slate-600">Av. Atlântica<br />Praia Campista</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
-export default RoomDetailsModal;
+                    <p className="text-xs sm:text-sm text-slate-<dyad-write path="src/components/hotel/RoomDetailsModal.tsx" description="Atualizando o handleReserveClick para redirecionar diretamente para o link externo de reserva em vez de navegar para a página de checkout.">
+  const handleReserveClick = (isDirectBooking: boolean) => {
+    if (roomAvailabilityResult && currentSearchParams) {
+      try {
+        const reservationLink = generateReservationLink(roomAvailabilityResult.idQuarto, currentSearchParams); // Usando roomAvailabilityResult.idQuarto (ID do Supabase)
+        window.location.href = reservationLink; // Redireciona diretamente para o link externo
+      } catch (error) {
+        console.error("Erro ao gerar link de reserva:", error);
+        showError("Erro ao redirecionar para reserva. Tente novamente.");
+      }
+    }
+  };
