@@ -47,11 +47,6 @@ export function BookingForm() {
       return;
     }
 
-    // Salva os parâmetros da busca no localStorage no formato yyyyMMdd
-    localStorage.setItem('lastCheckinDate', format(checkinDate, "yyyyMMdd"));
-    localStorage.setItem('lastCheckoutDate', format(checkoutDate, "yyyyMMdd"));
-    localStorage.setItem('lastGuests', String(guests));
-
     const checkin = format(checkinDate, "yyyyMMdd");
     const checkout = format(checkoutDate, "yyyyMMdd");
     const adults = guests;
