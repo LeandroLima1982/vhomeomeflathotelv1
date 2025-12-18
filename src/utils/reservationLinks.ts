@@ -1,6 +1,6 @@
 "use client";
 
-// Mapeamento dos links externos por categoria de quarto (baseado no idquartoCategoria, que é o apiRoomId)
+// Mapeamento dos links externos por categoria de quarto (baseado no idQuarto do Supabase, que é 1-9)
 // Agora usando apenas a URL base, sem parâmetros
 const RESERVATION_LINKS: Record<number, string> = {
   1: 'https://vhomeflathotel.motordereservas.com.br/novareserva', // Quarto Queen Deluxe com 2 camas Queen Size
@@ -24,20 +24,20 @@ interface SearchParams {
 }
 
 /**
- * Gera o link externo de reserva baseado no apiRoomId e parâmetros de busca.
+ * Gera o link externo de reserva baseado no idQuartoCategoria (ID do Supabase) e parâmetros de busca.
  * Inclui inicio, fim, adultos e idquartoCategoria para pré-preencher o formulário externo.
- * Se o apiRoomId não for válido (1-9), usa o link geral sem parâmetros.
+ * Se o idQuartoCategoria não for válido (1-9), usa o link geral sem parâmetros.
  */
-export function generateReservationLink(apiRoomId: number | undefined, searchParams: SearchParams): string {
-  const baseLink = RESERVATION_LINKS[apiRoomId!] || GENERAL_RESERVATION_LINK;
+export function generateReservationLink(idQuartoCategoria: number | undefined, searchParams: SearchParams): string {
+  const baseLink = RESERVATION_LINKS[idQuartoCategoria!] || GENERAL_RESERVATION_LINK;
   
   // Adiciona parâmetros apenas se o link for específico (não o geral)
-  if (RESERVATION_LINKS[apiRoomId!]) {
+  if (RESERVATION_LINKS[idQuartoCategoria!]) {
     const params = new URLSearchParams({
       inicio: searchParams.checkin,
       fim: searchParams.checkout,
       adultos: searchParams.adults.toString(),
-      idquartoCategoria: apiRoomId!.toString(),
+      idquartoCategoria: idQuartoCategoria!.toString(),
     });
     return `${baseLink}?${params.toString()}`;
   }
