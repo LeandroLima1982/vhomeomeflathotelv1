@@ -35,14 +35,14 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
     // Get search params from localStorage or URL
     const savedCheckin = localStorage.getItem('lastCheckinDate');
     const savedCheckout = localStorage.getItem('lastCheckoutDate');
-    const savedAdults = localStorage.getItem('lastGuests');
+    const savedGuests = localStorage.getItem('lastGuests');
 
-    if (savedCheckin && savedCheckout && savedAdults) {
-      const checkinDate = new Date(savedCheckin);
-      const checkoutDate = new Date(savedCheckout);
+    if (savedCheckin && savedCheckout && savedGuests) {
+      const checkinDate = parse(savedCheckin, "yyyyMMdd", new Date());
+      const checkoutDate = parse(savedCheckout, "yyyyMMdd", new Date());
       const checkin = checkinDate.toISOString().split('T')[0].replace(/-/g, '');
       const checkout = checkoutDate.toISOString().split('T')[0].replace(/-/g, '');
-      const adults = parseInt(savedAdults, 10);
+      const adults = parseInt(savedGuests, 10);
 
       setCurrentSearchParams({ checkin, checkout, adults });
     }
