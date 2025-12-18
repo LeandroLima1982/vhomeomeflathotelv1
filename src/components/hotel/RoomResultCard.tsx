@@ -49,7 +49,7 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
 
   const handleSelectRoom = () => {
     try {
-      const reservationLink = generateReservationLink(room.idQuarto, searchParams); // Usando room.idQuarto (ID do Supabase)
+      const reservationLink = generateReservationLink(room.apiRoomId, searchParams);
       window.location.href = reservationLink; // Redireciona diretamente para o link externo
     } catch (error) {
       console.error("Erro ao gerar link de reserva:", error);
@@ -113,7 +113,7 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
       <div className="flex-1 flex flex-col">
         <CardHeader>
           {room.special_name && (
-            <div className="inline-block mb-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md">
+            <div className="inline-block w-fit mb-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md">
               {room.special_name}
             </div>
           )}

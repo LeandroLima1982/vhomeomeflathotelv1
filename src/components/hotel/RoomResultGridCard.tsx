@@ -41,7 +41,7 @@ export function RoomResultGridCard({ room, searchParams }: RoomResultGridCardPro
 
   const handleSelectRoom = () => {
     try {
-      const reservationLink = generateReservationLink(room.idQuarto, searchParams); // Usando room.idQuarto (ID do Supabase)
+      const reservationLink = generateReservationLink(room.apiRoomId, searchParams);
       window.location.href = reservationLink; // Redireciona diretamente para o link externo
     } catch (error) {
       console.error("Erro ao gerar link de reserva:", error);
