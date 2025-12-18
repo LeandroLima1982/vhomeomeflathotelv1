@@ -24,7 +24,7 @@ interface SearchParams {
 
 /**
  * Gera o link externo de reserva baseado no apiRoomId e parâmetros de busca.
- * Inclui checkin, checkout e adultos para pré-preencher o formulário externo.
+ * Inclui inicio, fim e idquartoCategoria para pré-preencher o formulário externo.
  * Se o apiRoomId não for válido (1-9), usa o link geral sem parâmetros.
  */
 export function generateReservationLink(apiRoomId: number | undefined, searchParams: SearchParams): string {
@@ -33,9 +33,9 @@ export function generateReservationLink(apiRoomId: number | undefined, searchPar
   // Adiciona parâmetros apenas se o link for específico (não o geral)
   if (RESERVATION_LINKS[apiRoomId!]) {
     const params = new URLSearchParams({
-      checkin: searchParams.checkin,
-      checkout: searchParams.checkout,
-      adultos: searchParams.adults.toString(),
+      inicio: searchParams.checkin,
+      fim: searchParams.checkout,
+      idquartoCategoria: apiRoomId!.toString(),
     });
     return `${baseLink}&${params.toString()}`;
   }
