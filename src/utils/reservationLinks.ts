@@ -1,7 +1,7 @@
 "use client";
 
 // Mapeamento dos links externos por categoria de quarto (baseado no idquartoCategoria, que é o apiRoomId)
-// Agora usando apenas a URL base, sem parâmetros
+// Usando a URL base para todos os quartos
 const RESERVATION_LINKS: Record<number, string> = {
   1: 'https://vhomeflathotel.motordereservas.com.br/novareserva', // Quarto Queen Deluxe com 2 camas Queen Size
   2: 'https://vhomeflathotel.motordereservas.com.br/novareserva', // Quarto Queen Executivo com 2 camas Queen Size
