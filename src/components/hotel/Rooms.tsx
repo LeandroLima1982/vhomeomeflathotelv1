@@ -237,8 +237,8 @@ const Rooms = () => {
                       <div className="grid grid-cols-2 gap-x-4 gap-y-3 mt-4 mb-4">
                         {details.map((detail, index) => (
                           <div key={index} className="flex items-center gap-2">
-                            <DetailIcon detailText={detail} />
-                            <span className="text-sm text-gray-600">{detail}</span>
+                            <DetailIcon detailText={detail === 'Tv Smart' ? 'TV Smart com Sky' : detail} />
+                            <span className="text-sm text-gray-600">{detail === 'Tv Smart' ? 'TV Smart com Sky' : detail}</span>
                           </div>
                         ))}
                       </div>
