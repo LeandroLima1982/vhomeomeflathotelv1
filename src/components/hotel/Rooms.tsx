@@ -77,8 +77,7 @@ const Rooms = () => {
                   let firstImageName: string | null = null;
                   const { data: orderFileData } = await supabase.storage
                     .from('gallery')
-                    .list(`rooms/${room.id}/gallery`)
-                    .then(() => supabase.storage.from('gallery').download(`rooms/${room.id}/gallery/_order.json`));
+                    .download(`rooms/${room.id}/gallery/_order.json`);
 
                   if (orderFileData) {
                     try {
@@ -144,10 +143,10 @@ const Rooms = () => {
       const unorderedKeys = validKeys.filter(key => !room.details_order.includes(key));
       const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
   
-      return [...orderedDetails, ...unorderedDetails];
+      return [...orderedDetails, ...unorderedDetails].slice(0, 9);
     }
   
-    return validKeys.map(key => detailsObject[key] as string);
+    return validKeys.map(key => detailsObject[key] as string).slice(0, 9);
   };
 
   if (loading) {
@@ -225,7 +224,7 @@ const Rooms = () => {
                   </div>
                   <div className="p-6 text-left">
                     {room.special_name && (
-                      <div className="inline-block mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1.5 rounded-full text-sm font-semibold transition-all duration-300 group-hover:bg-yellow-500">
+                      <div className="inline-block mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1 rounded-full text-sm font-semibold transition-all duration-300 group-hover:bg-yellow-500">
                         {room.special_name}
                       </div>
                     )}
@@ -235,11 +234,11 @@ const Rooms = () => {
                     </p>
                     
                     {details.length > 0 && (
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-4 mb-4">
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-3 mt-4 mb-4">
                         {details.map((detail, index) => (
                           <div key={index} className="flex items-center gap-2">
                             <DetailIcon detailText={detail} />
-                            <span className="text-sm text-gray-600">TV Smart com Sky</span>
+                            <span className="text-sm text-gray-600">{detail}</span>
                           </div>
                         ))}
                       </div>
