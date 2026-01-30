@@ -222,14 +222,16 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
 
   const handleReserveClick = () => {
     if (roomAvailabilityResult && currentSearchParams) {
-      try {
-        // Usar room.id em vez de roomAvailabilityResult.apiRoomId
-        const reservationLink = generateReservationLink(room.id, currentSearchParams);
-        window.location.href = reservationLink; // Redireciona diretamente para o link externo
-      } catch (error) {
-        console.error("Erro ao gerar link de reserva:", error);
-        showError("Erro ao redirecionar para reserva. Tente novamente.");
-      }
+      // Construir a URL diretamente conforme especificado
+      const baseUrl = 'https://vhomeflathotel.motordereservas.com.br/novareserva';
+      const params = new URLSearchParams({
+        inicio: currentSearchParams.checkin,
+        fim: currentSearchParams.checkout,
+        adultos: currentSearchParams.adults.toString(),
+        idquartoCategoria: roomAvailabilityResult.apiRoomId.toString(), // Usar o ID da API externa
+      });
+      const reservationUrl = `${baseUrl}?${params.toString()}`;
+      window.location.href = reservationUrl; // Redireciona diretamente para a URL construída
     }
   };
 
