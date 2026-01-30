@@ -15,8 +15,10 @@ const RESERVATION_LINKS: Record<number, string> = {
 };
 
 // Mapeamento especial para idquartoCategoria na URL (para casos específicos)
+// Atualizado para mapear tanto o ID do Supabase (3) quanto o ID da API (6) para 10
 const ID_MAPPING: Record<number, number> = {
-  3: 10, // Para quarto 3, usar idquartoCategoria=10 na URL
+  3: 10, // Para quarto 3 (Supabase ID), usar idquartoCategoria=10 na URL
+  6: 10, // Para quarto 3 (API ID), usar idquartoCategoria=10 na URL
 };
 
 // Link geral como fallback
@@ -29,7 +31,7 @@ interface SearchParams {
 }
 
 /**
- * Gera o link externo de reserva baseado no idQuartoCategoria (ID do Supabase) e parâmetros de busca.
+ * Gera o link externo de reserva baseado no idQuartoCategoria (ID do Supabase ou API) e parâmetros de busca.
  * Inclui inicio, fim, adultos e idquartoCategoria para pré-preencher o formulário externo.
  * Se o idQuartoCategoria não for válido (1-9), usa o link geral sem parâmetros.
  */
