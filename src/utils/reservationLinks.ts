@@ -37,6 +37,7 @@ interface SearchParams {
  */
 export function generateReservationLink(idQuartoCategoria: number | undefined, searchParams: SearchParams): string {
   const baseLink = RESERVATION_LINKS[idQuartoCategoria!] || GENERAL_RESERVATION_LINK;
+  let finalUrl = baseLink;
   
   // Adiciona parâmetros apenas se o link for específico (não o geral)
   if (RESERVATION_LINKS[idQuartoCategoria!]) {
@@ -48,8 +49,9 @@ export function generateReservationLink(idQuartoCategoria: number | undefined, s
       adultos: searchParams.adults.toString(),
       idquartoCategoria: urlId.toString(),
     });
-    return `${baseLink}?${params.toString()}`;
+    finalUrl = `${baseLink}?${params.toString()}`;
   }
   
-  return baseLink;
+  console.log("[generateReservationLink] URL externa gerada:", finalUrl); // Log para depuração
+  return finalUrl;
 }
