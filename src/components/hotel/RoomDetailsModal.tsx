@@ -37,13 +37,14 @@ import { showError } from '@/utils/toast';
 import { useNavigate } from 'react-router-dom';
 import { format, parse, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import DetailIcon from './DetailIcon'; // Importando o DetailIcon
-import { generateReservationLink } from '@/utils/reservationLinks'; // Importando a função para gerar o link externo
+import DetailIcon from './DetailIcon';
+import { generateReservationLink } from '@/utils/reservationLinks';
 
 // Interface para o objeto 'room' que vem do estado da localização
 interface RoomResultForCheckout {
   idQuarto: number; // ID do Supabase (ajustado)
   apiRoomId: number; // ID original da API
+  originalApiRoomId: number; // ID original retornado pela API de disponibilidade (sem ajuste)
   nomeQuarto: string;
   disponibilidade: number;
   valorTotal: number;
@@ -163,7 +164,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
       setAvailabilitySearchError(errorMessage);
       showError(errorMessage);
       setIsSearchingAvailability(false);
-      setShowBookingForm(false); // Adicionado para ocultar o formulário em caso de erro
+      setShowBookingForm(false);
       return;
     }
 
@@ -196,27 +197,49 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
         setRoomAvailabilityResult({
           idQuarto: room.id, // ID do Supabase
           apiRoomId: foundRoom.idQuarto, // ID original da API (que agora é o api_category_id)
+          originalApiRoomId: foundRoom.idQuarto, // NOVO: Armazena o ID original retornado pela API
           nomeQuarto: room.name,
           disponibilidade: foundRoom.disponibilidade,
           valorTotal: foundRoom.valorTotal,
-          imageUrl: room.imageUrl, // Usamos a imagem do Supabase
+          imageUrl: room.imageUrl,
           details: room.details,
           details_order: room.details_order,
           special_name: room.special_name,
         });
-        setShowBookingForm(false); // IMPORTANTE: Ocultar o formulário para mostrar os resultados
+        setShowBookingForm(false);
       } else {
         setAvailabilitySearchError("Desculpe, esta acomodação não está disponível para as datas e hóspedes selecionados.");
-        setShowBookingForm(false); // IMPORTANTE: Ocultar o formulário para mostrar a mensagem de erro
+        setShowBookingForm(false);
       }
 
     } catch (e: any) {
       console.error("Erro ao buscar disponibilidade no modal:", e);
       const errorMessage = e.message || "Ocorreu um erro ao buscar a disponibilidade. Tente novamente.";
       setAvailabilitySearchError(errorMessage);
-      setShowBookingForm(false); // IMPORTANTE: Ocultar o formulário para mostrar a mensagem de erro
+      setShowBookingForm(false);
     } finally {
       setIsSearchingAvailability(false);
+    }
+  };
+
+  // NOVO: Função para construir URL usando o ID original da pré-consulta
+  const handleReserveWithPreConsultaId = () => {
+    if (roomAvailabilityResult && currentSearchParams) {
+      try {
+        // Usa o originalApiRoomId (ID retornado pela API de disponibilidade sem ajuste)
+        const baseUrl = 'https://vhomeflathotel.motordereservas.com.br/novareserva';
+        const params = new URLSearchParams({
+          inicio: currentSearchParams.checkin,
+          fim: currentSearchParams.checkout,
+          adultos: currentSearchParams.adults.toString(),
+          idquartoCategoria: roomAvailabilityResult.originalApiRoomId.toString(),
+        });
+        const reservationLink = `${baseUrl}?${params.toString()}`;
+        window.location.href = reservationLink;
+      } catch (error) {
+        console.error("Erro ao gerar link de reserva com ID da pré-consulta:", error);
+        showError("Erro ao redirecionar para reserva. Tente novamente.");
+      }
     }
   };
 
@@ -225,7 +248,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
       try {
         // Passa o apiRoomId (que agora é o api_category_id) para generateReservationLink
         const reservationLink = generateReservationLink(roomAvailabilityResult.apiRoomId, currentSearchParams);
-        window.location.href = reservationLink; // Redireciona diretamente para o link externo
+        window.location.href = reservationLink;
       } catch (error) {
         console.error("Erro ao gerar link de reserva:", error);
         showError("Erro ao redirecionar para reserva. Tente novamente.");
@@ -251,11 +274,10 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
       const targetPath = isDirectBooking ? '/direct-booking' : '/booking-v2';
       navigate(`${targetPath}?checkin=${checkin}&checkout=${checkout}&adults=${adults}`);
     } else {
-      // Se não houver searchParams, apenas navega para a página de busca geral
       const targetPath = isDirectBooking ? '/direct-booking' : '/booking-v2';
       navigate(targetPath);
     }
-    onClose(); // Fecha o modal ao navegar para a página de busca
+    onClose();
   };
 
   // Renderizar detalhes como badges modernos
@@ -406,7 +428,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                 initialCheckout={currentSearchParams ? parse(currentSearchParams.checkout, "yyyyMMdd", new Date()) : undefined}
                 initialGuests={currentSearchParams?.adults}
               />
-            ) : isSearchingAvailability ? ( // Adicionado estado de carregamento
+            ) : isSearchingAvailability ? (
               <div className="flex flex-col items-center justify-center text-center p-10 bg-white rounded-lg shadow-md">
                 <Loader2 className="h-12 w-12 animate-spin text-blue-600 mb-4" />
                 <p className="text-lg font-semibold text-gray-700">Buscando disponibilidade...</p>
@@ -452,7 +474,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                   </div>
                   <div className="flex flex-col gap-2 sm:flex-row">
                     <Button
-                      onClick={handleReserveClick}
+                      onClick={handleReserveWithPreConsultaId}
                       size="lg"
                       className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105 w-full sm:w-auto"
                     >
