@@ -104,9 +104,10 @@ const BookingV2 = () => {
         };
       });
 
-      // Filtrar quartos que têm valor total > 0 E uma imagem de capa
+      // Filtrar quartos que têm valor total > 0.
+      // A condição 'room.imageUrl' foi removida para depuração.
       const pricedAndImagedResults = mergedResults.filter((room: AvailabilityResult) => 
-        room.valorTotal > 0 && room.imageUrl // Adicionada a condição room.imageUrl
+        room.valorTotal > 0
       );
       setRawResults(pricedAndImagedResults);
 
