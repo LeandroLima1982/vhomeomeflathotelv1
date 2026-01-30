@@ -33,16 +33,38 @@ interface SearchParams {
  * Gera o link externo de reserva baseado no idQuartoCategoria (ID do Supabase) e parâmetros de busca.
  * Inclui inicio, fim, adultos e idquartoCategoria para pré-preencher o formulário externo.
  * Utiliza um mapeamento específico para ajustar o idquartoCategoria na URL para certos quartos.
+ *
+ * @param supabaseRoomId O ID do quarto no Supabase (adjustedRoomId).
+ * @param originalApiId O ID original do quarto retornado pela API externa (apiRoom.idQuarto).
+ * @param searchParams Os parâmetros de busca (checkin, checkout, adults).
  */
-export function generateReservationLink(idQuartoCategoria: number | undefined, searchParams: SearchParams): string {
-  if (idQuartoCategoria === undefined) {
-    return GENERAL_RESERVATION_LINK; // Retorna o link geral se o ID for indefinido
+export function generateReservationLink(
+  supabaseRoomId: number | undefined,
+  originalApiId: number | undefined, // Novo parâmetro
+  searchParams: SearchParams
+): string {
+  if (supabaseRoomId === undefined || originalApiId === undefined) {
+    // Fallback para o link geral se IDs essenciais estiverem faltando
+    const params = new URLSearchParams({
+      inicio: searchParams.checkin,
+      fim: searchParams.checkout,
+      adultos: searchParams.adults.toString(),
+      // Não podemos incluir idquartoCategoria se não tivermos um ID válido
+    });
+    return `${GENERAL_RESERVATION_LINK}?${params.toString()}`;
   }
 
-  const baseLink = RESERVATION_LINKS[idQuartoCategoria] || GENERAL_RESERVATION_LINK;
+  const baseLink = RESERVATION_LINKS[supabaseRoomId] || GENERAL_RESERVATION_LINK;
   
-  // Aplica o mapeamento para obter o ID correto para a URL externa
-  const finalIdQuartoCategoriaForUrl = EXTERNAL_API_ID_FOR_URL_MAPPING[idQuartoCategoria] || idQuartoCategoria;
+  let finalIdQuartoCategoriaForUrl: number;
+
+  if (EXTERNAL_API_ID_FOR_URL_MAPPING[supabaseRoomId] !== undefined) {
+    // Se houver um mapeamento específico para o ID do Supabase, use-o
+    finalIdQuartoCategoriaForUrl = EXTERNAL_API_ID_FOR_URL_MAPPING[supabaseRoomId];
+  } else {
+    // Caso contrário, use o ID original da API externa
+    finalIdQuartoCategoriaForUrl = originalApiId;
+  }
 
   const params = new URLSearchParams({
     inicio: searchParams.checkin,

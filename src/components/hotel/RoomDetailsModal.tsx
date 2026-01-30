@@ -220,7 +220,12 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
   const handleReserveClick = () => {
     if (roomAvailabilityResult && currentSearchParams) {
       try {
-        const reservationLink = generateReservationLink(roomAvailabilityResult.idQuarto, currentSearchParams);
+        // Passa roomAvailabilityResult.apiRoomId como o segundo argumento
+        const reservationLink = generateReservationLink(
+          roomAvailabilityResult.idQuarto,
+          roomAvailabilityResult.apiRoomId,
+          currentSearchParams
+        );
         window.location.href = reservationLink; // Redireciona diretamente para o link externo
       } catch (error) {
         console.error("Erro ao gerar link de reserva:", error);

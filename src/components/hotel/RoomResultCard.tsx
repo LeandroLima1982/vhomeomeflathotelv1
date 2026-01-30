@@ -49,7 +49,8 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
 
   const handleSelectRoom = () => {
     try {
-      const reservationLink = generateReservationLink(room.idQuarto, searchParams);
+      // Passa room.apiRoomId como o segundo argumento
+      const reservationLink = generateReservationLink(room.idQuarto, room.apiRoomId, searchParams);
       window.location.href = reservationLink; // Redireciona diretamente para o link externo
     } catch (error) {
       console.error("Erro ao gerar link de reserva:", error);
