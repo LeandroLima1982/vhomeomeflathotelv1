@@ -18,6 +18,7 @@ const RESERVATION_LINKS: Record<number, string> = {
 // Atualizado para mapear tanto o ID do Supabase (3) quanto o ID da API (6) para 10
 const ID_MAPPING: Record<number, number> = {
   3: 10, // Para quarto 3 (Supabase ID), usar idquartoCategoria=10 na URL
+  6: 10, // Para quarto 6 (Supabase ID), usar idquartoCategoria=10 na URL
 };
 
 // Link geral como fallback
