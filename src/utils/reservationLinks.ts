@@ -27,21 +27,16 @@ interface SearchParams {
 /**
  * Gera o link externo de reserva baseado no idQuartoCategoria (ID do Supabase) e parâmetros de busca.
  * Inclui inicio, fim, adultos e idquartoCategoria para pré-preencher o formulário externo.
- * Se o idQuartoCategoria não for válido (1-9), usa o link geral sem parâmetros.
  */
 export function generateReservationLink(idQuartoCategoria: number | undefined, searchParams: SearchParams): string {
   const baseLink = RESERVATION_LINKS[idQuartoCategoria!] || GENERAL_RESERVATION_LINK;
   
-  // Adiciona parâmetros apenas se o link for específico (não o geral)
-  if (RESERVATION_LINKS[idQuartoCategoria!]) {
-    const params = new URLSearchParams({
-      inicio: searchParams.checkin,
-      fim: searchParams.checkout,
-      adultos: searchParams.adults.toString(),
-      idquartoCategoria: idQuartoCategoria!.toString(),
-    });
-    return `${baseLink}?${params.toString()}`;
-  }
+  const params = new URLSearchParams({
+    inicio: searchParams.checkin,
+    fim: searchParams.checkout,
+    adultos: searchParams.adults.toString(),
+    idquartoCategoria: idQuartoCategoria!.toString(),
+  });
   
-  return baseLink;
+  return `${baseLink}?${params.toString()}`;
 }
