@@ -10,8 +10,9 @@ const RESERVATION_LINKS: Record<number, string> = {
   5: 'https://vhomeflathotel.motordereservas.com.br/novareserva', // Quarto com cama Queen size e vista mar
   6: 'https://vhomeflathotel.motordereservas.com.br/novareserva', // Quarto com Cama Queen size
   7: 'https://vhomeflathotel.motordereservas.com.br/novareserva', // Quarto Standard com cama Queen size
-  8: 'https://vhomeflathotel.motordereservas.com.br/novareserva', // Quarto Quádruplo com varanda
-  9: 'https://vhomeflathotel.motordereservas.com.br/novareserva', // Quarto duplo deluxe c/varanda
+  8: 'https://vhomeflathotel.motordereservas.com.br/novareserva', // Quarto Quádruplo com varanda (ID Supabase 8)
+  9: 'https://vhomeflathotel.motordereservas.com.br/novareserva', // Quarto duplo deluxe c/varanda (ID Supabase 9)
+  10: 'https://vhomeflathotel.motordereservas.com.br/novareserva', // Novo: Quarto 6 (ID Supabase 10)
 };
 
 // Link geral como fallback
