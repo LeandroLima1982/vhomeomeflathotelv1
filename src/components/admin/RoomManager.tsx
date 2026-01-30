@@ -39,6 +39,7 @@ interface Room {
   description: string | null;
   additional_features: FeatureCategory[] | null;
   details_order: string[] | null; // Nova propriedade
+  api_category_id: number | null; // Nova propriedade
 }
 
 interface DetailItem {
@@ -186,6 +187,11 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleApiCategoryIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFormData(prev => ({ ...prev, api_category_id: value === '' ? null : parseInt(value, 10) }));
   };
 
   const addDetail = () => {
@@ -364,6 +370,7 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
           details: updatedDetails,
           details_order: detailsOrder,
           additional_features: additionalFeatures,
+          api_category_id: formData.api_category_id, // Salvando o novo campo
         })
         .eq('id', room.id);
 
@@ -430,6 +437,18 @@ function RoomEditor({ room, onSave }: { room: Room; onSave: () => void }) {
           <div>
             <Label htmlFor={`booking_url-${room.id}`}>URL de Reserva</Label>
             <Input id={`booking_url-${room.id}`} name="booking_url" value={formData.booking_url || ''} onChange={handleInputChange} />
+          </div>
+          <div>
+            <Label htmlFor={`api_category_id-${room.id}`}>ID da Categoria na API Externa</Label>
+            <Input 
+              id={`api_category_id-${room.id}`} 
+              name="api_category_id" 
+              type="number" 
+              value={formData.api_category_id === null ? '' : formData.api_category_id} 
+              onChange={handleApiCategoryIdChange} 
+              placeholder="Ex: 4, 5, 6..."
+            />
+            <p className="text-sm text-gray-500 mt-1">Este é o ID que a API externa usa para identificar esta categoria de quarto.</p>
           </div>
         </CardContent>
       </Card>

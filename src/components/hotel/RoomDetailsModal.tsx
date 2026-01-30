@@ -167,11 +167,16 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
       return;
     }
 
-    try {
-      // Mapeamento personalizado para quartos com offset +4 (Supabase IDs 8 e 9)
-      const supabaseToApiMapping = { 8: 12, 9: 13 };
-      const targetApiRoomId = supabaseToApiMapping[room.id] || (room.id + 3); // Usa +4 para IDs 8 e 9, +3 como fallback
+    if (room.api_category_id === null || room.api_category_id === undefined) {
+      const errorMessage = "ID da categoria da API externa não configurado para este quarto. Por favor, configure no painel administrativo.";
+      setAvailabilitySearchError(errorMessage);
+      showError(errorMessage);
+      setIsSearchingAvailability(false);
+      setShowBookingForm(false);
+      return;
+    }
 
+    try {
       const { data, error: functionError } = await supabase.functions.invoke('get-availability', {
         body: { checkin, checkout, adults },
       });
@@ -184,15 +189,13 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
       
       if (data.error) throw new Error(data.error);
 
-      // A Edge Function retorna o idQuarto como o ID original da API.
-      // Precisamos encontrar o quarto que corresponde ao nosso room.id do Supabase.
-      // A correção de ID é -3 para ir da API para o Supabase, então para ir do Supabase para a API é +3.
-      const foundRoom = data.find((apiRoom: any) => apiRoom.idQuarto === targetApiRoomId);
+      // Encontra o quarto que corresponde ao api_category_id do Supabase
+      const foundRoom = data.find((apiRoom: any) => apiRoom.idQuarto === room.api_category_id);
 
       if (foundRoom && foundRoom.disponibilidade > 0 && foundRoom.valorTotal > 0) {
         setRoomAvailabilityResult({
           idQuarto: room.id, // ID do Supabase
-          apiRoomId: foundRoom.idQuarto, // ID original da API
+          apiRoomId: foundRoom.idQuarto, // ID original da API (que agora é o api_category_id)
           nomeQuarto: room.name,
           disponibilidade: foundRoom.disponibilidade,
           valorTotal: foundRoom.valorTotal,
@@ -220,7 +223,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
   const handleReserveClick = () => {
     if (roomAvailabilityResult && currentSearchParams) {
       try {
-        // Passa o apiRoomId para generateReservationLink
+        // Passa o apiRoomId (que agora é o api_category_id) para generateReservationLink
         const reservationLink = generateReservationLink(roomAvailabilityResult.apiRoomId, currentSearchParams);
         window.location.href = reservationLink; // Redireciona diretamente para o link externo
       } catch (error) {

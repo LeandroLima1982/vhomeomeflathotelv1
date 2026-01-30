@@ -22,6 +22,7 @@ interface LocalRoom {
   imageUrl: string | null;
   details: Record<string, string | null> | null;
   details_order: string[] | null;
+  api_category_id: number | null; // Adicionado o novo campo
 }
 
 interface AvailabilityResult {
@@ -64,9 +65,6 @@ const BookingV2 = () => {
     setError(null);
     setSearchParams(params);
 
-    // Removido: Rolagem para a seção de resultados no início da busca.
-    // Será acionada após a conclusão da busca no useEffect abaixo.
-
     if (!supabase) {
       const errorMessage = "Cliente Supabase não está disponível. Verifique a configuração.";
       setError(errorMessage);
@@ -89,20 +87,25 @@ const BookingV2 = () => {
       if (data.error) throw new Error(data.error);
 
       const mergedResults = data.map((apiRoom: any) => {
-        // Mapeamento personalizado para quartos com offset +4 (API IDs 12 e 13)
-        const apiToSupabaseMapping = { 12: 8, 13: 9 };
-        const adjustedRoomId = apiToSupabaseMapping[apiRoom.idQuarto] || (apiRoom.idQuarto - 3); // Usa +4 para IDs 12 e 13, +3 como fallback
-        const localRoom = localRoomsData.find(lr => lr.id === adjustedRoomId);
+        // Agora, procuramos o quarto local pelo api_category_id
+        const localRoom = localRoomsData.find(lr => lr.api_category_id === apiRoom.idQuarto);
+        
+        // Se não encontrar um quarto local correspondente, podemos pular ou usar um fallback
+        if (!localRoom) {
+          console.warn(`Quarto da API com idQuarto ${apiRoom.idQuarto} não encontrado no Supabase.`);
+          return null; // Ou retornar um objeto com dados apenas da API
+        }
+
         return {
           ...apiRoom,
-          idQuarto: adjustedRoomId,
-          apiRoomId: apiRoom.idQuarto,
-          imageUrl: localRoom?.imageUrl || null,
-          details: localRoom?.details || null,
-          details_order: localRoom?.details_order || null,
-          special_name: localRoom?.special_name || null,
+          idQuarto: localRoom.id, // Usamos o ID do Supabase para identificação interna
+          apiRoomId: apiRoom.idQuarto, // Mantemos o ID original da API para o checkout/link externo
+          imageUrl: localRoom.imageUrl || null,
+          details: localRoom.details || null,
+          details_order: localRoom.details_order || null,
+          special_name: localRoom.special_name || null,
         };
-      });
+      }).filter(Boolean); // Remove quaisquer entradas nulas se localRoom não for encontrado
 
       // Filtrar quartos que têm valor total > 0 E uma imagem de capa
       const pricedAndImagedResults = mergedResults.filter((room: AvailabilityResult) => 
@@ -159,7 +162,7 @@ const BookingV2 = () => {
       // Fetch Local Rooms Data
       const { data: roomData, error: roomError } = await supabase
         .from('rooms')
-        .select('*')
+        .select('id, name, special_name, details, details_order, api_category_id') // Incluindo api_category_id
         .order('id');
 
       if (roomError) {

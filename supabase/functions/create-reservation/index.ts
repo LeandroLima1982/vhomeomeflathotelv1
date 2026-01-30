@@ -87,6 +87,7 @@ serve(async (req) => {
     }
 
     const availabilityData = await availabilityResponse.json();
+    // Agora, procuramos pelo idQuarto que já é o api_category_id
     const roomAvailability = availabilityData.categorias?.find((cat: any) => cat.id === idQuarto);
 
     if (!roomAvailability || roomAvailability.disponibilidade <= 0) {
@@ -107,16 +108,14 @@ serve(async (req) => {
       categoriaPessoa: "ADULTO", // Conforme a documentação, se não mapeado, será ADULTO
     }));
 
-    // CORREÇÃO: Aplicando o ajuste de ID subtraindo 3 para a API de reserva externa
-    const adjustedIdtarifa = idQuarto - 3;
-
+    // REMOVIDO: Ajuste de ID. Agora idQuarto já é o idtarifa correto.
     const reservationRequestBody = {
       identificador: identificadorReserva,
       inicio: parseDate(checkin),
       fim: parseDate(checkout),
       acomodacoes: [
         {
-          idtarifa: adjustedIdtarifa, // Usando o ID ajustado aqui
+          idtarifa: idQuarto, // Usando o idQuarto diretamente (que é o api_category_id)
           valorTotal: valorTotal,
           numeroAdultos: adults,
           confirmada: "true",
