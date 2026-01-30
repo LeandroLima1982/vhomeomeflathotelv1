@@ -152,6 +152,31 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
     setTimeout(() => setIsTransitioning(false), 300);
   };
 
+  // Função para redirecionar diretamente para a URL de reserva
+  const handleDirectBookingRedirect = () => {
+    if (room.api_category_id === null || room.api_category_id === undefined) {
+      showError("ID da categoria da API externa não configurado para este quarto.");
+      return;
+    }
+
+    console.log('[RoomDetailsModal] Redirecionando diretamente para reserva com api_category_id:', room.api_category_id);
+    
+    try {
+      const baseUrl = 'https://vhomeflathotel.motordereservas.com.br/novareserva';
+      const params = new URLSearchParams({
+        idquartoCategoria: room.api_category_id.toString(),
+      });
+      const reservationLink = `${baseUrl}?${params.toString()}`;
+      
+      console.log('[RoomDetailsModal] URL de reserva direta construída:', reservationLink);
+      
+      window.location.href = reservationLink;
+    } catch (error) {
+      console.error("Erro ao gerar link de reserva direta:", error);
+      showError("Erro ao redirecionar para reserva. Tente novamente.");
+    }
+  };
+
   // Função para realizar a busca de disponibilidade
   const handleAvailabilitySearch = async (checkin: string, checkout: string, adults: number) => {
     setIsSearchingAvailability(true);
@@ -519,10 +544,10 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                 </div>
               </div>
             ) : (
-              // Botão inicial para consultar preço
+              // Botão inicial para consultar preço - agora redireciona diretamente
               <div className="flex justify-center">
                 <Button
-                  onClick={() => setShowBookingForm(true)}
+                  onClick={handleDirectBookingRedirect}
                   size="lg"
                   className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105"
                 >
