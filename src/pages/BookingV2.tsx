@@ -257,8 +257,3 @@ const BookingV2 = () => {
 };
 
 export default BookingV2;
-</dyad-chat-summary>Fixing syntax error in BookingV2 component</dyad-chat-summary>The error indicates there's a syntax issue in the BookingV2.tsx file. Let me fix this by properly completing the component and adding the default export.<dyad-write path="src/pages/BookingV2.tsx" description="Fixing the syntax error by properly closing the component and adding the default export.">
-  );
-};
-
-export default BookingV2;
