@@ -178,6 +178,8 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
     }
 
     try {
+      console.log('[RoomDetailsModal] Buscando disponibilidade para room.api_category_id:', room.api_category_id);
+      
       const { data, error: functionError } = await supabase.functions.invoke('get-availability', {
         body: { checkin, checkout, adults },
       });
@@ -190,14 +192,20 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
       
       if (data.error) throw new Error(data.error);
 
+      console.log('[RoomDetailsModal] Resposta da API de disponibilidade:', data);
+
       // Encontra o quarto que corresponde ao api_category_id do Supabase
       const foundRoom = data.find((apiRoom: any) => apiRoom.idQuarto === room.api_category_id);
 
+      console.log('[RoomDetailsModal] Quarto encontrado:', foundRoom);
+
       if (foundRoom && foundRoom.disponibilidade > 0 && foundRoom.valorTotal > 0) {
+        console.log('[RoomDetailsModal] Definindo roomAvailabilityResult com originalApiRoomId:', foundRoom.idQuarto);
+        
         setRoomAvailabilityResult({
           idQuarto: room.id, // ID do Supabase
-          apiRoomId: foundRoom.idQuarto, // ID original da API (que agora é o api_category_id)
-          originalApiRoomId: foundRoom.idQuarto, // NOVO: Armazena o ID original retornado pela API
+          apiRoomId: room.api_category_id, // ID configurado no Supabase
+          originalApiRoomId: foundRoom.idQuarto, // ID retornado pela API (deve ser igual ao api_category_id)
           nomeQuarto: room.name,
           disponibilidade: foundRoom.disponibilidade,
           valorTotal: foundRoom.valorTotal,
@@ -222,11 +230,12 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
     }
   };
 
-  // NOVO: Função para construir URL usando o ID original da pré-consulta
+  // Função para construir URL usando o ID original da pré-consulta
   const handleReserveWithPreConsultaId = () => {
     if (roomAvailabilityResult && currentSearchParams) {
+      console.log('[RoomDetailsModal] Construindo URL de reserva com originalApiRoomId:', roomAvailabilityResult.originalApiRoomId);
+      
       try {
-        // Usa o originalApiRoomId (ID retornado pela API de disponibilidade sem ajuste)
         const baseUrl = 'https://vhomeflathotel.motordereservas.com.br/novareserva';
         const params = new URLSearchParams({
           inicio: currentSearchParams.checkin,
@@ -235,6 +244,9 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
           idquartoCategoria: roomAvailabilityResult.originalApiRoomId.toString(),
         });
         const reservationLink = `${baseUrl}?${params.toString()}`;
+        
+        console.log('[RoomDetailsModal] URL de reserva construída:', reservationLink);
+        
         window.location.href = reservationLink;
       } catch (error) {
         console.error("Erro ao gerar link de reserva com ID da pré-consulta:", error);
@@ -480,14 +492,6 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                     >
                       <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                       Reservar Agora
-                    </Button>
-                    <Button
-                      onClick={handleDirectReserve}
-                      size="lg"
-                      className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105 w-full sm:w-auto"
-                    >
-                      <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                      Reservar Agora (Direto)
                     </Button>
                   </div>
                 </div>
