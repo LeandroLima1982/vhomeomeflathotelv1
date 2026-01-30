@@ -18,6 +18,7 @@ const RESERVATION_LINKS: Record<number, string> = {
 const EXTERNAL_API_ID_FOR_URL_MAPPING: Record<number, number> = {
   5: 8,  // Quando o ID do Supabase é 5, usar 8 na URL externa
   6: 10, // Quando o ID do Supabase é 6, usar 10 na URL externa
+  15: 10, // NOVO: Quando o ID do Supabase é 15 (que corresponde ao originalApiId 18), usar 10 na URL externa
 };
 
 // Link geral como fallback
