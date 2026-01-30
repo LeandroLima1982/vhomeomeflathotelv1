@@ -77,7 +77,7 @@ const Rooms = () => {
                   let firstImageName: string | null = null;
                   const { data: orderFileData } = await supabase.storage
                     .from('gallery')
-                    .download(`rooms/${room.id}/gallery/_order.json`);
+                    .getPublicUrl(`rooms/${room.id}/gallery/_order.json`);
 
                   if (orderFileData) {
                     try {
@@ -113,7 +113,9 @@ const Rooms = () => {
           }
         })
       );
-      setRooms(roomsWithImages);
+      // Filter out room with id 3
+      const filteredRooms = roomsWithImages.filter(room => room.id !== 3);
+      setRooms(filteredRooms);
       setLoading(false);
     };
 
@@ -132,21 +134,21 @@ const Rooms = () => {
   
     if (room.details_order && Array.isArray(room.details_order)) {
       const orderedDetails = room.details_order
-        .map(key => {
+        .map((key: string) => {
           if (validKeys.includes(key)) {
             return detailsObject[key];
           }
           return null;
         })
-        .filter((value): value is string => value !== null);
+        .filter((value: string | null): value is string => value !== null);
       
       const unorderedKeys = validKeys.filter(key => !room.details_order.includes(key));
       const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
   
-      return [...orderedDetails, ...unorderedDetails].slice(0, 9);
+      return [...orderedDetails, ...unorderedDetails];
     }
   
-    return validKeys.map(key => detailsObject[key] as string).slice(0, 9);
+    return validKeys.map(key => detailsObject[key] as string);
   };
 
   if (loading) {
