@@ -22,7 +22,7 @@ interface LocalRoom {
   imageUrl: string | null;
   details: Record<string, string | null> | null;
   details_order: string[] | null;
-  api_category_id: number | null; // Adicionado o novo campo
+  api_category_id: number | null;
 }
 
 interface AvailabilityResult {
@@ -50,7 +50,7 @@ const BookingV2 = () => {
   const [error, setError] = useState<string | null>(null);
   const [localRoomsData, setLocalRoomsData] = useState<LocalRoom[]>([]);
   const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
-  const [sortOrder, setSortOrder] = useState('price_asc'); // Alterado para 'price_asc'
+  const [sortOrder, setSortOrder] = useState('price_asc');
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
@@ -86,31 +86,58 @@ const BookingV2 = () => {
       
       if (data.error) throw new Error(data.error);
 
+      console.log('[BookingV2] Dados da API:', data);
+      console.log('[BookingV2] Quartos locais:', localRoomsData);
+
       const mergedResults = data.map((apiRoom: any) => {
-        // Agora, procuramos o quarto local pelo api_category_id
+        // Procura o quarto local pelo api_category_id
         const localRoom = localRoomsData.find(lr => lr.api_category_id === apiRoom.idQuarto);
         
-        // Se não encontrar um quarto local correspondente, podemos pular ou usar um fallback
         if (!localRoom) {
-          console.warn(`Quarto da API com idQuarto ${apiRoom.idQuarto} não encontrado no Supabase.`);
-          return null; // Ou retornar um objeto com dados apenas da API
+          console.warn(`[BookingV2] Quarto da API com idQuarto ${apiRoom.idQuarto} não encontrado no Supabase.`);
+          // Retorna o quarto mesmo sem dados locais, para debug
+          return {
+            ...apiRoom,
+            idQuarto: apiRoom.idQuarto,
+            apiRoomId: apiRoom.idQuarto,
+            imageUrl: null,
+            details: null,
+            details_order: null,
+            special_name: null,
+          };
         }
+
+        console.log(`[BookingV2] Mapeando API room ${apiRoom.idQuarto} para local room ${localRoom.id}`);
 
         return {
           ...apiRoom,
-          idQuarto: localRoom.id, // Usamos o ID do Supabase para identificação interna
-          apiRoomId: apiRoom.idQuarto, // Mantemos o ID original da API para o checkout/link externo
+          idQuarto: localRoom.id,
+          apiRoomId: apiRoom.idQuarto,
           imageUrl: localRoom.imageUrl || null,
           details: localRoom.details || null,
           details_order: localRoom.details_order || null,
           special_name: localRoom.special_name || null,
         };
-      }).filter(Boolean); // Remove quaisquer entradas nulas se localRoom não for encontrado
+      });
 
-      // Filtrar quartos que têm valor total > 0 E uma imagem de capa
-      const pricedAndImagedResults = mergedResults.filter((room: AvailabilityResult) => 
-        room.valorTotal > 0 && room.imageUrl // Adicionada a condição room.imageUrl
-      );
+      console.log('[BookingV2] Resultados mesclados:', mergedResults);
+
+      // Filtrar apenas quartos com preço > 0 E imagem
+      const pricedAndImagedResults = mergedResults.filter((room: AvailabilityResult) => {
+        const hasPrice = room.valorTotal > 0;
+        const hasImage = room.imageUrl !== null;
+        
+        if (!hasPrice) {
+          console.log(`[BookingV2] Quarto ${room.nomeQuarto} filtrado: sem preço`);
+        }
+        if (!hasImage) {
+          console.log(`[BookingV2] Quarto ${room.nomeQuarto} filtrado: sem imagem`);
+        }
+        
+        return hasPrice && hasImage;
+      });
+
+      console.log('[BookingV2] Resultados finais após filtros:', pricedAndImagedResults);
       setRawResults(pricedAndImagedResults);
 
     } catch (e: any) {
@@ -162,7 +189,7 @@ const BookingV2 = () => {
       // Fetch Local Rooms Data
       const { data: roomData, error: roomError } = await supabase
         .from('rooms')
-        .select('id, name, special_name, details, details_order, api_category_id') // Incluindo api_category_id
+        .select('id, name, special_name, details, details_order, api_category_id')
         .order('id');
 
       if (roomError) {
@@ -174,6 +201,8 @@ const BookingV2 = () => {
         setLocalRoomsData([]);
         return;
       }
+
+      console.log('[BookingV2] Dados dos quartos do Supabase:', roomData);
 
       const roomsWithImages = await Promise.all(
         roomData.map(async (room) => {
@@ -247,13 +276,14 @@ const BookingV2 = () => {
           }
         })
       );
+      
+      console.log('[BookingV2] Quartos com imagens:', roomsWithImages);
       setLocalRoomsData(roomsWithImages);
     };
 
     fetchInitialData();
   }, []);
 
-  // Efeito para ler os parâmetros da URL e disparar a busca
   useEffect(() => {
     if (localRoomsData.length > 0) {
       const checkinParam = urlSearchParams.get('checkin');
@@ -291,7 +321,6 @@ const BookingV2 = () => {
     setDisplayedResults(sortedResults);
   }, [rawResults, sortOrder]);
 
-  // NOVO useEffect para rolar para os resultados após a conclusão da busca
   useEffect(() => {
     if (!isLoading && (displayedResults || error)) {
       resultsContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
