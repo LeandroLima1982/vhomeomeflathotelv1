@@ -223,8 +223,8 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
   const handleReserveClick = () => {
     if (roomAvailabilityResult && currentSearchParams) {
       try {
-        // Passa o apiRoomId (que agora é o api_category_id) para generateReservationLink
-        const reservationLink = generateReservationLink(roomAvailabilityResult.apiRoomId, currentSearchParams);
+        // Usar room.id em vez de roomAvailabilityResult.apiRoomId
+        const reservationLink = generateReservationLink(room.id, currentSearchParams);
         window.location.href = reservationLink; // Redireciona diretamente para o link externo
       } catch (error) {
         console.error("Erro ao gerar link de reserva:", error);
@@ -433,7 +433,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="text-center sm:text-left">
                     <span className="text-sm text-gray-600">Total para {numberOfNights} diária{numberOfNights > 1 ? 's' : ''}</span>
-                    <p className="text-3xl font-bold text-blue-800 flex items-center gap-2 mt-1">
+                    <p className="text-2xl font-bold text-blue-800 flex items-center gap-2 mt-1">
                       <Tag className="h-6 w-6 opacity-70" />
                       {formattedPrice}
                     </p>
