@@ -1,15 +1,17 @@
 "use client";
 
-import { BedDouble, Calendar, Users, Tag, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { format, parse } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { showError } from "@/utils/toast";
+import { BedDouble, Tag, Users } from "lucide-react";
 import DetailIcon from './DetailIcon';
+import { parse, differenceInDays } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Badge } from "@/components/ui/badge";
+import { generateReservationLink } from "@/utils/reservationLinks";
+import { showError } from "@/utils/toast";
 
-interface AvailabilityResult {
+interface RoomResult {
   idQuarto: number;
   nomeQuarto: string;
   disponibilidade: number;
@@ -18,6 +20,7 @@ interface AvailabilityResult {
   details: Record<string, string | null> | null;
   details_order: string[] | null;
   special_name?: string | null;
+  apiRoomId: number; // Adicionado para o link externo
   [key: string]: any;
 }
 
@@ -28,39 +31,44 @@ interface SearchParams {
 }
 
 interface RoomResultCardProps {
-  room: AvailabilityResult;
+  room: RoomResult;
   searchParams: SearchParams;
 }
 
 export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
-  const formatDate = (dateStr: string) => {
-    const date = parse(dateStr, "yyyyMMdd", new Date());
-    return format(date, "dd/MM", { locale: ptBR });
-  };
+  const navigate = useNavigate();
 
   const formattedPrice = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
   }).format(room.valorTotal);
 
+  const checkinDateObj = parse(searchParams.checkin, "yyyyMMdd", new Date());
+  const checkoutDateObj = parse(searchParams.checkout, "yyyyMMdd", new Date());
+  const numberOfNights = differenceInDays(checkoutDateObj, checkinDateObj);
+
   const handleSelectRoom = () => {
     try {
-      const baseUrl = 'https://vhomeflathotel.motordereservas.com.br/novareserva';
-      const params = new URLSearchParams({
-        inicio: searchParams.checkin,
-        fim: searchParams.checkout,
-        adultos: searchParams.adults.toString(),
-        idquartoCategoria: room.idQuarto.toString(), // Usar o idQuarto ajustado como idquartoCategoria
-      });
-      const reservationLink = `${baseUrl}?${params.toString()}`;
-      window.location.href = reservationLink;
+      // Passa o apiRoomId para generateReservationLink
+      const reservationLink = generateReservationLink(room.apiRoomId, searchParams);
+      window.location.href = reservationLink; // Redireciona diretamente para o link externo
     } catch (error) {
       console.error("Erro ao gerar link de reserva:", error);
       showError("Erro ao redirecionar para reserva. Tente novamente.");
     }
   };
 
-  const getRoomDetails = (roomData: AvailabilityResult) => {
+  const getCapacityDisplay = (details: Record<string, string | null> | null) => {
+    if (!details) return null;
+    const capacityDetail = Object.entries(details).find(([key, value]) => 
+      key.toLowerCase().includes('capacidade') || (value && value.toLowerCase().includes('hóspedes')) || (value && value.toLowerCase().includes('adultos'))
+    );
+    return capacityDetail ? capacityDetail[1] : null;
+  };
+
+  const capacity = getCapacityDisplay(room.details);
+
+  const getRoomDetails = (roomData: RoomResult) => {
     if (!roomData.details || typeof roomData.details !== 'object') return [];
   
     const detailsObject = roomData.details;
@@ -83,82 +91,80 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
       const unorderedKeys = validKeys.filter(key => !roomData.details_order.includes(key));
       const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
   
-      return [...orderedDetails, ...unorderedDetails].slice(0, 9);
+      return [...orderedDetails, ...unorderedDetails];
     }
   
-    return validKeys.map(key => detailsObject[key] as string).slice(0, 9);
+    return validKeys.map(key => detailsObject[key] as string);
   };
 
-  const roomDetails = getRoomDetails(room);
+  const details = getRoomDetails(room);
+
+  const showUrgencyBadge = room.disponibilidade > 0 && room.disponibilidade <= 2;
+  const urgencyMessage = room.disponibilidade === 1 ? "Apenas 1 quarto restante!" : "Últimas 2 unidades!";
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-      <div className="flex flex-col md:flex-row">
-        <div className="md:w-1/3">
-          <div className="aspect-video md:aspect-square bg-gray-200 flex items-center justify-center">
-            {room.imageUrl ? (
-              <img src={room.imageUrl} alt={room.nomeQuarto} className="w-full h-full object-cover" />
-            ) : (
-              <BedDouble className="h-12 w-12 text-gray-400" />
-            )}
-          </div>
-        </div>
-        <div className="md:w-2/3 p-6 flex flex-col justify-between">
-          <div>
-            <CardHeader className="p-0 mb-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  {room.special_name && (
-                    <div className="inline-block mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                      {room.special_name}
-                    </div>
-                  )}
-                  <CardTitle className="text-xl text-gray-800">{room.nomeQuarto}</CardTitle>
-                </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-blue-800 flex items-center gap-2">
-                    <Tag className="w-5 h-5 mr-2 opacity-70" />
-                    {formattedPrice}
-                  </div>
-                  <p className="text-sm text-gray-500">por estadia</p>
-                </div>
-              </div>
-            </CardHeader>
-
-            <div className="space-y-3 text-sm text-gray-600 mb-4">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-blue-600" />
-                <span>
-                  {formatDate(searchParams.checkin)} - {formatDate(searchParams.checkout)}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-blue-600" />
-                <span>{searchParams.adults} Hóspede{searchParams.adults > 1 ? 's' : ''}</span>
-              </div>
+    <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col md:flex-row">
+      <div className="md:w-1/3 bg-gray-200 flex items-center justify-center p-4 min-h-[200px] relative">
+        {room.imageUrl ? (
+          <img src={room.imageUrl} alt={room.nomeQuarto} className="absolute inset-0 w-full h-full object-cover" />
+        ) : (
+          <BedDouble className="h-16 w-16 text-gray-400" />
+        )}
+      </div>
+      <div className="flex-1 flex flex-col">
+        <CardHeader>
+          {room.special_name && (
+            <div className="inline-block w-fit mb-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md">
+              {room.special_name}
             </div>
-
-            {roomDetails.length > 0 && (
-              <div className="mb-4">
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                  {roomDetails.map((detail, index) => (
-                    <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
-                      <DetailIcon detailText={detail} />
-                      <span>{detail}</span>
-                    </div>
-                  ))}
+          )}
+          <CardTitle className="text-xl text-gray-800">{room.nomeQuarto}</CardTitle>
+          {capacity && (
+            <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+              <Users className="h-4 w-4 text-blue-700" />
+              <span>{capacity}</span>
+            </div>
+          )}
+          {showUrgencyBadge && (
+            <Badge variant="destructive" className="mt-2 w-fit bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+              {urgencyMessage}
+            </Badge>
+          )}
+        </CardHeader>
+        <CardContent className="flex-grow">
+          {details.length > 0 && (
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-4">
+              {details.map((detail, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <DetailIcon detailText={detail} />
+                  <span className="text-sm text-gray-600">{detail}</span>
                 </div>
-              </div>
+              ))}
+            </div>
+          )}
+          <p className="text-sm text-gray-600">
+            {room.disponibilidade > 0 
+              ? `${room.disponibilidade} unidade${room.disponibilidade > 1 ? 's' : ''} disponível${room.disponibilidade > 1 ? 's' : ''}`
+              : "Indisponível"}
+          </p>
+        </CardContent>
+        <CardFooter className="bg-gray-50 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex flex-col items-start">
+            <span className="text-sm text-gray-600">Total para o período</span>
+            <p className="text-2xl font-bold text-blue-800 flex items-center">
+              <Tag className="h-5 w-5 mr-2 opacity-70" />
+              {formattedPrice}
+            </p>
+            {numberOfNights > 0 && (
+              <span className="text-xs text-gray-500 mt-1">
+                ({numberOfNights} diária{numberOfNights > 1 ? 's' : ''})
+              </span>
             )}
           </div>
-
-          <div className="flex justify-end">
-            <Button onClick={handleSelectRoom} className="bg-blue-600 hover:bg-blue-700">
-              <ArrowRight className="h-4 w-4 mr-2" />
-              Reservar
-            </Button>
-          </div>
-        </div>
+          <Button onClick={handleSelectRoom} className="w-full sm:w-auto bg-blue-700 hover:bg-blue-800">
+            Reservar
+          </Button>
+        </CardFooter>
       </div>
     </Card>
   );

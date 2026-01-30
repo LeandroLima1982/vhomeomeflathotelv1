@@ -1,12 +1,11 @@
 "use client";
 
-import { BedDouble, Calendar, Users, Tag, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { BedDouble, Tag, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { format, parse } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { Badge } from "@/components/ui/badge";
+import { generateReservationLink } from "@/utils/reservationLinks";
 import { showError } from "@/utils/toast";
-import DetailIcon from './DetailIcon';
 
 interface AvailabilityResult {
   idQuarto: number;
@@ -17,6 +16,7 @@ interface AvailabilityResult {
   details: Record<string, string | null> | null;
   details_order: string[] | null;
   special_name?: string | null;
+  apiRoomId: number; // Adicionado para o link externo
   [key: string]: any;
 }
 
@@ -32,10 +32,7 @@ interface RoomResultGridCardProps {
 }
 
 export function RoomResultGridCard({ room, searchParams }: RoomResultGridCardProps) {
-  const formatDate = (dateStr: string) => {
-    const date = parse(dateStr, "yyyyMMdd", new Date());
-    return format(date, "dd/MM", { locale: ptBR });
-  };
+  const navigate = useNavigate();
 
   const formattedPrice = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -44,106 +41,77 @@ export function RoomResultGridCard({ room, searchParams }: RoomResultGridCardPro
 
   const handleSelectRoom = () => {
     try {
-      const baseUrl = 'https://vhomeflathotel.motordereservas.com.br/novareserva';
-      const params = new URLSearchParams({
-        inicio: searchParams.checkin,
-        fim: searchParams.checkout,
-        adultos: searchParams.adults.toString(),
-        idquartoCategoria: room.idQuarto.toString(), // Usar o idQuarto ajustado como idquartoCategoria
-      });
-      const reservationLink = `${baseUrl}?${params.toString()}`;
-      window.location.href = reservationLink;
+      // Passa o apiRoomId para generateReservationLink
+      const reservationLink = generateReservationLink(room.apiRoomId, searchParams);
+      window.location.href = reservationLink; // Redireciona diretamente para o link externo
     } catch (error) {
       console.error("Erro ao gerar link de reserva:", error);
       showError("Erro ao redirecionar para reserva. Tente novamente.");
     }
   };
 
-  const getRoomDetails = (roomData: AvailabilityResult) => {
-    if (!roomData.details || typeof roomData.details !== 'object') return [];
-  
-    const detailsObject = roomData.details;
-  
-    const validKeys = Object.keys(detailsObject).filter(key => {
-      const value = detailsObject[key];
-      return value && typeof value === 'string' && value.trim() !== '' && key !== 'description';
-    });
-  
-    if (roomData.details_order && Array.isArray(roomData.details_order)) {
-      const orderedDetails = roomData.details_order
-        .map(key => {
-          if (validKeys.includes(key)) {
-            return detailsObject[key];
-          }
-          return null;
-        })
-        .filter((value): value is string => value !== null);
-      
-      const unorderedKeys = validKeys.filter(key => !roomData.details_order.includes(key));
-      const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
-  
-      return [...orderedDetails, ...unorderedDetails].slice(0, 6); // Limita a 6 para grid
-    }
-  
-    return validKeys.map(key => detailsObject[key] as string).slice(0, 6);
+  const getCapacityDisplay = (details: Record<string, string | null> | null) => {
+    if (!details) return null;
+    const capacityDetail = Object.entries(details).find(([key, value]) => 
+      key.toLowerCase().includes('capacidade') || (value && value.toLowerCase().includes('hóspedes')) || (value && value.toLowerCase().includes('adultos'))
+    );
+    return capacityDetail ? capacityDetail[1] : null;
   };
 
-  const roomDetails = getRoomDetails(room);
+  const capacity = getCapacityDisplay(room.details);
+
+  const showUrgencyBadge = room.disponibilidade > 0 && room.disponibilidade <= 2;
+  const urgencyMessage = room.disponibilidade === 1 ? "Apenas 1 quarto restante!" : "Últimas 2 unidades!";
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-      <div className="aspect-square bg-gray-200 flex items-center justify-center relative">
+    <div
+      className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer"
+      onClick={handleSelectRoom}
+    >
+      <div className="h-64 relative overflow-hidden">
         {room.imageUrl ? (
-          <img src={room.imageUrl} alt={room.nomeQuarto} className="w-full h-full object-cover" />
+          <div
+            className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-300"
+            style={{ backgroundImage: `url(${room.imageUrl})` }}
+          />
         ) : (
-          <BedDouble className="h-12 w-12 text-gray-400" />
-        )}
-        {room.special_name && (
-          <div className="absolute top-2 left-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-2 py-1 rounded-full">
-            {room.special_name}
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+            <BedDouble className="h-16 w-16 text-gray-400" />
           </div>
         )}
-      </div>
-      <CardContent className="p-4">
-        <CardHeader className="p-0 mb-2">
-          <CardTitle className="text-lg text-gray-800">{room.nomeQuarto}</CardTitle>
-        </CardHeader>
-
-        <div className="text-sm text-gray-600 mb-3">
-          <div className="flex items-center gap-1 mb-1">
-            <Calendar className="h-3 w-3 text-blue-600" />
-            <span>{formatDate(searchParams.checkin)} - {formatDate(searchParams.checkout)}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Users className="h-3 w-3 text-blue-600" />
-            <span>{searchParams.adults} Hóspede{searchParams.adults > 1 ? 's' : ''}</span>
-          </div>
-        </div>
-
-        {roomDetails.length > 0 && (
-          <div className="mb-3">
-            <div className="grid grid-cols-1 gap-1">
-              {roomDetails.map((detail, index) => (
-                <div key={index} className="flex items-center gap-1 text-xs text-gray-600">
-                  <DetailIcon detailText={detail} />
-                  <span>{detail}</span>
-                </div>
-              ))}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        <div className="absolute bottom-0 left-0 p-4 text-white">
+          {room.special_name && (
+            <div className="inline-block mb-1 bg-blue-600 text-white px-2 py-0.5 rounded-full text-xs font-semibold">
+              {room.special_name}
             </div>
-          </div>
-        )}
-
-        <div className="flex items-center justify-between">
-          <div className="text-lg font-bold text-blue-800 flex items-center gap-1">
-            <Tag className="w-4 h-4 opacity-70" />
-            {formattedPrice}
-          </div>
-          <Button onClick={handleSelectRoom} size="sm" className="bg-blue-600 hover:bg-blue-700">
-            <ArrowRight className="h-3 w-3 mr-1" />
-            Reservar
-          </Button>
+          )}
+          <h3 className="text-lg font-semibold">{room.nomeQuarto}</h3>
+          {capacity && (
+            <div className="flex items-center gap-2 text-xs text-gray-200 mt-1">
+              <Users className="h-3 w-3" />
+              <span>{capacity}</span>
+            </div>
+          )}
+          {showUrgencyBadge && (
+            <Badge variant="destructive" className="mt-2 w-fit bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+              {urgencyMessage}
+            </Badge>
+          )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+      <div className="p-4 bg-gray-50 flex items-center justify-between">
+        <div>
+          <p className="text-sm text-gray-500">Total</p>
+          <p className="text-xl font-bold text-blue-800 flex items-center">
+            <Tag className="h-4 w-4 mr-1.5 opacity-70" />
+            {formattedPrice}
+          </p>
+        </div>
+        <Button onClick={handleSelectRoom} className="bg-blue-700 hover:bg-blue-800">
+          Selecionar
+        </Button>
+      </div>
+    </div>
   );
 }
