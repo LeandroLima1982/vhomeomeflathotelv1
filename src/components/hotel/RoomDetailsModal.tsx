@@ -233,6 +233,18 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
     }
   };
 
+  const handleDirectReserve = () => {
+    if (currentSearchParams) {
+      try {
+        const reservationLink = generateReservationLink(room.api_category_id, currentSearchParams);
+        window.location.href = reservationLink;
+      } catch (error) {
+        console.error("Erro ao gerar link de reserva direta:", error);
+        showError("Erro ao redirecionar para reserva. Tente novamente.");
+      }
+    }
+  };
+
   const handleViewOtherOptions = (isDirectBooking: boolean) => {
     if (currentSearchParams) {
       const { checkin, checkout, adults } = currentSearchParams;
@@ -438,14 +450,24 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                       {formattedPrice}
                     </p>
                   </div>
-                  <Button
-                    onClick={handleReserveClick}
-                    size="lg"
-                    className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105 w-full sm:w-auto"
-                  >
-                    <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                    Reservar Agora
-                  </Button>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <Button
+                      onClick={handleReserveClick}
+                      size="lg"
+                      className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105 w-full sm:w-auto"
+                    >
+                      <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                      Reservar Agora
+                    </Button>
+                    <Button
+                      onClick={handleDirectReserve}
+                      size="lg"
+                      className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105 w-full sm:w-auto"
+                    >
+                      <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                      Reservar Agora (Direto)
+                    </Button>
+                  </div>
                 </div>
                 <div className="mt-4 text-center">
                   <Button variant="link" onClick={() => handleViewOtherOptions(false)} className="text-blue-600 hover:text-blue-800">
