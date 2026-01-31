@@ -149,6 +149,23 @@ const BookingV2 = () => {
       console.log('[BookingV2] Dados locais dos quartos:', localRoomsData);
       console.log('[BookingV2] Número de quartos locais:', localRoomsData?.length || 0);
 
+      // Buscar todas as imagens de capa dos quartos
+      const { data: coverFiles, error: coverError } = await supabase.storage.from('gallery').list('rooms');
+
+      const coverImageMap = new Map<number, string>();
+      if (coverFiles && !coverError) {
+        coverFiles.forEach(file => {
+          const match = file.name.match(/^(\d+)\./);
+          if (match) {
+            const roomId = parseInt(match[1], 10);
+            const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(`rooms/${file.name}`);
+            coverImageMap.set(roomId, `${publicUrl}?t=${new Date().getTime()}`);
+          }
+        });
+      }
+
+      console.log('[BookingV2] Mapa de imagens de capa:', coverImageMap);
+
       // MODIFICAÇÃO: Em vez de filtrar apenas quartos locais configurados,
       // vamos mostrar TODOS os quartos da API disponíveis
       const mergedResults = data.map((apiRoom: any) => {
@@ -166,20 +183,24 @@ const BookingV2 = () => {
             ...apiRoom,
             idQuarto: localRoom.id, // Usar ID do Supabase
             apiRoomId: apiRoom.idQuarto, // Manter o ID original da API para links externos
-            imageUrl: localRoom.imageUrl || null,
+            imageUrl: localRoom.imageUrl || coverImageMap.get(localRoom.id) || null,
             details: localRoom.details || null,
             details_order: localRoom.details_order || null,
             special_name: localRoom.special_name || null,
           };
         } else {
           // Se NÃO encontrou correspondência local, ainda assim mostrar o quarto da API
-          // com dados padrão
-          console.log(`[BookingV2] Quarto API ${apiRoom.idQuarto} não tem correspondência local, usando dados padrão`);
+          // com dados padrão, mas tentar buscar imagem de capa usando ID ajustado
+          const adjustedId = apiRoom.idQuarto - 3; // Usando offset da documentação
+          const coverImage = coverImageMap.get(adjustedId);
+
+          console.log(`[BookingV2] Quarto API ${apiRoom.idQuarto} não tem correspondência local, usando ID ajustado ${adjustedId}, imagem encontrada:`, !!coverImage);
+
           return {
             ...apiRoom,
-            idQuarto: apiRoom.idQuarto, // Usar ID da API como ID do Supabase
+            idQuarto: adjustedId, // Usar ID ajustado como ID do Supabase
             apiRoomId: apiRoom.idQuarto, // Manter o ID original da API para links externos
-            imageUrl: null, // Sem imagem local
+            imageUrl: coverImage || null, // Usar imagem de capa se encontrada
             details: null, // Sem detalhes locais
             details_order: null, // Sem ordem de detalhes
             special_name: null, // Sem nome especial
