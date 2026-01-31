@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { BedDouble, Tag, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { generateReservationLink } from "@/utils/reservationLinks";
+import { generateReservationLink, buildLinkFromDbUrl } from "@/utils/reservationLinks";
 import { showError } from "@/utils/toast";
 
 interface AvailabilityResult {
@@ -18,6 +18,7 @@ interface AvailabilityResult {
   special_name?: string | null;
   apiRoomId: number; // Adicionado para o link externo
   api_category_id?: number | null; // Added for correct category ID in reservation link
+  booking_url?: string | null;
   [key: string]: any;
 }
 
@@ -42,9 +43,17 @@ export function RoomResultGridCard({ room, searchParams }: RoomResultGridCardPro
 
   const handleSelectRoom = () => {
     try {
-      // Use api_category_id for the reservation link if available, fallback to apiRoomId
-      const categoryId = room.api_category_id || room.apiRoomId;
-      const reservationLink = generateReservationLink(categoryId, searchParams);
+      let reservationLink: string;
+
+      // Prioridade TOTAL: Se tiver URL configurada no banco (via BookingV2 join), usa ela.
+      if (room.booking_url) {
+        reservationLink = buildLinkFromDbUrl(room.booking_url, searchParams);
+      } else {
+        // Fallback: Tenta construir baseada no ID mapeado no front (legado)
+        const categoryId = room.api_category_id || room.apiRoomId;
+        reservationLink = generateReservationLink(categoryId, searchParams);
+      }
+
       window.location.href = reservationLink; // Redireciona diretamente para o link externo
     } catch (error) {
       console.error("Erro ao gerar link de reserva:", error);
@@ -54,7 +63,7 @@ export function RoomResultGridCard({ room, searchParams }: RoomResultGridCardPro
 
   const getCapacityDisplay = (details: Record<string, string | null> | null) => {
     if (!details) return null;
-    const capacityDetail = Object.entries(details).find(([key, value]) => 
+    const capacityDetail = Object.entries(details).find(([key, value]) =>
       key.toLowerCase().includes('capacidade') || (value && value.toLowerCase().includes('hóspedes')) || (value && value.toLowerCase().includes('adultos'))
     );
     return capacityDetail ? capacityDetail[1] : null;

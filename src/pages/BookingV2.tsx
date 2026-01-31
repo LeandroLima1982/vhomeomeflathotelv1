@@ -132,9 +132,10 @@ const BookingV2 = () => {
       if (data.error) throw new Error(data.error);
 
       // Buscar dados locais dos quartos ordenados por ID (mesmo padrão da home page)
+      // ADICIONADO: 'booking_url' para garantir que usamos o link configurado no banco
       const { data: localRoomsData, error: localError } = await supabase
         .from('rooms')
-        .select('id, name, special_name, details, details_order, api_category_id')
+        .select('id, name, special_name, details, details_order, api_category_id, booking_url')
         .order('id');
 
       if (localError) {
@@ -209,18 +210,37 @@ const BookingV2 = () => {
 
         console.log(`[BookingV2] API Room ID: ${apiRoom.idQuarto} ("${apiRoom.nomeQuarto}") matches Local Room:`, localRoom ? `${localRoom.name} (Cat ID ${localRoom.api_category_id})` : 'No Match');
 
+        // Extra logic to extract ID from booking_url if available
+        let extractedCategoryId = null;
+        if (localRoom?.booking_url) {
+          try {
+            // Tenta extrair idquartoCategoria da URL completa ex: ...?idquartoCategoria=10...
+            const match = localRoom.booking_url.match(/[?&]idquartoCategoria=(\d+)/);
+            if (match && match[1]) {
+              extractedCategoryId = parseInt(match[1], 10);
+            }
+          } catch (e) {
+            console.warn("Erro ao extrair ID da booking_url:", e);
+          }
+        }
+
         // Se houver um quarto local correspondente, usamos seus dados.
-        // Importante: api_category_id do localRoom sobrescreve o idQuarto da API para o link de reserva.
+        // Importante: extractedCategoryId (da booking_url) tem prioridade total.
+        // Se não tiver, usa api_category_id (coluna numérica).
+        // Se não tiver nenhum, usa o ID da API.
+        const finalCategoryId = extractedCategoryId || localRoom?.api_category_id || apiRoom.idQuarto;
+
         return {
           ...apiRoom,
           idQuarto: localRoom ? localRoom.id : apiRoom.idQuarto,
           apiRoomId: apiRoom.idQuarto, // ID vindo da API (original)
-          api_category_id: localRoom?.api_category_id || apiRoom.idQuarto, // ID para o link de reserva (prioriza configuração do banco)
+          api_category_id: finalCategoryId, // ID para o link de reserva (prioriza booking_url do banco)
           imageUrl: localRoom ? coverImageMap.get(localRoom.id) || null : null,
           details: localRoom?.details || null,
           details_order: localRoom?.details_order || null,
           special_name: localRoom?.special_name || null,
           nomeQuarto: localRoom ? localRoom.name : apiRoom.nomeQuarto,
+          booking_url: localRoom?.booking_url // Passa a URL original também caso precise
         };
       });
 
