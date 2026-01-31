@@ -23,9 +23,13 @@ serve(async (req) => {
   }
 
   try {
+    console.log("[get-availability] Function started");
+    
     const { checkin, checkout, adults } = await req.json();
+    console.log("[get-availability] Received params:", { checkin, checkout, adults });
 
     if (!checkin || !checkout || !adults) {
+      console.log("[get-availability] Missing required parameters");
       return new Response(JSON.stringify({ error: 'Parâmetros ausentes: checkin, checkout e adults são obrigatórios.' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -33,7 +37,10 @@ serve(async (req) => {
     }
 
     const apiToken = Deno.env.get('API_RESERVAS_TOKEN');
+    console.log("[get-availability] API token exists:", !!apiToken);
+    
     if (!apiToken) {
+      console.log("[get-availability] API token not configured");
       throw new Error('O segredo API_RESERVAS_TOKEN não foi configurado na Supabase.');
     }
 
@@ -42,6 +49,9 @@ serve(async (req) => {
       fim: parseDate(checkout),
       numeroAdultos: adults,
     };
+    
+    console.log("[get-availability] Request body:", requestBody);
+    console.log("[get-availability] Making request to external API:", API_BASE_URL);
 
     const response = await fetch(API_BASE_URL, {
       method: 'POST',
@@ -52,10 +62,13 @@ serve(async (req) => {
       body: JSON.stringify(requestBody),
     });
 
+    console.log("[get-availability] External API response status:", response.status);
+    console.log("[get-availability] External API response headers:", Object.fromEntries(response.headers.entries()));
+
     const contentType = response.headers.get("content-type");
     if (!response.ok || !contentType || !contentType.includes("application/json")) {
       const errorBody = await response.text();
-      console.error(`API externa retornou uma resposta inesperada (status: ${response.status}, tipo: ${contentType}):`, errorBody.substring(0, 500));
+      console.error("[get-availability] External API error response:", errorBody.substring(0, 500));
       
       const titleMatch = errorBody.match(/<title>(.*?)<\/title>/i);
       const errorHint = titleMatch ? titleMatch[1] : 'A resposta não era um JSON válido.';
@@ -64,8 +77,10 @@ serve(async (req) => {
     }
 
     const data = await response.json();
+    console.log("[get-availability] External API response data:", data);
 
     if (data.codigoRetorno && data.codigoRetorno !== 0) {
+        console.log("[get-availability] External API returned error code:", data.codigoRetorno, "message:", data.mensagem);
         throw new Error(data.mensagem || "O sistema de reservas retornou um erro desconhecido.");
     }
 
@@ -85,13 +100,15 @@ serve(async (req) => {
       return acc;
     }, []);
 
+    console.log("[get-availability] Filtered results:", results);
+
     return new Response(JSON.stringify(results), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });
 
   } catch (error) {
-    console.error('Erro detalhado na Edge Function:', error.message);
+    console.error('[get-availability] Detailed error:', error.message);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
