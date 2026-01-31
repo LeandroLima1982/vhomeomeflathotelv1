@@ -176,10 +176,10 @@ const BookingV2 = () => {
         };
       });
 
-      // Filtrar apenas quartos com disponibilidade > 0 E valorTotal > 0 E imageUrl não nulo
-      const availableResults = mergedResults.filter(room => room.disponibilidade > 0 && room.valorTotal > 0 && room.imageUrl);
+      // Filtrar apenas quartos com disponibilidade > 0 E valorTotal > 0
+      const availableResults = mergedResults.filter(room => room.disponibilidade > 0 && room.valorTotal > 0);
 
-      console.log('[BookingV2] Quartos disponíveis (disponibilidade > 0 E valorTotal > 0 E com imagem):', availableResults);
+      console.log('[BookingV2] Quartos disponíveis (disponibilidade > 0 E valorTotal > 0):', availableResults);
       console.log('[BookingV2] Número de quartos disponíveis:', availableResults.length);
 
       setResults(availableResults);
