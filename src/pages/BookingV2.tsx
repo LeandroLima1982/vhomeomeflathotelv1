@@ -133,13 +133,13 @@ const BookingV2 = () => {
       // Buscar dados locais dos quartos
       const { data: localRoomsData, error: localError } = await supabase
         .from('rooms')
-        .select('id, name, special_name, imageUrl, details, details_order, api_category_id');
+        .select('id, name, special_name, details, details_order, api_category_id');
 
       if (localError) {
         console.warn("Erro ao buscar dados locais dos quartos:", localError);
       }
 
-      // Construir mapa de imagens de capa do storage
+      // Construir mapa de imagens de capa do storage baseado no ID da tabela rooms
       const coverImageMap = new Map<number, string>();
       try {
         const { data: coverFiles, error: coverError } = await supabase.storage.from('gallery').list('rooms');
@@ -167,9 +167,9 @@ const BookingV2 = () => {
         return {
           ...apiRoom,
           idQuarto: localRoom?.id || apiRoom.idQuarto, // Usa o ID do Supabase se encontrado, senão o da API
-          apiRoomId: apiRoom.idQuarto, // Mantém o ID original da API
+          apiRoomId: apiRoom.idQuarto, // Mantém o ID original da API para reserva
           api_category_id: apiRoom.idQuarto, // O api_category_id é o mesmo que o idQuarto da API
-          imageUrl: localRoom?.imageUrl || coverImageMap.get(localRoom?.id || 0) || null,
+          imageUrl: localRoom ? coverImageMap.get(localRoom.id) || null : null, // Busca imagem apenas se localRoom existir
           details: localRoom?.details || null,
           details_order: localRoom?.details_order || null,
           special_name: localRoom?.special_name || null,
