@@ -139,6 +139,9 @@ const BookingV2 = () => {
         console.warn("Erro ao buscar dados locais dos quartos:", localError);
       }
 
+      console.log('[BookingV2] Dados locais dos quartos:', localRoomsData);
+      console.log('[BookingV2] Dados da API externa:', data);
+
       // Construir mapa de imagens de capa do storage baseado no ID da tabela rooms
       const coverImageMap = new Map<number, string>();
       try {
@@ -161,9 +164,14 @@ const BookingV2 = () => {
         console.warn("Erro ao construir mapa de imagens de capa:", e);
       }
 
+      console.log('[BookingV2] Mapa de imagens de capa:', Object.fromEntries(coverImageMap));
+
       // Mesclar dados da API com dados locais usando mapeamento direto: api_category_id === idQuarto da API
       const mergedResults = data.map((apiRoom: any) => {
         const localRoom = localRoomsData?.find(lr => lr.api_category_id === apiRoom.idQuarto);
+        
+        console.log(`[BookingV2] API Room ID: ${apiRoom.idQuarto}, Local Room Match:`, localRoom);
+        
         return {
           ...apiRoom,
           idQuarto: localRoom ? localRoom.id : apiRoom.idQuarto, // Usa o ID do Supabase se encontrado, senão o da API
@@ -175,6 +183,8 @@ const BookingV2 = () => {
           special_name: localRoom?.special_name || null,
         };
       });
+
+      console.log('[BookingV2] Resultados mesclados:', mergedResults);
 
       // Filtrar apenas quartos com disponibilidade > 0 E valorTotal > 0
       const availableResults = mergedResults.filter(room => room.disponibilidade > 0 && room.valorTotal > 0);
