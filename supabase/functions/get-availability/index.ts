@@ -16,6 +16,27 @@ const parseDate = (dateString: string) => {
   };
 };
 
+// Função auxiliar para fazer fetch com timeout
+const fetchWithTimeout = async (url: string, options: RequestInit, timeoutMs: number = 30000) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error(`Request timed out after ${timeoutMs}ms`);
+    }
+    throw error;
+  }
+};
+
 serve(async (req) => {
   // Responde a requisições OPTIONS para o pre-flight do CORS
   if (req.method === 'OPTIONS') {
@@ -24,7 +45,7 @@ serve(async (req) => {
 
   try {
     console.log("[get-availability] Function started");
-    
+
     const { checkin, checkout, adults } = await req.json();
     console.log("[get-availability] Received params:", { checkin, checkout, adults });
 
@@ -38,7 +59,7 @@ serve(async (req) => {
 
     const apiToken = Deno.env.get('API_RESERVAS_TOKEN');
     console.log("[get-availability] API token exists:", !!apiToken);
-    
+
     if (!apiToken) {
       console.log("[get-availability] API token not configured");
       throw new Error('O segredo API_RESERVAS_TOKEN não foi configurado na Supabase.');
@@ -49,18 +70,19 @@ serve(async (req) => {
       fim: parseDate(checkout),
       numeroAdultos: adults,
     };
-    
+
     console.log("[get-availability] Request body:", requestBody);
     console.log("[get-availability] Making request to external API:", API_BASE_URL);
 
-    const response = await fetch(API_BASE_URL, {
+    // Usar fetch com timeout de 25 segundos (menor que o limite do Supabase)
+    const response = await fetchWithTimeout(API_BASE_URL, {
       method: 'POST',
       headers: {
         'token': apiToken,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestBody),
-    });
+    }, 25000);
 
     console.log("[get-availability] External API response status:", response.status);
     console.log("[get-availability] External API response headers:", Object.fromEntries(response.headers.entries()));
@@ -69,7 +91,7 @@ serve(async (req) => {
     if (!response.ok || !contentType || !contentType.includes("application/json")) {
       const errorBody = await response.text();
       console.error("[get-availability] External API error response:", errorBody.substring(0, 500));
-      
+
       const titleMatch = errorBody.match(/<title>(.*?)<\/title>/i);
       const errorHint = titleMatch ? titleMatch[1] : 'A resposta não era um JSON válido.';
 
@@ -87,7 +109,7 @@ serve(async (req) => {
     // **LÓGICA REFORÇADA:** Filtra os resultados para garantir que apenas quartos com disponibilidade e preço válidos sejam retornados.
     const results = (data.categorias || []).reduce((acc: any[], categoria: any) => {
       const tariff = categoria.tarifas?.[0];
-      
+
       // Apenas incluir quartos que têm uma tarifa válida E disponibilidade positiva.
       if (tariff && typeof tariff.valorTotalReserva === 'number' && categoria.disponibilidade > 0) {
         acc.push({
