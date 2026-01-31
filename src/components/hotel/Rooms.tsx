@@ -42,8 +42,11 @@ const Rooms = () => {
         return;
       }
 
+      // Filter out the specific room: "Quarto Duplo 1 Cama Queen ( Standard)" with id 3
+      const filteredRoomData = roomData.filter(room => !(room.id === 3 && room.name === "Quarto Duplo 1 Cama Queen ( Standard)"));
+
       const roomsWithImages = await Promise.all(
-        roomData.map(async (room) => {
+        filteredRoomData.map(async (room) => {
           let imageUrl: string | null = null;
           try {
             // Try to find a cover image directly in 'rooms/' folder
