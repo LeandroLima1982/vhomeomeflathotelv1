@@ -88,19 +88,19 @@ export default function About({ className }: { className?: string }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-blue-900 mb-2">
+              <h2 className="text-2xl md:text-3xl font-medium text-blue-900 mb-2">
                 Bem-vindo ao V-Home
               </h2>
               <p className="text-xl text-gray-700 mb-6">
                 Seu Flat Hotel à Beira Mar em Macaé
               </p>
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-gray-600 leading-relaxed font-light">
                 O V-Home Flat Hotel oferece acomodações modernas e sofisticadas
                 em Macaé, com localização privilegiada na Av. Atlântica. Nosso
                 hotel 4 estrelas combina conforto, estilo e comodidade para
                 proporcionar uma experiência inesquecível.
               </p>
-              <p className="text-gray-600 leading-relaxed mt-4">
+              <p className="text-gray-600 leading-relaxed mt-4 font-light">
                 Cada flat conta com ar-condicionado, tv smart,
                 cozinha completa. Desfrute de nossa
                 piscina SPA aquecida ao ar livre, terraço com vista pro mar, e serviço de concierge
