@@ -178,7 +178,7 @@ const BookingV2 = () => {
           ...apiRoom,
           idQuarto: localRoom ? localRoom.id : apiRoom.idQuarto, // Usa o ID do Supabase se encontrado, senão o da API
           apiRoomId: apiRoom.idQuarto, // Mantém o ID original da API para reserva
-          api_category_id: apiRoom.idQuarto, // O api_category_id é o idQuarto original da API
+          api_category_id: localRoom?.api_category_id || apiRoom.idQuarto, // Use localRoom's api_category_id, fallback to apiRoom.idQuarto
           imageUrl: localRoom ? coverImageMap.get(localRoom.id) || null : null, // Busca imagem baseada no ID do Supabase (mesmo padrão da home)
           details: localRoom?.details || null,
           details_order: localRoom?.details_order || null,

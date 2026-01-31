@@ -43,7 +43,7 @@ import { generateReservationLink } from '@/utils/reservationLinks';
 // Interface para o objeto 'room' que vem do estado da localização
 interface RoomResultForCheckout {
   idQuarto: number; // ID do Supabase (ajustado)
-  apiRoomId: number; // ID original da API
+  apiRoomId: number; // ID configurado no Supabase
   originalApiRoomId: number; // ID original retornado pela API de disponibilidade (sem ajuste)
   nomeQuarto: string;
   disponibilidade: number;
@@ -271,7 +271,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
   // Função para construir URL usando o ID original da pré-consulta
   const handleReserveWithPreConsultaId = () => {
     if (roomAvailabilityResult && currentSearchParams) {
-      console.log('[RoomDetailsModal] Construindo URL de reserva com originalApiRoomId:', roomAvailabilityResult.originalApiRoomId);
+      console.log('[RoomDetailsModal] Construindo URL de reserva com apiRoomId (Supabase configured):', roomAvailabilityResult.apiRoomId);
       
       try {
         const baseUrl = 'https://vhomeflathotel.motordereservas.com.br/novareserva';
@@ -279,7 +279,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
           inicio: currentSearchParams.checkin,
           fim: currentSearchParams.checkout,
           adultos: currentSearchParams.adults.toString(),
-          idquartoCategoria: roomAvailabilityResult.originalApiRoomId.toString(),
+          idquartoCategoria: roomAvailabilityResult.apiRoomId.toString(), // Changed from originalApiRoomId
         });
         const reservationLink = `${baseUrl}?${params.toString()}`;
         
@@ -560,7 +560,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
               // Botão inicial para consultar preço - agora mostra o formulário
               <div className="flex justify-center">
                 <Button
-                  onClick={handleShowBookingForm}
+                  onClick={handleAvailabilitySearch} // Changed to call handleAvailabilitySearch directly
                   size="lg"
                   className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105"
                 >
