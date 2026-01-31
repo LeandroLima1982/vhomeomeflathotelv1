@@ -127,7 +127,7 @@ const BookingV2 = () => {
         if (errorDetails && errorDetails.error) throw new Error(errorDetails.error);
         throw new Error(functionError.message || "Erro na comunicação com a função.");
       }
-      
+
       if (data.error) throw new Error(data.error);
 
       // Buscar dados locais dos quartos ordenados por ID (mesmo padrão da home page)
@@ -167,22 +167,59 @@ const BookingV2 = () => {
 
       console.log('[BookingV2] Mapa de imagens de capa:', Object.fromEntries(coverImageMap));
 
-      // Mesclar dados da API com dados locais usando o mesmo padrão da home page:
-      // Mapear sequencialmente baseado na ordem dos quartos locais (ID 1, 2, 3...) com os resultados da API
-      const mergedResults = data.map((apiRoom: any, index: number) => {
-        const localRoom = localRoomsData ? localRoomsData[index] : null; // Mapear pelo índice sequencial
-        
-        console.log(`[BookingV2] API Room Index: ${index}, API ID: ${apiRoom.idQuarto}, Local Room Match:`, localRoom);
-        
+      // Mesclar dados da API com dados locais
+      // Mesclar dados da API com dados locais
+      const mergedResults = data.map((apiRoom: any) => {
+        // Função auxiliar para normalizar e tokenizar strings para comparação inteligente
+        const getTokens = (str: string) => {
+          if (!str) return [];
+          return str
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "") // Remove acentos
+            .replace(/[()]/g, "") // Remove parenteses
+            .split(/\s+/) // Divide por espaços
+            .filter(t => t.length > 0 && t !== "-" && t !== "c/"); // Remove tokens vazios ou irrelevantes
+        };
+
+        // Estratégia 1: Tentar encontrar pelo ID configurado explicitamente (api_category_id)
+        let localRoom = localRoomsData
+          ? localRoomsData.find((room: any) => room.api_category_id === apiRoom.idQuarto)
+          : null;
+
+        // Estratégia 2: Se não encontrar pelo ID, usar comparação de Tokens (palavras)
+        // Isso resolve "Quarto ... (Executivo)" vs "Quarto ... C/ Varanda (Executivo)"
+        if (!localRoom && localRoomsData) {
+          const apiTokens = getTokens(apiRoom.nomeQuarto);
+
+          localRoom = localRoomsData.find((room: any) => {
+            const localTokens = getTokens(room.name);
+
+            // Verifica se TODOS os tokens importantes do nome local estão presentes no nome da API
+            // Ex: Local: [quarto, duplo, executivo] está contido em API: [quarto, duplo, c/, varanda, executivo]? SIM.
+            const allLocalTokensFound = localTokens.every(token => apiTokens.includes(token));
+
+            // Também aceita se for o contrário (API contido no Local), embora menos comum nesse caso
+            const allApiTokensFound = apiTokens.every(token => localTokens.includes(token));
+
+            return allLocalTokensFound || allApiTokensFound;
+          });
+        }
+
+        console.log(`[BookingV2] API Room ID: ${apiRoom.idQuarto} ("${apiRoom.nomeQuarto}") matches Local Room:`, localRoom ? `${localRoom.name} (Cat ID ${localRoom.api_category_id})` : 'No Match');
+
+        // Se houver um quarto local correspondente, usamos seus dados.
+        // Importante: api_category_id do localRoom sobrescreve o idQuarto da API para o link de reserva.
         return {
           ...apiRoom,
-          idQuarto: localRoom ? localRoom.id : apiRoom.idQuarto, // Usa o ID do Supabase se encontrado, senão o da API
-          apiRoomId: apiRoom.idQuarto, // Mantém o ID original da API para reserva
-          api_category_id: localRoom?.api_category_id || apiRoom.idQuarto, // Use localRoom's api_category_id, fallback to apiRoom.idQuarto
-          imageUrl: localRoom ? coverImageMap.get(localRoom.id) || null : null, // Busca imagem baseada no ID do Supabase (mesmo padrão da home)
+          idQuarto: localRoom ? localRoom.id : apiRoom.idQuarto,
+          apiRoomId: apiRoom.idQuarto, // ID vindo da API (original)
+          api_category_id: localRoom?.api_category_id || apiRoom.idQuarto, // ID para o link de reserva (prioriza configuração do banco)
+          imageUrl: localRoom ? coverImageMap.get(localRoom.id) || null : null,
           details: localRoom?.details || null,
           details_order: localRoom?.details_order || null,
           special_name: localRoom?.special_name || null,
+          nomeQuarto: localRoom ? localRoom.name : apiRoom.nomeQuarto,
         };
       });
 
@@ -270,9 +307,9 @@ const BookingV2 = () => {
                 availableRoomsCount={results.filter(room => room.disponibilidade > 0).length}
               />
 
-              <AvailabilityResults 
-                results={results} 
-                searchParams={searchParams} 
+              <AvailabilityResults
+                results={results}
+                searchParams={searchParams}
                 viewMode={viewMode}
               />
             </>

@@ -5,12 +5,12 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Users, 
-  Wifi, 
-  Coffee, 
-  Tv, 
-  Wind, 
+import {
+  Users,
+  Wifi,
+  Coffee,
+  Tv,
+  Wind,
   Droplets,
   X,
   ExternalLink,
@@ -170,7 +170,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
       adults,
       api_category_id: room.api_category_id
     });
-    
+
     try {
       const baseUrl = 'https://vhomeflathotel.motordereservas.com.br/novareserva';
       const params = new URLSearchParams({
@@ -180,9 +180,9 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
         idquartoCategoria: room.api_category_id.toString(),
       });
       const reservationLink = `${baseUrl}?${params.toString()}`;
-      
+
       console.log('[RoomDetailsModal] URL de reserva construída:', reservationLink);
-      
+
       window.location.href = reservationLink;
     } catch (error) {
       console.error("Erro ao gerar link de reserva:", error);
@@ -217,7 +217,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
 
     try {
       console.log('[RoomDetailsModal] Buscando disponibilidade para room.api_category_id:', room.api_category_id);
-      
+
       const { data, error: functionError } = await supabase.functions.invoke('get-availability', {
         body: { checkin, checkout, adults },
       });
@@ -227,7 +227,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
         if (errorDetails && errorDetails.error) throw new Error(errorDetails.error);
         throw new Error(functionError.message || "Erro na comunicação com a função.");
       }
-      
+
       if (data.error) throw new Error(data.error);
 
       console.log('[RoomDetailsModal] Resposta da API de disponibilidade:', data);
@@ -239,7 +239,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
 
       if (foundRoom && foundRoom.disponibilidade > 0 && foundRoom.valorTotal > 0) {
         console.log('[RoomDetailsModal] Definindo roomAvailabilityResult com originalApiRoomId:', foundRoom.idQuarto);
-        
+
         setRoomAvailabilityResult({
           idQuarto: room.id, // ID do Supabase
           apiRoomId: room.api_category_id, // ID configurado no Supabase
@@ -272,7 +272,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
   const handleReserveWithPreConsultaId = () => {
     if (roomAvailabilityResult && currentSearchParams) {
       console.log('[RoomDetailsModal] Construindo URL de reserva com apiRoomId (Supabase configured):', roomAvailabilityResult.apiRoomId);
-      
+
       try {
         const baseUrl = 'https://vhomeflathotel.motordereservas.com.br/novareserva';
         const params = new URLSearchParams({
@@ -282,9 +282,9 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
           idquartoCategoria: roomAvailabilityResult.apiRoomId.toString(), // Changed from originalApiRoomId
         });
         const reservationLink = `${baseUrl}?${params.toString()}`;
-        
+
         console.log('[RoomDetailsModal] URL de reserva construída:', reservationLink);
-        
+
         window.location.href = reservationLink;
       } catch (error) {
         console.error("Erro ao gerar link de reserva com ID da pré-consulta:", error);
@@ -333,12 +333,12 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
   // Renderizar detalhes como badges modernos
   const renderDetails = () => {
     if (!room.details || typeof room.details !== 'object') return null;
-    
+
     const detailEntries = Object.entries(room.details)
-      .filter(([key, value]) => 
-        value && 
-        typeof value === 'string' && 
-        value.trim() !== '' && 
+      .filter(([key, value]) =>
+        value &&
+        typeof value === 'string' &&
+        value.trim() !== '' &&
         key !== 'description' &&
         key !== 'capacity' &&
         key !== 'bed_type' &&
@@ -346,7 +346,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
         key !== 'images'
       )
       .map(([_, value]) => value as string);
-    
+
     if (detailEntries.length === 0) return null;
 
     return (
@@ -357,7 +357,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
         </div>
         <div className="flex flex-wrap gap-2">
           {detailEntries.map((detail, index) => (
-            <Badge 
+            <Badge
               key={index}
               variant="secondary"
               className="px-3 py-1 text-xs bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border border-emerald-200/60 hover:from-emerald-100 hover:to-teal-100 transition-all duration-200 font-medium shadow-sm"
@@ -372,14 +372,14 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
 
   const getRoomDetails = (roomData: any) => {
     if (!roomData.details || typeof roomData.details !== 'object') return [];
-  
+
     const detailsObject = roomData.details;
-  
+
     const validKeys = Object.keys(detailsObject).filter(key => {
       const value = detailsObject[key];
       return value && typeof value === 'string' && value.trim() !== '' && key !== 'description';
     });
-  
+
     if (roomData.details_order && Array.isArray(roomData.details_order)) {
       const orderedDetails = roomData.details_order
         .map((key: string) => {
@@ -389,13 +389,13 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
           return null;
         })
         .filter((value: string | null): value is string => value !== null);
-      
+
       const unorderedKeys = validKeys.filter(key => !roomData.details_order.includes(key));
       const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
-  
+
       return [...orderedDetails, ...unorderedDetails];
     }
-  
+
     return validKeys.map(key => detailsObject[key] as string);
   };
 
@@ -442,7 +442,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                     </div>
                   )}
                 </div>
-                
+
                 {/* Rating e localização */}
                 <div className="flex flex-col sm:flex-row gap-3 lg:flex-col lg:items-end">
                   <div className="flex items-center gap-2 text-slate-300">
@@ -450,7 +450,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                     <span className="text-xs">Macaé, RJ</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    {[1,2,3,4].map((star) => (
+                    {[1, 2, 3, 4].map((star) => (
                       <Star key={star} className="w-3 h-3 text-yellow-400 fill-current" />
                     ))}
                     <span className="text-slate-300 text-xs ml-2">(4.8)</span>
@@ -464,8 +464,8 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
           <div className="px-4 sm:px-6 lg:px-8 py-4 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200/60">
             {showBookingForm ? (
               // Formulário de busca de disponibilidade
-              <RoomBookingForm 
-                roomId={room.id} 
+              <RoomBookingForm
+                roomId={room.id}
                 onCancel={() => {
                   setShowBookingForm(false);
                   setRoomAvailabilityResult(null);
@@ -560,7 +560,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
               // Botão inicial para consultar preço - agora mostra o formulário
               <div className="flex justify-center">
                 <Button
-                  onClick={handleAvailabilitySearch} // Changed to call handleAvailabilitySearch directly
+                  onClick={handleShowBookingForm} // Correctly shows the booking form
                   size="lg"
                   className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105"
                 >
@@ -587,10 +587,10 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                   alt={`${room.name} - Imagem ${currentImageIndex + 1}`}
                   className="w-full h-full object-cover transition-all duration-500 ease-out"
                 />
-                
+
                 {/* Overlay gradiente sutil */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
-                
+
                 {/* Botões de navegação modernos */}
                 {roomImages.length > 1 && (
                   <>
@@ -608,7 +608,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                     </button>
                   </>
                 )}
-                
+
                 {/* Indicadores modernos */}
                 {roomImages.length > 1 && (
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
@@ -616,16 +616,15 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                       <button
                         key={index}
                         onClick={() => goToImage(index)}
-                        className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                          index === currentImageIndex 
-                            ? 'bg-white scale-125 shadow-lg' 
+                        className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${index === currentImageIndex
+                            ? 'bg-white scale-125 shadow-lg'
                             : 'bg-white/60 hover:bg-white/80'
-                        }`}
+                          }`}
                       />
                     ))}
                   </div>
                 )}
-                
+
                 {/* Contador elegante */}
                 <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-medium">
                   <ImageIcon className="w-3 h-3 inline mr-1.5" />
@@ -652,7 +651,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                   <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
                   <h3 className="text-lg sm:text-xl font-bold text-slate-800">Sobre este quarto</h3>
                 </div>
-                
+
                 {/* Descrição principal */}
                 {(room.custom_description || room.description) && (
                   <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-slate-200/60 mb-4">
@@ -700,7 +699,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                   </div>
                   <p className="text-xs text-slate-600">Check-in: 14:00<br />Check-out: 12:00</p>
                 </div>
-                
+
                 <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-100/50">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="p-1.5 bg-emerald-500 rounded-lg">
@@ -710,7 +709,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                   </div>
                   <p className="text-xs text-slate-600">Wi-Fi gratuito<br />em todas as áreas</p>
                 </div>
-                
+
                 <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100/50 sm:col-span-2 lg:col-span-1">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="p-1.5 bg-purple-500 rounded-lg">
