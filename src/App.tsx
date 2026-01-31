@@ -18,6 +18,7 @@ import { AuthProvider } from "./components/AuthProvider";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DirectBooking from "./pages/DirectBooking";
 import DirectCheckout from "./pages/DirectCheckout";
+import TestAPI from "./pages/TestAPI";
 import { WhatsAppButton } from "./components/hotel/WhatsAppButton"; // Importando o novo componente
 
 const queryClient = new QueryClient();
@@ -59,6 +60,7 @@ const App = () => {
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/direct-booking" element={<DirectBooking />} />
                 <Route path="/direct-checkout" element={<DirectCheckout />} />
+                <Route path="/test-api" element={<TestAPI />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
