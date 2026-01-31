@@ -138,14 +138,26 @@ const BookingV2 = () => {
         console.warn("Erro ao buscar dados locais dos quartos:", localError);
       }
 
-      // Construir mapa de imagens de capa
+      // Construir mapa de imagens de capa do storage
       const coverImageMap = new Map<number, string>();
-      if (localRoomsData) {
-        for (const room of localRoomsData) {
-          if (room.imageUrl) {
-            coverImageMap.set(room.id, room.imageUrl);
+      try {
+        const { data: coverFiles, error: coverError } = await supabase.storage.from('gallery').list('rooms');
+        if (coverError) {
+          console.warn("Erro ao buscar imagens de capa:", coverError);
+        } else if (coverFiles) {
+          for (const file of coverFiles) {
+            if (file.name !== '.emptyFolderPlaceholder') {
+              const roomIdMatch = file.name.match(/^(\d+)\./);
+              if (roomIdMatch) {
+                const roomId = parseInt(roomIdMatch[1], 10);
+                const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(`rooms/${file.name}`);
+                coverImageMap.set(roomId, `${publicUrl}?t=${new Date().getTime()}`);
+              }
+            }
           }
         }
+      } catch (e) {
+        console.warn("Erro ao construir mapa de imagens de capa:", e);
       }
 
       // Mesclar dados da API com dados locais
@@ -260,34 +272,3 @@ const BookingV2 = () => {
 };
 
 export default BookingV2;
-</dyad-chat-summary>Fixing syntax error in BookingV2.tsx by providing complete file</dyad-chat-summary><dyad-chat-summary>Fixing syntax error in BookingV2.tsx by providing complete file</dyad-chat-summary><dyad-write path="src/pages/BookingV2.tsx" description="Adding logic to fetch cover images from Supabase storage for rooms without local imageUrl.">
-      // Buscar dados locais dos quartos
-      const { data: localRoomsData, error: localError } = await supabase
-        .from('rooms')
-        .select('id, name, special_name, imageUrl, details, details_order, api_category_id');
-
-      if (localError) {
-        console.warn("Erro ao buscar dados locais dos quartos:", localError);
-      }
-
-      // Construir mapa de imagens de capa do storage
-      const coverImageMap = new Map<number, string>();
-      try {
-        const { data: coverFiles, error: coverError } = await supabase.storage.from('gallery').list('rooms');
-        if (coverError) {
-          console.warn("Erro ao buscar imagens de capa:", coverError);
-        } else if (coverFiles) {
-          for (const file of coverFiles) {
-            if (file.name !== '.emptyFolderPlaceholder') {
-              const roomIdMatch = file.name.match(/^(\d+)\./);
-              if (roomIdMatch) {
-                const roomId = parseInt(roomIdMatch[1], 10);
-                const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(`rooms/${file.name}`);
-                coverImageMap.set(roomId, `${publicUrl}?t=${new Date().getTime()}`);
-              }
-            }
-          }
-        }
-      } catch (e) {
-        console.warn("Erro ao construir mapa de imagens de capa:", e);
-      }
