@@ -17,3 +17,7 @@ Available packages and libraries:
 - You ALREADY have ALL the shadcn/ui components and their dependencies installed. So you don't need to install them again.
 - You have ALL the necessary Radix UI components installed.
 - Use prebuilt components from the shadcn/ui library after importing them. Note that these files shouldn't be edited, so make new components if you need to change them.
+
+# Agent Behavior Preferences
+- **Autonomy**: Execute tasks, file edits, and commands without asking for explicit confirmation unless the action is critically destructive (e.g., permanent data loss).
+- **Proactive Fixes**: If a problem is detected (like a missing import or syntax error), fix it immediately.
