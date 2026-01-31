@@ -102,21 +102,29 @@ serve(async (req) => {
     console.log("[get-availability] External API response data:", data);
 
     if (data.codigoRetorno && data.codigoRetorno !== 0) {
-        console.log("[get-availability] External API returned error code:", data.codigoRetorno, "message:", data.mensagem);
-        throw new Error(data.mensagem || "O sistema de reservas retornou um erro desconhecido.");
+      console.log("[get-availability] External API returned error code:", data.codigoRetorno, "message:", data.mensagem);
+      throw new Error(data.mensagem || "O sistema de reservas retornou um erro desconhecido.");
     }
 
-    // **LÓGICA REFORÇADA:** Filtra os resultados para garantir que apenas quartos com disponibilidade e preço válidos sejam retornados.
+    // Aprimorado: Percorre todas as categorias e busca a TARIFA MAIS BARATA disponível
     const results = (data.categorias || []).reduce((acc: any[], categoria: any) => {
-      const tariff = categoria.tarifas?.[0];
+      // Filtrar apenas tarifas que têm valor de reserva válido
+      const availableTariffs = (categoria.tarifas || []).filter((t: any) =>
+        typeof t.valorTotalReserva === 'number' && t.valorTotalReserva > 0
+      );
 
-      // Apenas incluir quartos que têm uma tarifa válida E disponibilidade positiva.
-      if (tariff && typeof tariff.valorTotalReserva === 'number' && categoria.disponibilidade > 0) {
+      if (availableTariffs.length > 0 && categoria.disponibilidade > 0) {
+        // Encontrar a menor tarifa para mostrar o preço "A partir de" ou promocional
+        const minTariff = availableTariffs.reduce((prev: any, curr: any) =>
+          prev.valorTotalReserva < curr.valorTotalReserva ? prev : curr
+        );
+
         acc.push({
           idQuarto: categoria.id,
           nomeQuarto: categoria.nome,
           disponibilidade: categoria.disponibilidade,
-          valorTotal: tariff.valorTotalReserva,
+          valorTotal: minTariff.valorTotalReserva,
+          tarifaNome: minTariff.nomeTarifa // Útil para depuração
         });
       }
       return acc;

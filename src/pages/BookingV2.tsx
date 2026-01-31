@@ -171,77 +171,72 @@ const BookingV2 = () => {
 
       // Mesclar dados da API com dados locais
       // Mesclar dados da API com dados locais
-      const mergedResults = data.map((apiRoom: any) => {
-        // Função auxiliar para normalizar e tokenizar strings para comparação inteligente
-        const getTokens = (str: string) => {
-          if (!str) return [];
-          return str
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "") // Remove acentos
-            .replace(/[()]/g, "") // Remove parenteses
-            .split(/\s+/) // Divide por espaços
-            .filter(t => t.length > 0 && t !== "-" && t !== "c/"); // Remove tokens vazios ou irrelevantes
-        };
+      // Função auxiliar para normalizar e tokenizar strings para comparação inteligente
+      const getTokens = (str: string) => {
+        if (!str) return [];
+        return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[()]/g, "").split(/\s+/).filter(t => t.length > 0 && t !== "-" && t !== "c/");
+      };
 
-        // Estratégia 1: Tentar encontrar pelo ID configurado explicitamente (api_category_id)
-        let localRoom = localRoomsData
-          ? localRoomsData.find((room: any) => room.api_category_id === apiRoom.idQuarto)
-          : null;
+      // Mesclar os dados seguindo fielmente a Ordem do Banco (por ID, como na Home)
+      const mergedResults = localRoomsData ? localRoomsData.map((localRoom: any) => {
+        // Encontrar TODAS as opções da API que podem corresponder a este quarto local
+        let matchingApiRooms = data.filter((api: any) => api.idQuarto === localRoom.api_category_id);
 
-        // Estratégia 2: Se não encontrar pelo ID, usar comparação de Tokens (palavras)
-        // Isso resolve "Quarto ... (Executivo)" vs "Quarto ... C/ Varanda (Executivo)"
-        if (!localRoom && localRoomsData) {
-          const apiTokens = getTokens(apiRoom.nomeQuarto);
-
-          localRoom = localRoomsData.find((room: any) => {
-            const localTokens = getTokens(room.name);
-
-            // Verifica se TODOS os tokens importantes do nome local estão presentes no nome da API
-            // Ex: Local: [quarto, duplo, executivo] está contido em API: [quarto, duplo, c/, varanda, executivo]? SIM.
-            const allLocalTokensFound = localTokens.every(token => apiTokens.includes(token));
-
-            // Também aceita se for o contrário (API contido no Local), embora menos comum nesse caso
-            const allApiTokensFound = apiTokens.every(token => localTokens.includes(token));
-
-            return allLocalTokensFound || allApiTokensFound;
+        // Fallback: Se não achou por ID, tenta por Tokens do nome
+        if (matchingApiRooms.length === 0) {
+          const localTokens = getTokens(localRoom.name);
+          matchingApiRooms = data.filter((api: any) => {
+            const apiTokens = getTokens(api.nomeQuarto);
+            return localTokens.every(token => apiTokens.includes(token));
           });
         }
 
-        console.log(`[BookingV2] API Room ID: ${apiRoom.idQuarto} ("${apiRoom.nomeQuarto}") matches Local Room:`, localRoom ? `${localRoom.name} (Cat ID ${localRoom.api_category_id})` : 'No Match');
+        // Se houver múltiplas opções (ex: tarifas ou categorias duplicadas), pegamos a MAIS BARATA
+        const apiRoom = matchingApiRooms.length > 1
+          ? [...matchingApiRooms].sort((a, b) => a.valorTotal - b.valorTotal)[0]
+          : matchingApiRooms[0];
 
-        // Extra logic to extract ID from booking_url if available
+        // Se o quarto não estiver na resposta da API ou não tiver disponibilidade, ignoramos
+        if (!apiRoom) {
+          console.log(`[BookingV2] Quarto ID ${localRoom.id} (${localRoom.name}) sem disponibilidade ou não encontrado na API.`);
+          return null;
+        }
+
+        console.log(`[BookingV2] Mapeado (Melhor Preço): Local ID ${localRoom.id} ("${localRoom.name}") <- matches -> API "${apiRoom.nomeQuarto}" (ID ${apiRoom.idQuarto} - R$ ${apiRoom.valorTotal})`);
+
+        // Extra logic to extract ID from booking_url if available for the link
         let extractedCategoryId = null;
-        if (localRoom?.booking_url) {
+        if (localRoom.booking_url) {
           try {
-            // Tenta extrair idquartoCategoria da URL completa ex: ...?idquartoCategoria=10...
             const match = localRoom.booking_url.match(/[?&]idquartoCategoria=(\d+)/);
-            if (match && match[1]) {
-              extractedCategoryId = parseInt(match[1], 10);
-            }
+            if (match && match[1]) extractedCategoryId = parseInt(match[1], 10);
           } catch (e) {
             console.warn("Erro ao extrair ID da booking_url:", e);
           }
         }
 
-        // Se houver um quarto local correspondente, usamos seus dados.
-        // Importante: extractedCategoryId (da booking_url) tem prioridade total.
-        // Se não tiver, usa api_category_id (coluna numérica).
-        // Se não tiver nenhum, usa o ID da API.
-        const finalCategoryId = extractedCategoryId || localRoom?.api_category_id || apiRoom.idQuarto;
+        const finalCategoryId = extractedCategoryId || localRoom.api_category_id || apiRoom.idQuarto;
 
         return {
           ...apiRoom,
-          idQuarto: localRoom ? localRoom.id : apiRoom.idQuarto,
-          apiRoomId: apiRoom.idQuarto, // ID vindo da API (original)
-          api_category_id: finalCategoryId, // ID para o link de reserva (prioriza booking_url do banco)
-          imageUrl: localRoom ? coverImageMap.get(localRoom.id) || null : null,
-          details: localRoom?.details || null,
-          details_order: localRoom?.details_order || null,
-          special_name: localRoom?.special_name || null,
-          nomeQuarto: localRoom ? localRoom.name : apiRoom.nomeQuarto,
-          booking_url: localRoom?.booking_url // Passa a URL original também caso precise
+          idQuarto: localRoom.id,
+          apiRoomId: apiRoom.idQuarto, // ID vindo da API externa
+          api_category_id: finalCategoryId,
+          imageUrl: coverImageMap.get(localRoom.id) || null,
+          details: localRoom.details || null,
+          details_order: localRoom.details_order || null,
+          special_name: localRoom.special_name || null,
+          nomeQuarto: localRoom.name,
+          booking_url: localRoom.booking_url
         };
+      }).filter(Boolean) : [];
+
+      // Log para identificar se sobraram quartos na API que não foram mapeados
+      data.forEach((apiRoom: any) => {
+        const isMapped = mergedResults.some((m: any) => m.apiRoomId === apiRoom.idQuarto);
+        if (!isMapped) {
+          console.warn(`[BookingV2] Quarto da API "${apiRoom.nomeQuarto}" (ID ${apiRoom.idQuarto}) não foi mapeado para nenhum card local.`);
+        }
       });
 
       console.log('[BookingV2] Resultados mesclados (mapeamento sequencial):', mergedResults);
