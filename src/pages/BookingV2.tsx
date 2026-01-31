@@ -70,10 +70,11 @@ const BookingV2 = () => {
 
         if (!imageName) {
           const { data: files } = await supabase.storage.from('gallery').list('hero', { limit: 1, sortBy: { column: 'created_at', order: 'desc' } });
-          const firstFile = document.querySelector('input[type="file"]') as HTMLInputElement;
-          if (firstFile) firstFile.value = '';
-          fetchImages();
-        } else {
+          const firstFile = files?.find(f => f.name !== '.emptyFolderPlaceholder');
+          if (firstFile) imageName = firstFile.name;
+        }
+
+        if (imageName) {
           const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(`hero/${imageName}`);
           setHeroImageUrl(publicUrl);
         }
@@ -117,6 +118,8 @@ const BookingV2 = () => {
     }
 
     try {
+      console.log('[BookingV2] Iniciando busca de disponibilidade com parâmetros:', params);
+
       const { data, error: functionError } = await supabase.functions.invoke('get-availability', {
         body: params,
       });
@@ -129,6 +132,8 @@ const BookingV2 = () => {
 
       if (data.error) throw new Error(data.error);
 
+      console.log('[BookingV2] Dados recebidos da API:', data);
+
       // Buscar dados locais dos quartos para mesclar com os resultados da API
       const { data: localRoomsData, error: localError } = await supabase
         .from('rooms')
@@ -138,12 +143,18 @@ const BookingV2 = () => {
         console.warn("Erro ao buscar dados locais dos quartos:", localError);
       }
 
+      console.log('[BookingV2] Dados locais dos quartos:', localRoomsData);
+
       // Filtrar apenas os quartos locais que têm api_category_id configurado
       const configuredLocalRooms = localRoomsData?.filter(room => room.api_category_id !== null) || [];
+
+      console.log('[BookingV2] Quartos locais configurados (com api_category_id):', configuredLocalRooms);
 
       // Para cada quarto local configurado, encontrar o resultado correspondente da API
       const mergedResults = configuredLocalRooms.map(localRoom => {
         const apiRoom = data.find((api: any) => api.idQuarto === localRoom.api_category_id);
+        console.log(`[BookingV2] Procurando quarto API com idQuarto=${localRoom.api_category_id}, encontrado:`, apiRoom);
+        
         if (apiRoom) {
           return {
             ...apiRoom,
@@ -156,6 +167,7 @@ const BookingV2 = () => {
           };
         }
         // Se não encontrou na API, ainda assim incluir o quarto local (mas sem disponibilidade)
+        console.log(`[BookingV2] Quarto local ${localRoom.name} (ID: ${localRoom.id}) não encontrado na API, marcando como indisponível`);
         return {
           idQuarto: localRoom.id,
           apiRoomId: localRoom.api_category_id,
@@ -168,6 +180,8 @@ const BookingV2 = () => {
           special_name: localRoom.special_name || null,
         };
       });
+
+      console.log('[BookingV2] Resultados mesclados finais:', mergedResults);
 
       setRawResults(mergedResults);
 
