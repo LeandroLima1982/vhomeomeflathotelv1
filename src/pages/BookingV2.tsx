@@ -1,4 +1,169 @@
-// Filtrar apenas quartos com disponibilidade > 0 E valorTotal > 0 E imageUrl não nulo
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import Header from "@/components/hotel/Header";
+import { AvailabilitySearchForm } from "@/components/hotel/AvailabilitySearchForm";
+import SimpleFooter from "@/components/hotel/SimpleFooter";
+import { supabase } from "@/lib/supabaseClient";
+import { showError } from "@/utils/toast";
+import { Loader2, ServerCrash } from "lucide-react";
+import { AvailabilityResults } from "@/components/hotel/AvailabilityResults";
+import { format, parse } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { InitialBookingState } from "@/components/hotel/InitialBookingState";
+import { BookingStickyControls } from "@/components/hotel/BookingStickyControls";
+
+interface AvailabilityResult {
+  idQuarto: number;
+  nomeQuarto: string;
+  disponibilidade: number;
+  valorTotal: number;
+  imageUrl: string | null;
+  details: Record<string, string | null> | null;
+  details_order: string[] | null;
+  special_name?: string | null;
+  apiRoomId: number;
+  [key: string]: any;
+}
+
+interface SearchParams {
+  checkin: string;
+  checkout: string;
+  adults: number;
+}
+
+const BookingV2 = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [results, setResults] = useState<AvailabilityResult[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
+  const [sortOrder, setSortOrder] = useState('relevance');
+  const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+
+  const searchFormRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+    const fetchInitialData = async () => {
+      if (!supabase) {
+        console.error('Supabase client not available in BookingV2 fetchInitialData');
+        return;
+      }
+
+      // Fetch Hero Image
+      try {
+        const { data: orderFileData } = await supabase.storage.from('gallery').download('hero/_order.json');
+        let imageName: string | null = null;
+
+        if (orderFileData) {
+          const orderJson = await orderFileData.text();
+          const orderedNames = JSON.parse(orderJson) as string[];
+          if (orderedNames.length > 0) imageName = orderedNames[0];
+        }
+
+        if (!imageName) {
+          const { data: files } = await supabase.storage.from('gallery').list('hero', { limit: 1, sortBy: { column: 'created_at', order: 'desc' } });
+          const firstFile = files?.find(f => f.name !== '_order.json' && f.name !== '.emptyFolderPlaceholder');
+          if (firstFile) imageName = firstFile.name;
+        }
+
+        if (imageName) {
+          const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(`hero/${imageName}`);
+          setHeroImageUrl(publicUrl);
+        } else {
+          setHeroImageUrl("https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto-format&fit=crop&q=80");
+        }
+      } catch (e) {
+        console.warn("Could not fetch hero image, using fallback.", e);
+        setHeroImageUrl("https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto-format&fit=crop&q=80");
+      }
+    };
+
+    fetchInitialData();
+  }, []);
+
+  useEffect(() => {
+    if (!results) {
+      return;
+    }
+    let sortedResults = [...results];
+    if (sortOrder === 'price_asc') {
+      sortedResults.sort((a, b) => a.valorTotal - b.valorTotal);
+    } else if (sortOrder === 'price_desc') {
+      sortedResults.sort((a, b) => b.valorTotal - a.valorTotal);
+    } else if (sortOrder === 'relevance') {
+      sortedResults = [...results];
+    }
+    setResults(sortedResults);
+  }, [sortOrder]);
+
+  const handleSearch = async (params: SearchParams) => {
+    setIsLoading(true);
+    setResults(null);
+    setError(null);
+    setSearchParams(params);
+
+    if (!supabase) {
+      const errorMessage = "Cliente Supabase não está disponível. Verifique a configuração.";
+      setError(errorMessage);
+      showError(errorMessage);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { data, error: functionError } = await supabase.functions.invoke('get-availability', {
+        body: params,
+      });
+
+      if (functionError) {
+        const errorDetails = await functionError.context.json();
+        if (errorDetails && errorDetails.error) throw new Error(errorDetails.error);
+        throw new Error(functionError.message || "Erro na comunicação com a função.");
+      }
+      
+      if (data.error) throw new Error(data.error);
+
+      // Buscar dados locais dos quartos
+      const { data: localRoomsData, error: localError } = await supabase
+        .from('rooms')
+        .select('id, name, special_name, imageUrl, details, details_order, api_category_id');
+
+      if (localError) {
+        console.warn("Erro ao buscar dados locais dos quartos:", localError);
+      }
+
+      // Construir mapa de imagens de capa
+      const coverImageMap = new Map<number, string>();
+      if (localRoomsData) {
+        for (const room of localRoomsData) {
+          if (room.imageUrl) {
+            coverImageMap.set(room.id, room.imageUrl);
+          }
+        }
+      }
+
+      // Mesclar dados da API com dados locais
+      const mergedResults = data.map((apiRoom: any) => {
+        const adjustedRoomId = apiRoom.idQuarto - 3; // CORREÇÃO: Subtraindo 3 para alinhar com IDs do Supabase
+        const localRoom = localRoomsData?.find(lr => lr.id === adjustedRoomId);
+        return {
+          ...apiRoom,
+          idQuarto: adjustedRoomId,
+          apiRoomId: apiRoom.idQuarto, // Mantém o ID original da API para o link de reserva
+          imageUrl: localRoom?.imageUrl || coverImageMap.get(adjustedRoomId) || null,
+          details: localRoom?.details || null,
+          details_order: localRoom?.details_order || null,
+          special_name: localRoom?.special_name || null,
+        };
+      });
+
+      // Filtrar apenas quartos com disponibilidade > 0 E valorTotal > 0 E imageUrl não nulo
       const availableResults = mergedResults.filter(room => room.disponibilidade > 0 && room.valorTotal > 0 && room.imageUrl);
 
       console.log('[BookingV2] Quartos disponíveis (disponibilidade > 0 E valorTotal > 0 E com imagem):', availableResults);
@@ -95,3 +260,34 @@
 };
 
 export default BookingV2;
+</dyad-chat-summary>Fixing syntax error in BookingV2.tsx by providing complete file</dyad-chat-summary><dyad-chat-summary>Fixing syntax error in BookingV2.tsx by providing complete file</dyad-chat-summary><dyad-write path="src/pages/BookingV2.tsx" description="Adding logic to fetch cover images from Supabase storage for rooms without local imageUrl.">
+      // Buscar dados locais dos quartos
+      const { data: localRoomsData, error: localError } = await supabase
+        .from('rooms')
+        .select('id, name, special_name, imageUrl, details, details_order, api_category_id');
+
+      if (localError) {
+        console.warn("Erro ao buscar dados locais dos quartos:", localError);
+      }
+
+      // Construir mapa de imagens de capa do storage
+      const coverImageMap = new Map<number, string>();
+      try {
+        const { data: coverFiles, error: coverError } = await supabase.storage.from('gallery').list('rooms');
+        if (coverError) {
+          console.warn("Erro ao buscar imagens de capa:", coverError);
+        } else if (coverFiles) {
+          for (const file of coverFiles) {
+            if (file.name !== '.emptyFolderPlaceholder') {
+              const roomIdMatch = file.name.match(/^(\d+)\./);
+              if (roomIdMatch) {
+                const roomId = parseInt(roomIdMatch[1], 10);
+                const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(`rooms/${file.name}`);
+                coverImageMap.set(roomId, `${publicUrl}?t=${new Date().getTime()}`);
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Erro ao construir mapa de imagens de capa:", e);
+      }
