@@ -17,6 +17,7 @@ interface AvailabilityResult {
   details_order: string[] | null;
   special_name?: string | null;
   apiRoomId: number; // Adicionado para o link externo
+  api_category_id?: number | null; // Added for correct category ID in reservation link
   [key: string]: any;
 }
 
@@ -41,8 +42,9 @@ export function RoomResultGridCard({ room, searchParams }: RoomResultGridCardPro
 
   const handleSelectRoom = () => {
     try {
-      // Passa o apiRoomId para generateReservationLink
-      const reservationLink = generateReservationLink(room.apiRoomId, searchParams);
+      // Use api_category_id for the reservation link if available, fallback to apiRoomId
+      const categoryId = room.api_category_id || room.apiRoomId;
+      const reservationLink = generateReservationLink(categoryId, searchParams);
       window.location.href = reservationLink; // Redireciona diretamente para o link externo
     } catch (error) {
       console.error("Erro ao gerar link de reserva:", error);
