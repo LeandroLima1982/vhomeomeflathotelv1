@@ -161,16 +161,15 @@ const BookingV2 = () => {
         console.warn("Erro ao construir mapa de imagens de capa:", e);
       }
 
-      // Mesclar dados da API com dados locais
+      // Mesclar dados da API com dados locais, mapeando diretamente pelo api_category_id
       const mergedResults = data.map((apiRoom: any) => {
-        const adjustedRoomId = apiRoom.idQuarto - 3; // CORREÇÃO: Subtraindo 3 para alinhar com IDs do Supabase
-        const localRoom = localRoomsData?.find(lr => lr.id === adjustedRoomId);
+        const localRoom = localRoomsData?.find(lr => lr.api_category_id === apiRoom.idQuarto);
         return {
           ...apiRoom,
-          idQuarto: adjustedRoomId,
-          apiRoomId: apiRoom.idQuarto, // Mantém o ID original da API para o link de reserva
-          api_category_id: localRoom?.api_category_id || null, // Adicionado para usar o ID correto da categoria
-          imageUrl: localRoom?.imageUrl || coverImageMap.get(adjustedRoomId) || null,
+          idQuarto: localRoom?.id || apiRoom.idQuarto, // Usa o ID do Supabase se encontrado, senão o da API
+          apiRoomId: apiRoom.idQuarto, // Mantém o ID original da API
+          api_category_id: apiRoom.idQuarto, // O api_category_id é o mesmo que o idQuarto da API
+          imageUrl: localRoom?.imageUrl || coverImageMap.get(localRoom?.id || 0) || null,
           details: localRoom?.details || null,
           details_order: localRoom?.details_order || null,
           special_name: localRoom?.special_name || null,
