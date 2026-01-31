@@ -8,7 +8,7 @@ import DetailIcon from './DetailIcon';
 import { parse, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
-import { generateReservationLink } from "@/utils/reservationLinks";
+import { generateReservationLink, buildLinkFromDbUrl } from "@/utils/reservationLinks";
 import { showError } from "@/utils/toast";
 
 interface RoomResult {
@@ -22,6 +22,7 @@ interface RoomResult {
   special_name?: string | null;
   apiRoomId: number; // Adicionado para o link externo
   api_category_id?: number | null; // Added for correct category ID in reservation link
+  booking_url?: string | null; // URL vinda diretamente do banco
   [key: string]: any;
 }
 
@@ -50,9 +51,17 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
 
   const handleSelectRoom = () => {
     try {
-      // Use api_category_id for the reservation link if available, fallback to apiRoomId
-      const categoryId = room.api_category_id || room.apiRoomId;
-      const reservationLink = generateReservationLink(categoryId, searchParams);
+      let reservationLink: string;
+
+      // Prioridade TOTAL: Se tiver URL configurada no banco (via BookingV2 join), usa ela.
+      if (room.booking_url) {
+        reservationLink = buildLinkFromDbUrl(room.booking_url, searchParams);
+      } else {
+        // Fallback: Tenta construir baseada no ID mapeado no front (legado)
+        const categoryId = room.api_category_id || room.apiRoomId;
+        reservationLink = generateReservationLink(categoryId, searchParams);
+      }
+
       window.location.href = reservationLink; // Redireciona diretamente para o link externo
     } catch (error) {
       console.error("Erro ao gerar link de reserva:", error);
@@ -62,7 +71,7 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
 
   const getCapacityDisplay = (details: Record<string, string | null> | null) => {
     if (!details) return null;
-    const capacityDetail = Object.entries(details).find(([key, value]) => 
+    const capacityDetail = Object.entries(details).find(([key, value]) =>
       key.toLowerCase().includes('capacidade') || (value && value.toLowerCase().includes('hóspedes')) || (value && value.toLowerCase().includes('adultos'))
     );
     return capacityDetail ? capacityDetail[1] : null;
@@ -72,14 +81,14 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
 
   const getRoomDetails = (roomData: RoomResult) => {
     if (!roomData.details || typeof roomData.details !== 'object') return [];
-  
+
     const detailsObject = roomData.details;
-  
+
     const validKeys = Object.keys(detailsObject).filter(key => {
       const value = detailsObject[key];
       return value && typeof value === 'string' && value.trim() !== '' && key !== 'description';
     });
-  
+
     if (roomData.details_order && Array.isArray(roomData.details_order)) {
       const orderedDetails = roomData.details_order
         .map(key => {
@@ -89,13 +98,13 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
           return null;
         })
         .filter((value): value is string => value !== null);
-      
+
       const unorderedKeys = validKeys.filter(key => !roomData.details_order.includes(key));
       const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
-  
+
       return [...orderedDetails, ...unorderedDetails];
     }
-  
+
     return validKeys.map(key => detailsObject[key] as string);
   };
 
@@ -145,7 +154,7 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
             </div>
           )}
           <p className="text-sm text-gray-600">
-            {room.disponibilidade > 0 
+            {room.disponibilidade > 0
               ? `${room.disponibilidade} unidade${room.disponibilidade > 1 ? 's' : ''} disponível${room.disponibilidade > 1 ? 's' : ''}`
               : "Indisponível"}
           </p>

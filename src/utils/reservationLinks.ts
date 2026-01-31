@@ -37,7 +37,7 @@ export function generateReservationLink(apiRoomId: number | undefined, searchPar
   }
 
   const baseLink = RESERVATION_LINKS[apiRoomId] || GENERAL_RESERVATION_LINK;
-  
+
   // Adiciona parâmetros apenas se o link for específico (não o geral)
   // E se o apiRoomId for um número válido
   if (baseLink === RESERVATION_LINKS[apiRoomId]) {
@@ -49,6 +49,27 @@ export function generateReservationLink(apiRoomId: number | undefined, searchPar
     });
     return `${baseLink}?${params.toString()}`;
   }
-  
+
   return baseLink;
+}
+
+/**
+ * Constrói o link de reserva diretamente a partir da URL configurada no banco de dados.
+ * Preserva os parâmetros existentes na URL do banco (ex: idquartoCategoria) e adiciona as datas e hóspedes.
+ */
+export function buildLinkFromDbUrl(dbUrl: string, searchParams: SearchParams): string {
+  try {
+    const url = new URL(dbUrl);
+
+    // Adiciona os parâmetros de busca
+    url.searchParams.set('inicio', searchParams.checkin);
+    url.searchParams.set('fim', searchParams.checkout);
+    url.searchParams.set('adultos', searchParams.adults.toString());
+
+    return url.toString();
+  } catch (e) {
+    console.error("Erro ao processar URL do banco:", dbUrl, e);
+    // Fallback simples se a URL for inválida
+    return `${dbUrl}?inicio=${searchParams.checkin}&fim=${searchParams.checkout}&adultos=${searchParams.adults}`;
+  }
 }
