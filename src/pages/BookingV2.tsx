@@ -26,6 +26,7 @@ interface AvailabilityResult {
   details_order: string[] | null;
   special_name?: string | null;
   apiRoomId: number;
+  api_category_id?: number | null;
   [key: string]: any;
 }
 
@@ -168,6 +169,7 @@ const BookingV2 = () => {
           ...apiRoom,
           idQuarto: adjustedRoomId,
           apiRoomId: apiRoom.idQuarto, // Mantém o ID original da API para o link de reserva
+          api_category_id: localRoom?.api_category_id || null, // Adicionado para usar o ID correto da categoria
           imageUrl: localRoom?.imageUrl || coverImageMap.get(adjustedRoomId) || null,
           details: localRoom?.details || null,
           details_order: localRoom?.details_order || null,
