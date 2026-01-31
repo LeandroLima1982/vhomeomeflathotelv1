@@ -177,34 +177,46 @@ const BookingV2 = () => {
         return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[()]/g, "").split(/\s+/).filter(t => t.length > 0 && t !== "-" && t !== "c/");
       };
 
+      console.log('[BookingV2] --- INÍCIO DO MAPEAMENTO DE PREÇOS ---');
+      console.log('[BookingV2] Dados brutos da API:', data);
+
       // Mesclar os dados seguindo fielmente a Ordem do Banco (por ID, como na Home)
       const mergedResults = localRoomsData ? localRoomsData.map((localRoom: any) => {
         // Encontrar TODAS as opções da API que podem corresponder a este quarto local
-        let matchingApiRooms = data.filter((api: any) => api.idQuarto === localRoom.api_category_id);
+        // Combinamos busca por ID explícito E busca por Nome (tokens) para não perder promoções em outras categorias
+        const matchesById = data.filter((api: any) => api.idQuarto === localRoom.api_category_id);
 
-        // Fallback: Se não achou por ID, tenta por Tokens do nome
-        if (matchingApiRooms.length === 0) {
-          const localTokens = getTokens(localRoom.name);
-          matchingApiRooms = data.filter((api: any) => {
-            const apiTokens = getTokens(api.nomeQuarto);
-            return localTokens.every(token => apiTokens.includes(token));
-          });
+        const localTokens = getTokens(localRoom.name);
+        const matchesByTokens = data.filter((api: any) => {
+          const apiTokens = getTokens(api.nomeQuarto);
+          return localTokens.every(token => apiTokens.includes(token));
+        });
+
+        // União das listas (removendo duplicatas por idQuarto da API)
+        const allPotentialMatches = [...matchesById];
+        matchesByTokens.forEach(t => {
+          if (!allPotentialMatches.some(m => m.idQuarto === t.idQuarto)) {
+            allPotentialMatches.push(t);
+          }
+        });
+
+        // Se houver múltiplas opções, pegamos a ABSOLUTAMENTE MAIS BARATA do que a API retornou
+        const sortedOptions = [...allPotentialMatches].sort((a, b) => a.valorTotal - b.valorTotal);
+        const apiRoom = sortedOptions[0];
+
+        if (allPotentialMatches.length > 0) {
+          console.log(`[BookingV2] Quarto "${localRoom.name}" (ID ${localRoom.id}) - Encontradas ${allPotentialMatches.length} opções:`);
+          allPotentialMatches.forEach(opt => console.log(`   - [ID ${opt.idQuarto}] ${opt.nomeQuarto} -> R$ ${opt.valorTotal}`));
+          console.log(`   => VENCEDOR: R$ ${apiRoom.valorTotal} (ID ${apiRoom.idQuarto})`);
         }
-
-        // Se houver múltiplas opções (ex: tarifas ou categorias duplicadas), pegamos a MAIS BARATA
-        const apiRoom = matchingApiRooms.length > 1
-          ? [...matchingApiRooms].sort((a, b) => a.valorTotal - b.valorTotal)[0]
-          : matchingApiRooms[0];
 
         // Se o quarto não estiver na resposta da API ou não tiver disponibilidade, ignoramos
         if (!apiRoom) {
-          console.log(`[BookingV2] Quarto ID ${localRoom.id} (${localRoom.name}) sem disponibilidade ou não encontrado na API.`);
+          console.log(`[BookingV2] Quarto ID ${localRoom.id} (${localRoom.name}) sem disponibilidade.`);
           return null;
         }
 
-        console.log(`[BookingV2] Mapeado (Melhor Preço): Local ID ${localRoom.id} ("${localRoom.name}") <- matches -> API "${apiRoom.nomeQuarto}" (ID ${apiRoom.idQuarto} - R$ ${apiRoom.valorTotal})`);
-
-        // Extra logic to extract ID from booking_url if available for the link
+        // Extra logic to extract ID from booking_url if available
         let extractedCategoryId = null;
         if (localRoom.booking_url) {
           try {
@@ -215,12 +227,14 @@ const BookingV2 = () => {
           }
         }
 
-        const finalCategoryId = extractedCategoryId || localRoom.api_category_id || apiRoom.idQuarto;
+        // IMPORTANTE: Para o link de reserva, usamos o ID da API do quarto que encontramos como o mais barato
+        // Isso garante que o botão leve o usuário para o preço que ele viu no card.
+        const finalCategoryId = apiRoom.idQuarto;
 
         return {
           ...apiRoom,
           idQuarto: localRoom.id,
-          apiRoomId: apiRoom.idQuarto, // ID vindo da API externa
+          apiRoomId: apiRoom.idQuarto,
           api_category_id: finalCategoryId,
           imageUrl: coverImageMap.get(localRoom.id) || null,
           details: localRoom.details || null,
@@ -248,7 +262,7 @@ const BookingV2 = () => {
       console.log('[BookingV2] Número de quartos disponíveis:', availableResults.length);
 
       setResults(availableResults);
-      
+
       // Adiciona o scroll para a seção de resultados
       if (availableResults.length > 0 && resultsContainerRef.current) {
         resultsContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });

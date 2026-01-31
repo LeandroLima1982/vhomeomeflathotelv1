@@ -107,25 +107,44 @@ serve(async (req) => {
     }
 
     // Aprimorado: Percorre todas as categorias e busca a TARIFA MAIS BARATA disponível
+    // Aprimorado: Busca a TARIFA MAIS BARATA com lógica resiliente (suporta números e strings)
     const results = (data.categorias || []).reduce((acc: any[], categoria: any) => {
-      // Filtrar apenas tarifas que têm valor de reserva válido
-      const availableTariffs = (categoria.tarifas || []).filter((t: any) =>
-        typeof t.valorTotalReserva === 'number' && t.valorTotalReserva > 0
-      );
+      console.log(`[get-availability] --- Analisando Categoria: ${categoria.nome} (ID: ${categoria.id}) ---`);
 
-      if (availableTariffs.length > 0 && categoria.disponibilidade > 0) {
-        // Encontrar a menor tarifa para mostrar o preço "A partir de" ou promocional
-        const minTariff = availableTariffs.reduce((prev: any, curr: any) =>
-          prev.valorTotalReserva < curr.valorTotalReserva ? prev : curr
+      const tariffs = categoria.tarifas || [];
+      const analyzedTariffs = tariffs.map((t: any) => {
+        // Tenta extrair o valor da reserva de campos conhecidos
+        const rawValue = t.valorTotalReserva ?? t.valorTarifa ?? t.valorVenda ?? 0;
+
+        // Converte para número se for string (ex: "450,00" -> 450)
+        let price = 0;
+        if (typeof rawValue === 'number') {
+          price = rawValue;
+        } else if (typeof rawValue === 'string') {
+          price = parseFloat(rawValue.replace(',', '.'));
+        }
+
+        console.log(`   - Tarifa: "${t.nomeTarifa}" | Valor Detectado: R$ ${price} (Bruto: ${rawValue})`);
+        return { ...t, extractedPrice: price };
+      }).filter((t: any) => t.extractedPrice > 0);
+
+      if (analyzedTariffs.length > 0 && categoria.disponibilidade > 0) {
+        // Seleciona a menor tarifa disponível
+        const cheaper = analyzedTariffs.reduce((prev: any, curr: any) =>
+          prev.extractedPrice < curr.extractedPrice ? prev : curr
         );
+
+        console.log(`   => VENCEDORA: R$ ${cheaper.extractedPrice} (${cheaper.nomeTarifa})`);
 
         acc.push({
           idQuarto: categoria.id,
           nomeQuarto: categoria.nome,
           disponibilidade: categoria.disponibilidade,
-          valorTotal: minTariff.valorTotalReserva,
-          tarifaNome: minTariff.nomeTarifa // Útil para depuração
+          valorTotal: cheaper.extractedPrice,
+          tarifaNome: cheaper.nomeTarifa
         });
+      } else {
+        console.log(`   x Sem disponibilidade ou tarifas válidas.`);
       }
       return acc;
     }, []);
