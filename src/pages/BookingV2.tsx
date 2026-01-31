@@ -47,6 +47,7 @@ const BookingV2 = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const searchFormRef = useRef<HTMLDivElement>(null);
+  const resultsContainerRef = useRef<HTMLDivElement>(null); // Ref para o container de resultados
 
   useEffect(() => {
     setIsMounted(true);
@@ -232,12 +233,18 @@ const BookingV2 = () => {
       console.log('[BookingV2] Número de quartos disponíveis:', availableResults.length);
 
       setResults(availableResults);
-      setIsLoading(false);
+      
+      // Adiciona o scroll para a seção de resultados
+      if (availableResults.length > 0 && resultsContainerRef.current) {
+        resultsContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
     } catch (e: any) {
       console.error("Erro ao buscar disponibilidade:", e);
       const errorMessage = e.message || "Ocorreu um erro ao buscar a disponibilidade. Tente novamente.";
       setError(errorMessage);
       showError(errorMessage);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -277,7 +284,7 @@ const BookingV2 = () => {
           <AvailabilitySearchForm onSearch={handleSearch} isLoading={isLoading} />
         </div>
 
-        <div id="results-container" className="container mx-auto px-4 max-w-5xl pt-4 pb-16">
+        <div ref={resultsContainerRef} id="results-container" className="container mx-auto px-4 max-w-5xl pt-4 pb-16">
           {isLoading && (
             <div className="flex flex-col items-center justify-center text-center p-10 bg-white rounded-lg shadow-md">
               <Loader2 className="h-12 w-12 animate-spin text-blue-600 mb-4" />
