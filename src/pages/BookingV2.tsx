@@ -130,19 +130,20 @@ const BookingV2 = () => {
       
       if (data.error) throw new Error(data.error);
 
-      // Buscar dados locais dos quartos
+      // Buscar dados locais dos quartos ordenados por ID (mesmo padrão da home page)
       const { data: localRoomsData, error: localError } = await supabase
         .from('rooms')
-        .select('id, name, special_name, details, details_order, api_category_id');
+        .select('id, name, special_name, details, details_order, api_category_id')
+        .order('id');
 
       if (localError) {
         console.warn("Erro ao buscar dados locais dos quartos:", localError);
       }
 
-      console.log('[BookingV2] Dados locais dos quartos:', localRoomsData);
+      console.log('[BookingV2] Dados locais dos quartos (ordenados por ID):', localRoomsData);
       console.log('[BookingV2] Dados da API externa:', data);
 
-      // Construir mapa de imagens de capa do storage baseado no ID da tabela rooms
+      // Construir mapa de imagens de capa do storage baseado no ID da tabela rooms (mesmo padrão da home page)
       const coverImageMap = new Map<number, string>();
       try {
         const { data: coverFiles, error: coverError } = await supabase.storage.from('gallery').list('rooms');
@@ -166,25 +167,26 @@ const BookingV2 = () => {
 
       console.log('[BookingV2] Mapa de imagens de capa:', Object.fromEntries(coverImageMap));
 
-      // Mesclar dados da API com dados locais usando mapeamento direto: api_category_id === idQuarto da API
-      const mergedResults = data.map((apiRoom: any) => {
-        const localRoom = localRoomsData?.find(lr => lr.api_category_id === apiRoom.idQuarto);
+      // Mesclar dados da API com dados locais usando o mesmo padrão da home page:
+      // Mapear sequencialmente baseado na ordem dos quartos locais (ID 1, 2, 3...) com os resultados da API
+      const mergedResults = data.map((apiRoom: any, index: number) => {
+        const localRoom = localRoomsData ? localRoomsData[index] : null; // Mapear pelo índice sequencial
         
-        console.log(`[BookingV2] API Room ID: ${apiRoom.idQuarto}, Local Room Match:`, localRoom);
+        console.log(`[BookingV2] API Room Index: ${index}, API ID: ${apiRoom.idQuarto}, Local Room Match:`, localRoom);
         
         return {
           ...apiRoom,
           idQuarto: localRoom ? localRoom.id : apiRoom.idQuarto, // Usa o ID do Supabase se encontrado, senão o da API
           apiRoomId: apiRoom.idQuarto, // Mantém o ID original da API para reserva
           api_category_id: apiRoom.idQuarto, // O api_category_id é o idQuarto original da API
-          imageUrl: localRoom ? coverImageMap.get(localRoom.id) || null : null, // Busca imagem baseada no ID do Supabase
+          imageUrl: localRoom ? coverImageMap.get(localRoom.id) || null : null, // Busca imagem baseada no ID do Supabase (mesmo padrão da home)
           details: localRoom?.details || null,
           details_order: localRoom?.details_order || null,
           special_name: localRoom?.special_name || null,
         };
       });
 
-      console.log('[BookingV2] Resultados mesclados:', mergedResults);
+      console.log('[BookingV2] Resultados mesclados (mapeamento sequencial):', mergedResults);
 
       // Filtrar apenas quartos com disponibilidade > 0 E valorTotal > 0
       const availableResults = mergedResults.filter(room => room.disponibilidade > 0 && room.valorTotal > 0);
