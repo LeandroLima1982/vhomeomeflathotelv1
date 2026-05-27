@@ -3,9 +3,6 @@
 import { useState, useEffect } from "react";
 import { Calendar as CalendarIcon, Users } from "lucide-react";
 import { format, addDays } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { useNavigate } from "react-router-dom"; // Importando useNavigate
-
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import {
@@ -15,24 +12,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { generateWhatsAppLink } from "@/utils/reservationLinks";
 
 export function BookingForm() {
-  // Define valores padrão: check-in na data atual, check-out no dia seguinte, 2 hóspedes
   const today = new Date();
   const defaultCheckin = today;
-  const defaultCheckout = addDays(today, 1); // Dia seguinte
+  const defaultCheckout = addDays(today, 1);
 
   const [checkinDate, setCheckinDate] = useState<Date | undefined>(defaultCheckin);
   const [checkoutDate, setCheckoutDate] = useState<Date | undefined>(defaultCheckout);
   const [guests, setGuests] = useState(2);
   const [isMounted, setIsMounted] = useState(false);
-  const navigate = useNavigate(); // Inicializando useNavigate
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Reseta a data de checkout se for anterior ou igual à de check-in
   useEffect(() => {
     if (checkinDate && checkoutDate && checkoutDate <= checkinDate) {
       setCheckoutDate(undefined);
@@ -49,10 +44,9 @@ export function BookingForm() {
 
     const checkin = format(checkinDate, "yyyyMMdd");
     const checkout = format(checkoutDate, "yyyyMMdd");
-    const adults = guests;
-
-    // Redireciona para /booking-v2 com os parâmetros de busca
-    navigate(`/booking-v2?checkin=${checkin}&checkout=${checkout}&adults=${adults}`);
+    
+    const whatsappLink = generateWhatsAppLink(undefined, { checkin, checkout, adults: guests });
+    window.open(whatsappLink, '_blank');
   };
 
   return (
@@ -60,7 +54,6 @@ export function BookingForm() {
       <div className="px-4">
         <div className={`max-w-lg md:max-w-3xl mx-auto bg-white border border-white/50 p-4 md:p-6 rounded-xl shadow-xl transition-all duration-1000 ${isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-2 md:gap-4 md:grid-cols-4 md:items-end">
-            {/* Check-in */}
             <div className="space-y-2 text-left">
               <label className="font-medium text-gray-800 flex items-center gap-2 text-sm pl-1">
                 <CalendarIcon className="h-4 w-4" />
@@ -74,7 +67,6 @@ export function BookingForm() {
               />
             </div>
 
-            {/* Check-out */}
             <div className="space-y-2 text-left">
               <label className="font-medium text-gray-800 flex items-center gap-2 text-sm pl-1">
                 <CalendarIcon className="h-4 w-4" />
@@ -89,7 +81,6 @@ export function BookingForm() {
               />
             </div>
 
-            {/* Guests */}
             <div className="space-y-2 text-left">
               <label htmlFor="guests" className="font-medium text-gray-800 flex items-center gap-2 text-sm pl-1">
                 <Users className="h-4 w-4" />
@@ -109,10 +100,9 @@ export function BookingForm() {
               </Select>
             </div>
 
-            {/* Submit Button */}
             <div>
               <Button type="submit" className="w-full font-bold bg-blue-700 hover:bg-blue-750 text-white">
-                Verificar
+                Reservar via WhatsApp
               </Button>
             </div>
           </form>

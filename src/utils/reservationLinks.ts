@@ -1,23 +1,6 @@
 "use client";
 
-// Mapeamento dos links externos por ID da CATEGORIA DE QUARTO DA API EXTERNA
-// Estes IDs são os que a API externa espera para pré-preencher o formulário.
-// Agora, este objeto pode ser simplificado ou removido se todos os links forem iguais.
-// Mantido para compatibilidade, mas os IDs devem ser os api_category_id.
-const RESERVATION_LINKS: Record<number, string> = {
-  4: 'https://vhomeflathotel.motordereservas.com.br/novareserva',
-  5: 'https://vhomeflathotel.motordereservas.com.br/novareserva',
-  6: 'https://vhomeflathotel.motordereservas.com.br/novareserva',
-  7: 'https://vhomeflathotel.motordereservas.com.br/novareserva',
-  8: 'https://vhomeflathotel.motordereservas.com.br/novareserva',
-  9: 'https://vhomeflathotel.motordereservas.com.br/novareserva',
-  10: 'https://vhomeflathotel.motordereservas.com.br/novareserva',
-  12: 'https://vhomeflathotel.motordereservas.com.br/novareserva',
-  13: 'https://vhomeflathotel.motordereservas.com.br/novareserva',
-};
-
-// Link geral como fallback
-const GENERAL_RESERVATION_LINK = 'https://vhomeflathotel.motordereservas.com.br/novareserva';
+const WHATSAPP_NUMBER = "5522998990430";
 
 interface SearchParams {
   checkin: string;
@@ -26,50 +9,35 @@ interface SearchParams {
 }
 
 /**
- * Gera o link externo de reserva baseado no apiRoomId (ID da API externa) e parâmetros de busca.
- * Inclui inicio, fim, adultos e idquartoCategoria para pré-preencher o formulário externo.
- * Se o apiRoomId não for válido (um dos IDs da API externa mapeados), usa o link geral sem parâmetros.
+ * Gera um link do WhatsApp com uma mensagem pré-definida.
  */
-export function generateReservationLink(apiRoomId: number | undefined, searchParams: SearchParams): string {
-  // Se apiRoomId for undefined ou null, usa o link geral
-  if (apiRoomId === undefined || apiRoomId === null) {
-    return GENERAL_RESERVATION_LINK;
+export function generateWhatsAppLink(roomName?: string, searchParams?: SearchParams): string {
+  let message = "Olá! Gostaria de solicitar uma reserva no V-Home Flat Hotel.";
+  
+  if (roomName) {
+    message += `\n\nAcomodação: ${roomName}`;
   }
+  
+  if (searchParams) {
+    // Formata as datas de yyyyMMdd para dd/MM/yyyy para a mensagem
+    const formatDate = (dateStr: string) => {
+      if (dateStr.length !== 8) return dateStr;
+      return `${dateStr.substring(6, 8)}/${dateStr.substring(4, 6)}/${dateStr.substring(0, 4)}`;
+    };
 
-  const baseLink = RESERVATION_LINKS[apiRoomId] || GENERAL_RESERVATION_LINK;
-
-  // Adiciona parâmetros apenas se o link for específico (não o geral)
-  // E se o apiRoomId for um número válido
-  if (baseLink === RESERVATION_LINKS[apiRoomId]) {
-    const params = new URLSearchParams({
-      inicio: searchParams.checkin,
-      fim: searchParams.checkout,
-      adultos: searchParams.adults.toString(),
-      idquartoCategoria: apiRoomId.toString(), // Usar o apiRoomId aqui
-    });
-    return `${baseLink}?${params.toString()}`;
+    message += `\nCheck-in: ${formatDate(searchParams.checkin)}`;
+    message += `\nCheck-out: ${formatDate(searchParams.checkout)}`;
+    message += `\nHóspedes: ${searchParams.adults}`;
   }
-
-  return baseLink;
+  
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
-/**
- * Constrói o link de reserva diretamente a partir da URL configurada no banco de dados.
- * Preserva os parâmetros existentes na URL do banco (ex: idquartoCategoria) e adiciona as datas e hóspedes.
- */
+// Mantendo as funções antigas como fallbacks que agora apontam para o WhatsApp
+export function generateReservationLink(apiRoomId: number | undefined, searchParams: SearchParams): string {
+  return generateWhatsAppLink(undefined, searchParams);
+}
+
 export function buildLinkFromDbUrl(dbUrl: string, searchParams: SearchParams): string {
-  try {
-    const url = new URL(dbUrl);
-
-    // Adiciona os parâmetros de busca
-    url.searchParams.set('inicio', searchParams.checkin);
-    url.searchParams.set('fim', searchParams.checkout);
-    url.searchParams.set('adultos', searchParams.adults.toString());
-
-    return url.toString();
-  } catch (e) {
-    console.error("Erro ao processar URL do banco:", dbUrl, e);
-    // Fallback simples se a URL for inválida
-    return `${dbUrl}?inicio=${searchParams.checkin}&fim=${searchParams.checkout}&adultos=${searchParams.adults}`;
-  }
+  return generateWhatsAppLink(undefined, searchParams);
 }

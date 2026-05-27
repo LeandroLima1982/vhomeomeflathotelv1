@@ -8,14 +8,8 @@ import { Separator } from '@/components/ui/separator';
 import {
   Users,
   Wifi,
-  Coffee,
-  Tv,
-  Wind,
-  Droplets,
   X,
   ExternalLink,
-  Sparkles,
-  Check,
   ChevronLeft,
   ChevronRight,
   Image as ImageIcon,
@@ -33,18 +27,15 @@ import {
 import FeatureListDisplay, { FeatureCategory } from './FeatureListDisplay';
 import { supabase } from '@/lib/supabaseClient';
 import { RoomBookingForm } from './RoomBookingForm';
-import { showError } from '@/utils/toast';
 import { useNavigate } from 'react-router-dom';
 import { format, parse, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import DetailIcon from './DetailIcon';
-import { generateReservationLink } from '@/utils/reservationLinks';
+import { generateWhatsAppLink } from '@/utils/reservationLinks';
 
-// Interface para o objeto 'room' que vem do estado da localização
 interface RoomResultForCheckout {
-  idQuarto: number; // ID do Supabase (ajustado)
-  apiRoomId: number; // ID configurado no Supabase
-  originalApiRoomId: number; // ID original retornado pela API de disponibilidade (sem ajuste)
+  idQuarto: number;
+  apiRoomId: number;
+  originalApiRoomId: number;
   nomeQuarto: string;
   disponibilidade: number;
   valorTotal: number;
@@ -62,7 +53,7 @@ interface SearchParams {
 }
 
 interface RoomDetailsModalProps {
-  room: any; // O quarto original do Supabase
+  room: any;
   onClose: () => void;
 }
 
@@ -74,7 +65,6 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showBookingForm, setShowBookingForm] = useState(false);
 
-  // Novos estados para a busca de disponibilidade
   const [isSearchingAvailability, setIsSearchingAvailability] = useState(false);
   const [roomAvailabilityResult, setRoomAvailabilityResult] = useState<RoomResultForCheckout | null>(null);
   const [availabilitySearchError, setAvailabilitySearchError] = useState<string | null>(null);
@@ -152,170 +142,13 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
     setTimeout(() => setIsTransitioning(false), 300);
   };
 
-  // Função para mostrar o formulário de busca
   const handleShowBookingForm = () => {
     setShowBookingForm(true);
   };
 
-  // Função para redirecionar diretamente com os parâmetros da pré-consulta
-  const handleDirectBookingWithParams = (checkin: string, checkout: string, adults: number) => {
-    if (room.api_category_id === null || room.api_category_id === undefined) {
-      showError("ID da categoria da API externa não configurado para este quarto.");
-      return;
-    }
-
-    console.log('[RoomDetailsModal] Redirecionando para reserva com parâmetros:', {
-      checkin,
-      checkout,
-      adults,
-      api_category_id: room.api_category_id
-    });
-
-    try {
-      const baseUrl = 'https://vhomeflathotel.motordereservas.com.br/novareserva';
-      const params = new URLSearchParams({
-        inicio: checkin,
-        fim: checkout,
-        adultos: adults.toString(),
-        idquartoCategoria: room.api_category_id.toString(),
-      });
-      const reservationLink = `${baseUrl}?${params.toString()}`;
-
-      console.log('[RoomDetailsModal] URL de reserva construída:', reservationLink);
-
-      window.location.href = reservationLink;
-    } catch (error) {
-      console.error("Erro ao gerar link de reserva:", error);
-      showError("Erro ao redirecionar para reserva. Tente novamente.");
-    }
-  };
-
-  // Função para realizar a busca de disponibilidade
-  const handleAvailabilitySearch = async (checkin: string, checkout: string, adults: number) => {
-    setIsSearchingAvailability(true);
-    setRoomAvailabilityResult(null);
-    setAvailabilitySearchError(null);
-    setCurrentSearchParams({ checkin, checkout, adults });
-
-    if (!supabase) {
-      const errorMessage = "Cliente Supabase não está disponível. Verifique a configuração.";
-      setAvailabilitySearchError(errorMessage);
-      showError(errorMessage);
-      setIsSearchingAvailability(false);
-      setShowBookingForm(false);
-      return;
-    }
-
-    if (room.api_category_id === null || room.api_category_id === undefined) {
-      const errorMessage = "ID da categoria da API externa não configurado para este quarto. Por favor, configure no painel administrativo.";
-      setAvailabilitySearchError(errorMessage);
-      showError(errorMessage);
-      setIsSearchingAvailability(false);
-      setShowBookingForm(false);
-      return;
-    }
-
-    try {
-      console.log('[RoomDetailsModal] Buscando disponibilidade para room.api_category_id:', room.api_category_id);
-
-      const { data, error: functionError } = await supabase.functions.invoke('get-availability', {
-        body: { checkin, checkout, adults },
-      });
-
-      if (functionError) {
-        const errorDetails = await functionError.context.json();
-        if (errorDetails && errorDetails.error) throw new Error(errorDetails.error);
-        throw new Error(functionError.message || "Erro na comunicação com a função.");
-      }
-
-      if (data.error) throw new Error(data.error);
-
-      console.log('[RoomDetailsModal] Resposta da API de disponibilidade:', data);
-
-      // Encontra o quarto que corresponde ao api_category_id do Supabase
-      const foundRoom = data.find((apiRoom: any) => apiRoom.idQuarto === room.api_category_id);
-
-      console.log('[RoomDetailsModal] Quarto encontrado:', foundRoom);
-
-      if (foundRoom && foundRoom.disponibilidade > 0 && foundRoom.valorTotal > 0) {
-        console.log('[RoomDetailsModal] Definindo roomAvailabilityResult com originalApiRoomId:', foundRoom.idQuarto);
-
-        setRoomAvailabilityResult({
-          idQuarto: room.id, // ID do Supabase
-          apiRoomId: room.api_category_id, // ID configurado no Supabase
-          originalApiRoomId: foundRoom.idQuarto, // ID retornado pela API (deve ser igual ao api_category_id)
-          nomeQuarto: room.name,
-          disponibilidade: foundRoom.disponibilidade,
-          valorTotal: foundRoom.valorTotal,
-          imageUrl: room.imageUrl,
-          details: room.details,
-          details_order: room.details_order,
-          special_name: room.special_name,
-        });
-        setShowBookingForm(false);
-      } else {
-        setAvailabilitySearchError("Desculpe, esta acomodação não está disponível para as datas e hóspedes selecionados.");
-        setShowBookingForm(false);
-      }
-
-    } catch (e: any) {
-      console.error("Erro ao buscar disponibilidade no modal:", e);
-      const errorMessage = e.message || "Ocorreu um erro ao buscar a disponibilidade. Tente novamente.";
-      setAvailabilitySearchError(errorMessage);
-      setShowBookingForm(false);
-    } finally {
-      setIsSearchingAvailability(false);
-    }
-  };
-
-  // Função para construir URL usando o ID original da pré-consulta
-  const handleReserveWithPreConsultaId = () => {
-    if (roomAvailabilityResult && currentSearchParams) {
-      console.log('[RoomDetailsModal] Construindo URL de reserva com apiRoomId (Supabase configured):', roomAvailabilityResult.apiRoomId);
-
-      try {
-        const baseUrl = 'https://vhomeflathotel.motordereservas.com.br/novareserva';
-        const params = new URLSearchParams({
-          inicio: currentSearchParams.checkin,
-          fim: currentSearchParams.checkout,
-          adultos: currentSearchParams.adults.toString(),
-          idquartoCategoria: roomAvailabilityResult.apiRoomId.toString(), // Changed from originalApiRoomId
-        });
-        const reservationLink = `${baseUrl}?${params.toString()}`;
-
-        console.log('[RoomDetailsModal] URL de reserva construída:', reservationLink);
-
-        window.location.href = reservationLink;
-      } catch (error) {
-        console.error("Erro ao gerar link de reserva com ID da pré-consulta:", error);
-        showError("Erro ao redirecionar para reserva. Tente novamente.");
-      }
-    }
-  };
-
   const handleReserveClick = () => {
-    if (roomAvailabilityResult && currentSearchParams) {
-      try {
-        // Passa o apiRoomId (que agora é o api_category_id) para generateReservationLink
-        const reservationLink = generateReservationLink(roomAvailabilityResult.apiRoomId, currentSearchParams);
-        window.location.href = reservationLink;
-      } catch (error) {
-        console.error("Erro ao gerar link de reserva:", error);
-        showError("Erro ao redirecionar para reserva. Tente novamente.");
-      }
-    }
-  };
-
-  const handleDirectReserve = () => {
-    if (currentSearchParams) {
-      try {
-        const reservationLink = generateReservationLink(room.api_category_id, currentSearchParams);
-        window.location.href = reservationLink;
-      } catch (error) {
-        console.error("Erro ao gerar link de reserva direta:", error);
-        showError("Erro ao redirecionar para reserva. Tente novamente.");
-      }
-    }
+    const whatsappLink = generateWhatsAppLink(room.name, currentSearchParams || undefined);
+    window.open(whatsappLink, '_blank');
   };
 
   const handleViewOtherOptions = (isDirectBooking: boolean) => {
@@ -330,7 +163,6 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
     onClose();
   };
 
-  // Renderizar detalhes como badges modernos
   const renderDetails = () => {
     if (!room.details || typeof room.details !== 'object') return null;
 
@@ -370,37 +202,6 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
     );
   };
 
-  const getRoomDetails = (roomData: any) => {
-    if (!roomData.details || typeof roomData.details !== 'object') return [];
-
-    const detailsObject = roomData.details;
-
-    const validKeys = Object.keys(detailsObject).filter(key => {
-      const value = detailsObject[key];
-      return value && typeof value === 'string' && value.trim() !== '' && key !== 'description';
-    });
-
-    if (roomData.details_order && Array.isArray(roomData.details_order)) {
-      const orderedDetails = roomData.details_order
-        .map((key: string) => {
-          if (validKeys.includes(key)) {
-            return detailsObject[key];
-          }
-          return null;
-        })
-        .filter((value: string | null): value is string => value !== null);
-
-      const unorderedKeys = validKeys.filter(key => !roomData.details_order.includes(key));
-      const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
-
-      return [...orderedDetails, ...unorderedDetails];
-    }
-
-    return validKeys.map(key => detailsObject[key] as string);
-  };
-
-  const roomDetails = getRoomDetails(room);
-
   const formattedPrice = roomAvailabilityResult ? new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
@@ -413,11 +214,8 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
   return (
     <Dialog open={!!room} onOpenChange={onClose}>
       <DialogContent className="max-w-[100vw] sm:max-w-[95vw] md:max-w-[90vw] lg:max-w-[1100px] max-h-[95vh] w-full p-0 bg-white border-0 shadow-2xl overflow-hidden">
-        {/* Container com scroll para o modal inteiro */}
         <div className="max-h-[95vh] overflow-y-auto">
-          {/* Header com gradiente moderno */}
           <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-            {/* Botão fechar moderno */}
             <button
               onClick={onClose}
               className="absolute top-4 right-4 z-20 w-8 h-8 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-200 group"
@@ -425,7 +223,6 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
               <X className="w-4 h-4 group-hover:scale-110 transition-transform" />
             </button>
 
-            {/* Título e informações principais */}
             <div className="px-4 sm:px-6 lg:px-8 pt-6 pb-4">
               <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
                 <div className="flex-1">
@@ -443,7 +240,6 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                   )}
                 </div>
 
-                {/* Rating e localização */}
                 <div className="flex flex-col sm:flex-row gap-3 lg:flex-col lg:items-end">
                   <div className="flex items-center gap-2 text-slate-300">
                     <MapPin className="w-3 h-3" />
@@ -460,10 +256,8 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
             </div>
           </div>
 
-          {/* Sistema de reserva acima do carousel */}
           <div className="px-4 sm:px-6 lg:px-8 py-4 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200/60">
             {showBookingForm ? (
-              // Formulário de busca de disponibilidade
               <RoomBookingForm
                 roomId={room.id}
                 onCancel={() => {
@@ -472,20 +266,18 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                   setAvailabilitySearchError(null);
                   setCurrentSearchParams(null);
                 }}
-                onConsult={handleDirectBookingWithParams}
+                onConsult={(checkin, checkout, adults) => {
+                  const whatsappLink = generateWhatsAppLink(room.name, { checkin, checkout, adults });
+                  window.open(whatsappLink, '_blank');
+                }}
                 isLoading={false}
-                initialCheckin={currentSearchParams ? parse(currentSearchParams.checkin, "yyyyMMdd", new Date()) : undefined}
-                initialCheckout={currentSearchParams ? parse(currentSearchParams.checkout, "yyyyMMdd", new Date()) : undefined}
-                initialGuests={currentSearchParams?.adults}
               />
             ) : isSearchingAvailability ? (
               <div className="flex flex-col items-center justify-center text-center p-10 bg-white rounded-lg shadow-md">
                 <Loader2 className="h-12 w-12 animate-spin text-blue-600 mb-4" />
                 <p className="text-lg font-semibold text-gray-700">Buscando disponibilidade...</p>
-                <p className="text-gray-500">Por favor, aguarde um momento.</p>
               </div>
             ) : roomAvailabilityResult ? (
-              // Resultados da disponibilidade para o quarto atual
               <div className="p-6 bg-white rounded-lg shadow-md border border-blue-100">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold text-blue-800">Disponível!</h3>
@@ -498,19 +290,9 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                     <Calendar className="h-5 w-5 text-blue-600" />
                     <span>Check-in: {format(parse(currentSearchParams!.checkin, "yyyyMMdd", new Date()), "dd/MM/yyyy", { locale: ptBR })}</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <Calendar className="h-5 w-5 text-blue-600" />
-                      <span>Check-out: {format(parse(currentSearchParams!.checkout, "yyyyMMdd", new Date()), "dd/MM/yyyy", { locale: ptBR })}</span>
-                    </div>
-                  </div>
                   <div className="flex items-center gap-2 text-gray-700">
-                    <Users className="h-5 w-5 text-blue-600" />
-                    <span>{currentSearchParams!.adults} Hóspede{currentSearchParams!.adults > 1 ? 's' : ''}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <BedDouble className="h-5 w-5 text-blue-600" />
-                    <span>{roomAvailabilityResult.disponibilidade} unidade{roomAvailabilityResult.disponibilidade > 1 ? 's' : ''} disponível{roomAvailabilityResult.disponibilidade > 1 ? 's' : ''}</span>
+                    <Calendar className="h-5 w-5 text-blue-600" />
+                    <span>Check-out: {format(parse(currentSearchParams!.checkout, "yyyyMMdd", new Date()), "dd/MM/yyyy", { locale: ptBR })}</span>
                   </div>
                 </div>
                 <Separator className="my-4" />
@@ -522,63 +304,45 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                       {formattedPrice}
                     </p>
                   </div>
-                  <div className="flex flex-col gap-2 sm:flex-row">
-                    <Button
-                      onClick={handleReserveWithPreConsultaId}
-                      size="lg"
-                      className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105 w-full sm:w-auto"
-                    >
-                      <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                      Reservar Agora
-                    </Button>
-                  </div>
-                </div>
-                <div className="mt-4 text-center">
-                  <Button variant="link" onClick={() => handleViewOtherOptions(false)} className="text-blue-600 hover:text-blue-800">
-                    <Search className="h-4 w-4 mr-2" /> Ver Outras Opções
+                  <Button
+                    onClick={handleReserveClick}
+                    size="lg"
+                    className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105 w-full sm:w-auto"
+                  >
+                    <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    Reservar via WhatsApp
                   </Button>
                 </div>
               </div>
             ) : availabilitySearchError ? (
-              // Mensagem de erro
               <div className="p-6 bg-red-50 rounded-lg shadow-md border border-red-200 text-center">
                 <div className="flex items-center justify-center mb-4">
                   <ServerCrash className="h-12 w-12 text-red-500" />
                 </div>
                 <h3 className="text-xl font-bold text-red-800 mb-2">Erro na Consulta</h3>
                 <p className="text-red-700 mb-4">{availabilitySearchError}</p>
-                <div className="flex flex-col sm:flex-row justify-center gap-3">
-                  <Button variant="outline" onClick={() => setShowBookingForm(true)}>
-                    <ArrowLeft className="h-4 w-4 mr-2" /> Tentar Novamente
-                  </Button>
-                  <Button onClick={() => handleViewOtherOptions(false)}>
-                    <Search className="h-4 w-4 mr-2" /> Ver Outras Opções
-                  </Button>
-                </div>
+                <Button variant="outline" onClick={() => setShowBookingForm(true)}>
+                  <ArrowLeft className="h-4 w-4 mr-2" /> Tentar Novamente
+                </Button>
               </div>
             ) : (
-              // Botão inicial para consultar preço - agora mostra o formulário
               <div className="flex justify-center">
                 <Button
-                  onClick={handleShowBookingForm} // Correctly shows the booking form
+                  onClick={handleShowBookingForm}
                   size="lg"
                   className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base transform hover:scale-105"
                 >
                   <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                  Consultar preço
+                  Reservar via WhatsApp
                 </Button>
               </div>
             )}
           </div>
 
-          {/* Carousel de Imagens Moderno */}
           <div className="relative w-full h-48 sm:h-64 lg:h-[350px] bg-slate-100 overflow-hidden">
             {loadingImages ? (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-300 border-t-slate-600 mx-auto mb-3"></div>
-                  <p className="text-slate-600 font-medium text-sm">Carregando imagens...</p>
-                </div>
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-300 border-t-slate-600 mx-auto mb-3"></div>
               </div>
             ) : roomImages.length > 0 ? (
               <div className="relative w-full h-full group">
@@ -587,11 +351,7 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                   alt={`${room.name} - Imagem ${currentImageIndex + 1}`}
                   className="w-full h-full object-cover transition-all duration-500 ease-out"
                 />
-
-                {/* Overlay gradiente sutil */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
-
-                {/* Botões de navegação modernos */}
                 {roomImages.length > 1 && (
                   <>
                     <button
@@ -608,24 +368,6 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                     </button>
                   </>
                 )}
-
-                {/* Indicadores modernos */}
-                {roomImages.length > 1 && (
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                    {roomImages.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => goToImage(index)}
-                        className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${index === currentImageIndex
-                            ? 'bg-white scale-125 shadow-lg'
-                            : 'bg-white/60 hover:bg-white/80'
-                          }`}
-                      />
-                    ))}
-                  </div>
-                )}
-
-                {/* Contador elegante */}
                 <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-medium">
                   <ImageIcon className="w-3 h-3 inline mr-1.5" />
                   {currentImageIndex + 1} / {roomImages.length}
@@ -633,26 +375,18 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
               </div>
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-                <div className="text-center text-slate-500">
-                  <ImageIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p className="text-base font-medium">Nenhuma imagem disponível</p>
-                  <p className="text-xs text-slate-400 mt-1">As imagens serão exibidas aqui em breve</p>
-                </div>
+                <ImageIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
               </div>
             )}
           </div>
 
-          {/* Conteúdo principal com design moderno */}
           <div className="bg-gradient-to-b from-slate-50/50 to-white">
             <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
-              {/* Descrições completas */}
               <div className="mb-6 sm:mb-8">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
                   <h3 className="text-lg sm:text-xl font-bold text-slate-800">Sobre este quarto</h3>
                 </div>
-
-                {/* Descrição principal */}
                 {(room.custom_description || room.description) && (
                   <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-slate-200/60 mb-4">
                     <p className="text-sm sm:text-base text-slate-700 leading-relaxed whitespace-pre-wrap">
@@ -660,22 +394,8 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                     </p>
                   </div>
                 )}
-
-                {/* Descrição adicional do banco de dados */}
-                {room.details?.description && room.details.description !== (room.custom_description || room.description) && (
-                  <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl p-4 sm:p-6 border border-slate-200/60 mb-4">
-                    <h4 className="text-base font-semibold text-slate-800 mb-2">Detalhes adicionais</h4>
-                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
-                      {room.details.description}
-                    </p>
-                  </div>
-                )}
               </div>
-
-              {/* Destaques */}
               {renderDetails()}
-
-              {/* Características Adicionais */}
               {room.additional_features && Array.isArray(room.additional_features) && room.additional_features.length > 0 && (
                 <div className="mb-6 sm:mb-8">
                   <div className="flex items-center gap-3 mb-4">
@@ -687,39 +407,6 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                   </div>
                 </div>
               )}
-
-              {/* Informações adicionais */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 sm:mb-8">
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100/50">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-blue-500 rounded-lg">
-                      <Clock className="w-4 h-4 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-slate-800 text-sm">Check-in/out</h4>
-                  </div>
-                  <p className="text-xs text-slate-600">Check-in: 14:00<br />Check-out: 12:00</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-100/50">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-emerald-500 rounded-lg">
-                      <Wifi className="w-4 h-4 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-slate-800 text-sm">Conectividade</h4>
-                  </div>
-                  <p className="text-xs text-slate-600">Wi-Fi gratuito<br />em todas as áreas</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100/50 sm:col-span-2 lg:col-span-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-purple-500 rounded-lg">
-                      <MapPin className="w-4 h-4 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-slate-800 text-sm">Localização</h4>
-                  </div>
-                  <p className="text-xs text-slate-600">Av. Atlântica<br />Praia Campista</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>

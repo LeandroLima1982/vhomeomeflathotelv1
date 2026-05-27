@@ -8,8 +8,7 @@ import DetailIcon from './DetailIcon';
 import { parse, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
-import { generateReservationLink, buildLinkFromDbUrl } from "@/utils/reservationLinks";
-import { showError } from "@/utils/toast";
+import { generateWhatsAppLink } from "@/utils/reservationLinks";
 
 interface RoomResult {
   idQuarto: number;
@@ -20,9 +19,9 @@ interface RoomResult {
   details: Record<string, string | null> | null;
   details_order: string[] | null;
   special_name?: string | null;
-  apiRoomId: number; // Adicionado para o link externo
-  api_category_id?: number | null; // Added for correct category ID in reservation link
-  booking_url?: string | null; // URL vinda diretamente do banco
+  apiRoomId: number;
+  api_category_id?: number | null;
+  booking_url?: string | null;
   [key: string]: any;
 }
 
@@ -38,8 +37,6 @@ interface RoomResultCardProps {
 }
 
 export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
-  const navigate = useNavigate();
-
   const formattedPrice = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
@@ -50,23 +47,8 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
   const numberOfNights = differenceInDays(checkoutDateObj, checkinDateObj);
 
   const handleSelectRoom = () => {
-    try {
-      let reservationLink: string;
-
-      // Prioridade TOTAL: Se tiver URL configurada no banco (via BookingV2 join), usa ela.
-      if (room.booking_url) {
-        reservationLink = buildLinkFromDbUrl(room.booking_url, searchParams);
-      } else {
-        // Fallback: Tenta construir baseada no ID mapeado no front (legado)
-        const categoryId = room.api_category_id || room.apiRoomId;
-        reservationLink = generateReservationLink(categoryId, searchParams);
-      }
-
-      window.location.href = reservationLink; // Redireciona diretamente para o link externo
-    } catch (error) {
-      console.error("Erro ao gerar link de reserva:", error);
-      showError("Erro ao redirecionar para reserva. Tente novamente.");
-    }
+    const whatsappLink = generateWhatsAppLink(room.nomeQuarto, searchParams);
+    window.open(whatsappLink, '_blank');
   };
 
   const getCapacityDisplay = (details: Record<string, string | null> | null) => {
@@ -173,7 +155,7 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
             )}
           </div>
           <Button onClick={handleSelectRoom} className="w-full sm:w-auto bg-blue-700 hover:bg-blue-800">
-            Reservar
+            Reservar via WhatsApp
           </Button>
         </CardFooter>
       </div>

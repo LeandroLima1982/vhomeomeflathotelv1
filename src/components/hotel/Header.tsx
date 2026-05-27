@@ -1,43 +1,33 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Logo from "./Logo";
 import { Nav } from "./Nav";
 import MobileNav from "./MobileNav";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { generateWhatsAppLink } from "@/utils/reservationLinks";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const lastScrollY = useRef(0);
   const location = useLocation();
-  const navigate = useNavigate();
   const isLightPage = location.pathname === '/institucional';
   const isBookingV2Page = location.pathname === '/booking-v2';
-  const isCheckoutPage = location.pathname === '/checkout'; // Nova variável para identificar a página de checkout
+  const isCheckoutPage = location.pathname === '/checkout';
   const isSpecialPage = isCheckoutPage || isBookingV2Page; 
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-
-      setIsScrolled(currentScrollY > 10);
-
-      // Removida a lógica de isVisible para manter o header sempre visível
-      // lastScrollY.current = currentScrollY;
+      setIsScrolled(window.scrollY > 10);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const useDarkTextAndSolidBg = isLightPage || isScrolled;
   
-  // Removida a variável headerIsVisible, sempre true
   const headerClasses = cn(
     "top-0 left-0 right-0 z-50 transition-all duration-300",
     {
@@ -45,9 +35,13 @@ export default function Header() {
       "absolute": isSpecialPage,
       "bg-white shadow-md py-2 border-b border-gray-200": useDarkTextAndSolidBg && !isSpecialPage,
       "bg-transparent py-4": !useDarkTextAndSolidBg || isSpecialPage,
-      // Removida a classe "-translate-y-full" para manter sempre visível
     }
   );
+
+  const handleReserveClick = () => {
+    const whatsappLink = generateWhatsAppLink();
+    window.open(whatsappLink, '_blank');
+  };
 
   return (
     <header className={headerClasses}>
@@ -57,14 +51,14 @@ export default function Header() {
         <Link to="/">
           <Logo 
             isScrolled={useDarkTextAndSolidBg} 
-            isTransparentHeaderOnLightBackground={isCheckoutPage} // Agora passa 'true' apenas para a página de checkout
+            isTransparentHeaderOnLightBackground={isCheckoutPage}
           />
         </Link>        
         {!isSpecialPage && (
           <div className="flex items-center gap-4">
             <Nav isScrolled={useDarkTextAndSolidBg} />
             <Button
-              onClick={() => navigate('/booking-v2')}
+              onClick={handleReserveClick}
               className={cn(
                 "hidden md:inline-flex transition-colors",
                 useDarkTextAndSolidBg
