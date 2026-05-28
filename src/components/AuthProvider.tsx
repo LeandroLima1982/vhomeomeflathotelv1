@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext, useState, useEffect, useContext, ReactNode, useCallback } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
@@ -17,15 +19,6 @@ interface Profile {
   id: string;
   role: 'admin' | 'editor' | 'viewer';
   permissions: UserPermissions;
-}
-
-interface AuthContextType {
-  session: Session | null;
-  profile: Profile | null;
-  isLoading: boolean;
-  isAdmin: boolean;
-  isEditor: boolean;
-  hasPermission: (tab: keyof UserPermissions) => boolean;
 }
 
 const defaultPermissions: UserPermissions = {
@@ -54,18 +47,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchProfile = useCallback(async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, role, permissions')
-      .eq('id', userId)
-      .single();
-    
-    if (!error && data) {
-      setProfile({
-        ...data,
-        permissions: data.permissions || defaultPermissions
-      } as Profile);
-    } else {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, role, permissions')
+        .eq('id', userId)
+        .single();
+      
+      if (!error && data) {
+        setProfile({
+          ...data,
+          permissions: data.permissions || defaultPermissions
+        } as Profile);
+      } else {
+        console.error('Erro ao buscar perfil:', error);
+        setProfile(null);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar perfil:', error);
       setProfile(null);
     }
   }, []);
@@ -77,13 +76,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         setIsLoading(true);
         const { data: { session } } = await supabase.auth.getSession();
+        
         if (!mounted) return;
         setSession(session);
+        
         if (session?.user) {
           await fetchProfile(session.user.id);
+        } else {
+          setProfile(null);
         }
       } catch (error) {
-        console.error('Auth initialization error:', error);
+        console.error('Erro na inicialização da sessão:', error);
         if (!mounted) return;
         setSession(null);
         setProfile(null);
@@ -100,6 +103,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       async (event, session) => {
         if (!mounted) return;
 
+        console.log('Evento de autenticação:', event);
+        
         if (event === 'SIGNED_OUT') {
           setSession(null);
           setProfile(null);

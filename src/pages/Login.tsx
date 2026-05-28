@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Auth } from '@supabase/auth-ui-react';
@@ -5,12 +7,13 @@ import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/lib/supabaseClient';
 import Logo from '@/components/hotel/Logo';
 import { initializeAdminUsers, checkIfScriptExecuted } from '@/utils/initAdminUsers';
-import { showSuccess } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast';
 import { Loader2 } from 'lucide-react';
 
 const Login = () => {
   const navigate = useNavigate();
   const [isInitializing, setIsInitializing] = useState(true);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   useEffect(() => {
     const initializeIfNeeded = async () => {
@@ -27,6 +30,7 @@ const Login = () => {
         }
       } catch (error) {
         console.error('Erro durante inicialização:', error);
+        showError('Erro ao inicializar usuários. Tente novamente.');
       } finally {
         setIsInitializing(false);
       }
@@ -36,12 +40,12 @@ const Login = () => {
   }, []);
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
         // Delay maior para dar tempo do AuthProvider carregar o perfil
         setTimeout(() => {
           navigate('/admin');
-        }, 1500);
+        }, 2000);
       }
     });
 
@@ -61,12 +65,19 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-        <div className="mb-8">
-            <Logo isScrolled={true} />
-        </div>
+      <div className="mb-8">
+        <Logo isScrolled={true} />
+      </div>
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">Acesso Administrativo</h2>
         <p className="text-center text-gray-500 mb-8">Faça login para gerenciar o conteúdo do site.</p>
+        
+        {loginError && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-red-700 text-sm">{loginError}</p>
+          </div>
+        )}
+        
         <Auth
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
@@ -102,6 +113,9 @@ const Login = () => {
                 link_text: 'Esqueceu sua senha?',
               },
             },
+          }}
+          onAuthError={(error) => {
+            setLoginError(error.message || 'Erro ao fazer login. Verifique suas credenciais.');
           }}
         />
       </div>

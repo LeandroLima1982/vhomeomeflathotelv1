@@ -13,22 +13,43 @@ import PriceManager from "@/components/admin/PriceManager";
 import PermissionManager from "@/components/admin/PermissionManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { showSuccess } from "@/utils/toast";
+import { showSuccess, showError } from "@/utils/toast";
 
 const Admin = () => {
   const navigate = useNavigate();
   const { isAdmin, profile, session, isLoading, hasPermission } = useAuth();
 
   const handleLogout = async () => {
-    if (supabase) await supabase.auth.signOut();
-    showSuccess("Você saiu do painel administrativo");
-    navigate('/login');
+    try {
+      if (supabase) await supabase.auth.signOut();
+      showSuccess("Você saiu do painel administrativo");
+      navigate('/login');
+    } catch (error) {
+      showError("Erro ao sair. Tente novamente.");
+    }
   };
 
   if (isLoading) {
     return (
       <div className="container mx-auto py-10 px-4 flex justify-center items-center h-64">
-        <Loader2 className="animate-spin h-12 w-12 text-blue-600" />
+        <div className="text-center">
+          <Loader2 className="animate-spin h-12 w-12 text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Carregando painel...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="container mx-auto py-10 px-4">
+        <Card>
+          <CardContent className="text-center py-12">
+            <Lock className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-700 mb-2">Acesso Negado</h2>
+            <p className="text-gray-600">Faça login para acessar o painel.</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -38,9 +59,10 @@ const Admin = () => {
       <div className="container mx-auto py-10 px-4">
         <Card>
           <CardContent className="text-center py-12">
-            <Lock className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-700 mb-2">Acesso Negado</h2>
-            <p className="text-gray-600">Faça login para acessar o painel.</p>
+            <ShieldCheck className="h-16 w-16 text-amber-500 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-700 mb-2">Perfil Não Encontrado</h2>
+            <p className="text-gray-600">Não foi possível carregar seu perfil. Entre em contato com o administrador.</p>
+            <Button onClick={handleLogout} variant="outline" className="mt-4">Sair</Button>
           </CardContent>
         </Card>
       </div>
@@ -80,7 +102,7 @@ const Admin = () => {
           <CardContent className="text-center py-12">
             <ShieldCheck className="h-16 w-16 text-amber-500 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-gray-700 mb-2">Sem Permissões</h2>
-            <p className="text-gray-600">Você não tem permissão para visualizar nenhuma aba. Entre em contato com o administrador master.</p>
+            <p className="text-gray-600">Você não tem permissão para visualizar nenhuma aba. Entre em contato com o administrador.</p>
             <Button onClick={handleLogout} variant="outline" className="mt-4">Sair</Button>
           </CardContent>
         </Card>
@@ -95,8 +117,9 @@ const Admin = () => {
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Painel Administrativo</h1>
             <p className="text-gray-600 mt-1">
-              Olá, {profile.role === 'admin' ? 'Administrador Master' : 'Usuário'}.
+              Olá, {profile.role === 'admin' ? 'Administrador Master' : profile.role === 'editor' ? 'Editor' : 'Visualizador'}.
             </p>
+            <p className="text-sm text-gray-500">ID: {profile.id}</p>
           </div>
           <Button onClick={handleLogout} variant="outline">
             <LogOut className="mr-2 h-4 w-4" /> Sair
