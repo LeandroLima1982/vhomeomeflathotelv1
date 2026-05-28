@@ -103,15 +103,6 @@ const Login = () => {
             },
           }}
         />
-        
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <h3 className="font-medium text-blue-800 mb-2">Usuários de Teste:</h3>
-          <ul className="text-sm text-blue-700 space-y-1">
-            <li><strong>admin@vhomeflathotel.com</strong> (senha: admin123) - Acesso total</li>
-            <li><strong>editor@vhomeflathotel.com</strong> (senha: editor123) - Edição de conteúdo</li>
-            <li><strong>viewer@vhomeflathotel.com</strong> (senha: viewer123) - Apenas visualização</li>
-          </ul>
-        </div>
       </div>
     </div>
   );
