@@ -6,46 +6,19 @@ import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/lib/supabaseClient';
 import Logo from '@/components/hotel/Logo';
-import { initializeAdminUsers, checkIfScriptExecuted } from '@/utils/initAdminUsers';
-import { showSuccess, showError } from '@/utils/toast';
-import { Loader2 } from 'lucide-react';
+import { showError } from '@/utils/toast';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [isInitializing, setIsInitializing] = useState(true);
   const [loginError, setLoginError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const initializeIfNeeded = async () => {
-      try {
-        const alreadyExecuted = await checkIfScriptExecuted();
-        
-        if (!alreadyExecuted) {
-          console.log('Executando script de inicialização de usuários...');
-          const success = await initializeAdminUsers();
-          
-          if (success) {
-            showSuccess('Usuários administradores inicializados com sucesso!');
-          }
-        }
-      } catch (error) {
-        console.error('Erro durante inicialização:', error);
-        showError('Erro ao inicializar usuários. Tente novamente.');
-      } finally {
-        setIsInitializing(false);
-      }
-    };
-
-    initializeIfNeeded();
-  }, []);
 
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        // Delay maior para dar tempo do AuthProvider carregar o perfil
+        // Reduzido delay - AuthProvider agora cria perfil automaticamente
         setTimeout(() => {
           navigate('/admin');
-        }, 2000);
+        }, 800);
       }
     });
 
@@ -53,15 +26,6 @@ const Login = () => {
       authListener.subscription.unsubscribe();
     };
   }, [navigate]);
-
-  if (isInitializing) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-4" />
-        <p className="text-gray-600">Preparando o painel...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
