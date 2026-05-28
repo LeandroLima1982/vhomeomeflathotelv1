@@ -6,6 +6,7 @@ import ImageManager from "@/components/admin/ImageManager";
 import LogoManager from "@/components/admin/LogoManager";
 import RoomImageManager from "@/components/admin/RoomImageManager";
 import RoomManager from "@/components/admin/RoomManager";
+import PriceManager from "@/components/admin/PriceManager"; // Importando o novo componente
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Admin = () => {
@@ -35,18 +36,24 @@ const Admin = () => {
         </div>
         
         <Tabs defaultValue="rooms" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7"> {/* Aumentado para 7 colunas */}
             <TabsTrigger value="rooms">Acomodações</TabsTrigger>
-            <TabsTrigger value="gallery_categories">Galeria Principal</TabsTrigger> {/* Nova aba para as categorias */}
+            <TabsTrigger value="prices">Preços</TabsTrigger> {/* Nova aba */}
+            <TabsTrigger value="gallery_categories">Galeria Principal</TabsTrigger>
             <TabsTrigger value="hero">Banner Principal (Hero)</TabsTrigger>
             <TabsTrigger value="about">Seção "Sobre"</TabsTrigger>
             <TabsTrigger value="room_covers">Imagens de Capa</TabsTrigger>
             <TabsTrigger value="logo">Logo</TabsTrigger>
           </TabsList>
+          
           <TabsContent value="rooms" className="mt-6">
             <RoomManager />
           </TabsContent>
-          {/* Nova seção de abas para as categorias da galeria principal */}
+
+          <TabsContent value="prices" className="mt-6">
+            <PriceManager />
+          </TabsContent>
+
           <TabsContent value="gallery_categories" className="mt-6">
             <Tabs defaultValue="todos" className="w-full">
               <TabsList className="grid w-full grid-cols-4">
@@ -85,7 +92,7 @@ const Admin = () => {
               </TabsContent>
             </Tabs>
           </TabsContent>
-          {/* Fim da nova seção de abas para as categorias da galeria principal */}
+
           <TabsContent value="hero" className="mt-6">
             <ImageManager 
               folder="hero"

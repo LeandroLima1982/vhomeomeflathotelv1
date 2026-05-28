@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { BedDouble, Star, MousePointerClick } from "lucide-react";
+import { BedDouble, Star, MousePointerClick, Tag } from "lucide-react";
 import DetailIcon from './DetailIcon';
 import RoomDetailsModal from './RoomDetailsModal';
 
@@ -15,6 +15,7 @@ interface Room {
   details_order: string[] | null;
   custom_description: string | null;
   description: string | null;
+  base_price: number | null; // Adicionado
 }
 
 const Rooms = () => {
@@ -177,11 +178,14 @@ const Rooms = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {rooms.map((room) => {
               const details = getRoomDetails(room);
+              const formattedPrice = room.base_price 
+                ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(room.base_price)
+                : null;
               
               return (
                 <div
                   key={room.id}
-                  className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group"
+                  className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col"
                   onClick={() => setSelectedRoom(room)}
                 >
                   <div className="h-64 relative overflow-hidden">
@@ -190,16 +194,6 @@ const Rooms = () => {
                         src={room.imageUrl}
                         alt={room.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          const parent = e.currentTarget.parentElement;
-                          if (parent) {
-                            const placeholder = document.createElement('div');
-                            placeholder.className = 'w-full h-full bg-gray-200 flex items-center justify-center';
-                            placeholder.innerHTML = '<svg class="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>';
-                            parent.appendChild(placeholder);
-                          }
-                        }}
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -225,7 +219,7 @@ const Rooms = () => {
                       </div>
                     )}
                   </div>
-                  <div className="p-6 text-left">
+                  <div className="p-6 text-left flex-grow flex flex-col">
                     {room.special_name && (
                       <div className="inline-block mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1 rounded-full text-sm font-semibold transition-all duration-300 group-hover:bg-yellow-500">
                         {room.special_name}
@@ -247,8 +241,19 @@ const Rooms = () => {
                       </div>
                     )}
                     
-                    <div className="mt-4 flex items-center justify-between border-t pt-4">
-                      <span className="text-sm text-gray-500">Clique para ver detalhes</span>
+                    <div className="mt-auto pt-4 border-t flex items-center justify-between">
+                      {formattedPrice ? (
+                        <div className="flex flex-col">
+                          <span className="text-xs text-gray-500 uppercase tracking-wider">A partir de</span>
+                          <span className="text-xl font-bold text-blue-800 flex items-center">
+                            <Tag className="h-4 w-4 mr-1 opacity-70" />
+                            {formattedPrice}
+                            <span className="text-xs font-normal text-gray-500 ml-1">/ diária</span>
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-500">Consulte valores</span>
+                      )}
                       <div className="text-blue-600 group-hover:text-blue-800 transition-colors">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
