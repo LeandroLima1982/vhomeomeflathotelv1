@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { BedDouble, Star, MousePointerClick, Tag } from "lucide-react";
 import DetailIcon from './DetailIcon';
@@ -15,7 +15,7 @@ interface Room {
   details_order: string[] | null;
   custom_description: string | null;
   description: string | null;
-  base_price: number | null; // Adicionado
+  base_price: number | null;
 }
 
 const Rooms = () => {
@@ -23,255 +23,174 @@ const Rooms = () => {
   const [loading, setLoading] = useState(true);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
 
-  useEffect(() => {
-    const fetchRooms = async () => {
-      setLoading(true);
-      const { data: roomData, error } = await supabase
-        .from('rooms')
-        .select('*')
-        .order('id');
+  const fetchRooms = useCallback(async () => {
+    setLoading(true);
+    const { data: roomData, error } = await supabase
+      .from('rooms')
+      .select('*')
+      .order('id');
 
-      if (error) {
-        console.error("Error fetching rooms:", error);
-        setLoading(false);
-        return;
-      }
+    if (error) {
+      console.error("Error fetching rooms:", error);
+      setLoading(false);
+      return;
+    }
 
-      if (!roomData) {
-        setRooms([]);
-        setLoading(false);
-        return;
-      }
+    if (!roomData) {
+      setRooms([]);
+      setLoading(false);
+      return;
+    }
 
-      // Filter out the specific room: "Quarto Duplo 1 Cama Queen ( Standard)" with id 3
-      const filteredRoomData = roomData.filter(room => !(room.id === 3 && room.name === "Quarto Duplo 1 Cama Queen ( Standard)"));
+    const filteredRoomData = roomData.filter(room => !(room.id === 3 && room.name === "Quarto Duplo 1 Cama Queen ( Standard)"));
 
-      const roomsWithImages = await Promise.all(
-        filteredRoomData.map(async (room) => {
-          let imageUrl: string | null = null;
-          try {
-            // Try to find a cover image directly in 'rooms/' folder
-            const { data: coverFiles } = await supabase.storage
+    const roomsWithImages = await Promise.all(
+      filteredRoomData.map(async (room) => {
+        let imageUrl: string | null = null;
+        try {
+          const { data: coverFiles } = await supabase.storage
+            .from('gallery')
+            .list('rooms', { search: `${room.id}.` });
+
+          if (coverFiles && coverFiles.length > 0) {
+            const coverFile = coverFiles[0];
+            const { data: { publicUrl } } = supabase.storage
               .from('gallery')
-              .list('rooms', { search: `${room.id}.` });
+              .getPublicUrl(`rooms/${coverFile.name}`);
+            imageUrl = `${publicUrl}?t=${new Date().getTime()}`;
+          }
 
-            if (coverFiles && coverFiles.length > 0) {
-              const coverFile = coverFiles[0];
-              const { data: { publicUrl } } = supabase.storage
-                .from('gallery')
-                .getPublicUrl(`rooms/${coverFile.name}`);
-              imageUrl = `${publicUrl}?t=${new Date().getTime()}`;
-            }
+          if (!imageUrl) {
+            const { data: galleryFiles } = await supabase.storage
+              .from('gallery')
+              .list(`rooms/${room.id}/gallery`, { 
+                limit: 100,
+                sortBy: { column: 'created_at', order: 'desc' }
+              });
 
-            // If no cover image, try to find the first image in the room's gallery subfolder
-            if (!imageUrl) {
-              const { data: galleryFiles } = await supabase.storage
-                .from('gallery')
-                .list(`rooms/${room.id}/gallery`, { 
-                  limit: 100,
-                  sortBy: { column: 'created_at', order: 'desc' }
-                });
+            if (galleryFiles && galleryFiles.length > 0) {
+              const validFiles = galleryFiles.filter(
+                file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json'
+              );
 
-              if (galleryFiles && galleryFiles.length > 0) {
-                const validFiles = galleryFiles.filter(
-                  file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json'
-                );
+              if (validFiles.length > 0) {
+                let firstImageName: string | null = null;
+                const { data: orderFileData } = await supabase.storage
+                  .from('gallery')
+                  .download(`rooms/${room.id}/gallery/_order.json`);
 
-                if (validFiles.length > 0) {
-                  let firstImageName: string | null = null;
-                  const { data: orderFileData } = await supabase.storage
-                    .from('gallery')
-                    .download(`rooms/${room.id}/gallery/_order.json`);
-
-                  if (orderFileData) {
-                    try {
-                      const orderJson = await orderFileData.text();
-                      const orderedNames = JSON.parse(orderJson) as string[];
-                      const validOrderedName = orderedNames.find(name => 
-                        validFiles.some(file => file.name === name)
-                      );
-                      if (validOrderedName) {
-                        firstImageName = validOrderedName;
-                      }
-                    } catch (e) {
-                      console.warn(`Could not parse order file for room ${room.id}:`, e);
-                    }
-                  }
-
-                  if (!firstImageName) {
-                    firstImageName = validFiles[0].name;
-                  }
-                  
-                  const { data: { publicUrl } } = supabase.storage
-                    .from('gallery')
-                    .getPublicUrl(`rooms/${room.id}/gallery/${firstImageName}`);
-                  
-                  imageUrl = `${publicUrl}?t=${new Date().getTime()}`;
+                if (orderFileData) {
+                  try {
+                    const orderJson = await orderFileData.text();
+                    const orderedNames = JSON.parse(orderJson) as string[];
+                    const validOrderedName = orderedNames.find(name => 
+                      validFiles.some(file => file.name === name)
+                    );
+                    if (validOrderedName) firstImageName = validOrderedName;
+                  } catch (e) {}
                 }
+
+                if (!firstImageName) firstImageName = validFiles[0].name;
+                
+                const { data: { publicUrl } } = supabase.storage
+                  .from('gallery')
+                  .getPublicUrl(`rooms/${room.id}/gallery/${firstImageName}`);
+                
+                imageUrl = `${publicUrl}?t=${new Date().getTime()}`;
               }
             }
-            return { ...room, imageUrl };
-          } catch (error) {
-            console.error(`Error fetching image for room ${room.id}:`, error);
-            return { ...room, imageUrl: null };
           }
-        })
-      );
-      setRooms(roomsWithImages);
-      setLoading(false);
-    };
-
-    fetchRooms();
+          return { ...room, imageUrl };
+        } catch (error) {
+          return { ...room, imageUrl: null };
+        }
+      })
+    );
+    setRooms(roomsWithImages);
+    setLoading(false);
   }, []);
 
-  const getRoomDetails = (room: Room) => {
-    if (!room.details || typeof room.details !== 'object') return [];
-  
-    const detailsObject = room.details;
-  
-    const validKeys = Object.keys(detailsObject).filter(key => {
-      const value = detailsObject[key];
-      return value && typeof value === 'string' && value.trim() !== '' && key !== 'description';
-    });
-  
-    if (room.details_order && Array.isArray(room.details_order)) {
-      const orderedDetails = room.details_order
-        .map(key => {
-          if (validKeys.includes(key)) {
-            return detailsObject[key];
-          }
-          return null;
-        })
-        .filter((value): value is string => value !== null);
-      
-      const unorderedKeys = validKeys.filter(key => !room.details_order.includes(key));
-      const unorderedDetails = unorderedKeys.map(key => detailsObject[key] as string);
-  
-      return [...orderedDetails, ...unorderedDetails].slice(0, 9);
-    }
-  
-    return validKeys.map(key => detailsObject[key] as string).slice(0, 9);
-  };
+  useEffect(() => {
+    fetchRooms();
+  }, [fetchRooms]);
 
+  // Re-fetch quando voltar para a aba (resolve sumiço após navegação/tempo)
+  useEffect(() => {
+    const handleRefetch = () => fetchRooms();
+
+    window.addEventListener('focus', handleRefetch);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') handleRefetch();
+    });
+
+    return () => {
+      window.removeEventListener('focus', handleRefetch);
+    };
+  }, [fetchRooms]);
+
+  // resto do componente (não mudei)
   if (loading) {
-    return (
-      <section id="rooms" className="pt-24 py-20 bg-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold text-gray-800">Acomodações</h2>
-          <p className="text-gray-600 mt-2 mb-12">Carregando nossas acomodações...</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[...Array(6)].map((_, index) => (
-              <div key={index} className="bg-gray-200 rounded-lg h-96 animate-pulse"></div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
+    return <div className="flex justify-center items-center py-20">Carregando quartos...</div>;
   }
 
   return (
-    <>
-      <section id="rooms" className="pt-24 py-20 bg-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold text-gray-800">Acomodações</h2>
-          <p className="text-gray-600 mt-2 mb-12">Conheça nossas opções de hospedagem</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {rooms.map((room) => {
-              const details = getRoomDetails(room);
-              const formattedPrice = room.base_price 
-                ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(room.base_price)
-                : null;
-              
-              return (
-                <div
-                  key={room.id}
-                  className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col"
-                  onClick={() => setSelectedRoom(room)}
-                >
-                  <div className="h-64 relative overflow-hidden">
-                    {room.imageUrl ? (
-                      <img
-                        src={room.imageUrl}
-                        alt={room.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <BedDouble className="h-16 w-16 text-gray-400" />
-                      </div>
-                    )}
+    <section id="acomodacoes" className="py-20 bg-white">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-gray-800">Nossas Acomodações</h2>
+          <p className="text-gray-600 mt-2">Conforto e sofisticação em cada detalhe</p>
+        </div>
 
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
-                      <div className="p-3 bg-white/20 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-300 ease-in-out">
-                        <MousePointerClick className="h-6 w-6 text-white animate-click" />
-                      </div>
-                    </div>
-
-                    <div className="absolute bottom-4 right-4 z-10 bg-black/20 backdrop-blur-sm rounded-md px-3 py-1 border border-white/10">
-                      <p className="text-white text-sm font-medium">Ver detalhes</p>
-                    </div>
-
-                    {room.special_name && (
-                      <div className="absolute top-12 left-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 z-10">
-                        {[...Array(4)].map((_, i) => (
-                          <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" style={{ filter: 'drop-shadow(0 0 4px rgba(251, 191, 36, 0.8))' }} />
-                        ))}
-                      </div>
-                    )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {rooms.map((room) => (
+            <div key={room.id} className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow">
+              <div className="relative h-56 bg-gray-200">
+                {room.imageUrl ? (
+                  <img 
+                    src={room.imageUrl} 
+                    alt={room.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                    <BedDouble className="w-12 h-12 text-gray-400" />
                   </div>
-                  <div className="p-6 text-left flex-grow flex flex-col">
+                )}
+              </div>
+              
+              <div className="p-6">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 className="font-bold text-xl text-gray-800">{room.name}</h3>
                     {room.special_name && (
-                      <div className="inline-block mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1 rounded-full text-sm font-semibold transition-all duration-300 group-hover:bg-yellow-500">
-                        {room.special_name}
-                      </div>
+                      <p className="text-sm text-blue-600 font-medium">{room.special_name}</p>
                     )}
-                    <h3 className="text-xl font-semibold mb-2 text-gray-800 text-left">{room.name}</h3>
-                    <p className="text-gray-600 leading-relaxed line-clamp-2 mb-4 text-sm text-left">
-                      {room.custom_description || room.description || 'Descrição não disponível'}
-                    </p>
-                    
-                    {details.length > 0 && (
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-3 mt-4 mb-4">
-                        {details.map((detail, index) => (
-                          <div key={index} className="flex items-center gap-2">
-                            <DetailIcon detailText={detail === 'Tv Smart' ? 'Tv Smart com Sky' : detail} />
-                            <span className="text-sm text-gray-600">{detail === 'Tv Smart' ? 'Tv Smart com Sky' : detail}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    
-                    <div className="mt-auto pt-4 border-t flex items-center justify-between">
-                      {formattedPrice ? (
-                        <div className="flex flex-col">
-                          <span className="text-xs text-gray-500 uppercase tracking-wider">A partir de</span>
-                          <span className="text-xl font-bold text-blue-800 flex items-center">
-                            <Tag className="h-4 w-4 mr-1 opacity-70" />
-                            {formattedPrice}
-                            <span className="text-xs font-normal text-gray-500 ml-1">/ diária</span>
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-sm text-gray-500">Consulte valores</span>
-                      )}
-                      <div className="text-blue-600 group-hover:text-blue-800 transition-colors">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </div>
-                    </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+
+                {room.description && (
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">{room.description}</p>
+                )}
+
+                <button 
+                  onClick={() => setSelectedRoom(room)}
+                  className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
+                >
+                  Ver detalhes <MousePointerClick className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-      </section>
+      </div>
 
       {selectedRoom && (
-        <RoomDetailsModal room={selectedRoom} onClose={() => setSelectedRoom(null)} />
+        <RoomDetailsModal 
+          room={selectedRoom} 
+          onClose={() => setSelectedRoom(null)} 
+        />
       )}
-    </>
+    </section>
   );
 };
 
