@@ -3,7 +3,7 @@
 import { supabase } from "@/lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, Lock, ShieldCheck, Layout } from "lucide-react";
+import { LogOut, Lock, ShieldCheck, Layout, Loader2 } from "lucide-react";
 import { useAuth, UserPermissions } from "@/components/AuthProvider";
 import ImageManager from "@/components/admin/ImageManager";
 import LogoManager from "@/components/admin/LogoManager";
@@ -17,10 +17,10 @@ import { showSuccess } from "@/utils/toast";
 
 const Admin = () => {
   const navigate = useNavigate();
-  const { isAdmin, profile, isLoading, hasPermission } = useAuth();
+  const { isAdmin, profile, session, isLoading, hasPermission } = useAuth();
 
   const handleLogout = async () => {
-    if (supabase) await supabase.signOut();
+    if (supabase) await supabase.auth.signOut();
     showSuccess("Você saiu do painel administrativo");
     navigate('/login');
   };
@@ -47,7 +47,6 @@ const Admin = () => {
     );
   }
 
-  // Configuração das abas e suas permissões
   const allTabs = [
     { id: 'gallery', label: 'Galeria', component: (
       <Tabs defaultValue="todos">
@@ -72,7 +71,6 @@ const Admin = () => {
     { id: 'permissions', label: 'Permissões', component: <PermissionManager /> },
   ];
 
-  // Filtra as abas que o usuário tem permissão de ver
   const allowedTabs = allTabs.filter(tab => hasPermission(tab.id as keyof UserPermissions));
 
   if (allowedTabs.length === 0) {
@@ -122,9 +120,5 @@ const Admin = () => {
     </div>
   );
 };
-
-const Loader2 = ({ className }: { className?: string }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-);
 
 export default Admin;

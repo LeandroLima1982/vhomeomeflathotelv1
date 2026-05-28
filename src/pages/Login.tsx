@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
@@ -6,9 +6,11 @@ import { supabase } from '@/lib/supabaseClient';
 import Logo from '@/components/hotel/Logo';
 import { initializeAdminUsers, checkIfScriptExecuted } from '@/utils/initAdminUsers';
 import { showSuccess } from '@/utils/toast';
+import { Loader2 } from 'lucide-react';
 
 const Login = () => {
   const navigate = useNavigate();
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
     const initializeIfNeeded = async () => {
@@ -25,6 +27,8 @@ const Login = () => {
         }
       } catch (error) {
         console.error('Erro durante inicialização:', error);
+      } finally {
+        setIsInitializing(false);
       }
     };
 
@@ -33,27 +37,26 @@ const Login = () => {
 
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        // Verifica o nível de acesso do usuário
+      if (event === 'SIGNED_IN' && session) {
         setTimeout(() => {
           navigate('/admin');
-        }, 500);
+        }, 800);
       }
     });
-
-    // Redireciona se já houver uma sessão ativa ao carregar a página
-    const checkSession = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-            navigate('/admin');
-        }
-    };
-    checkSession();
 
     return () => {
       authListener.subscription.unsubscribe();
     };
   }, [navigate]);
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-4" />
+        <p className="text-gray-600">Preparando o painel...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">

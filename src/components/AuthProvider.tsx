@@ -65,33 +65,59 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         ...data,
         permissions: data.permissions || defaultPermissions
       } as Profile);
+    } else {
+      setProfile(null);
     }
   };
 
   useEffect(() => {
+    let mounted = true;
+
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      if (session?.user) {
-        await fetchProfile(session.user.id);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!mounted) return;
+        setSession(session);
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        if (!mounted) return;
+        setSession(null);
+        setProfile(null);
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
-      setIsLoading(false);
     };
 
     getInitialSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
+      async (event, session) => {
+        if (!mounted) return;
+
+        if (event === 'SIGNED_OUT') {
+          setSession(null);
           setProfile(null);
+          setIsLoading(false);
+        } else {
+          setSession(session);
+          if (session?.user) {
+            await fetchProfile(session.user.id);
+          } else {
+            setProfile(null);
+          }
         }
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const hasPermission = (tab: keyof UserPermissions) => {
