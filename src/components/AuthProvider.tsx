@@ -9,10 +9,16 @@ interface AuthContextType {
   isLoading: boolean;
   isAdmin: boolean;
   signOut: () => Promise<void>;
+  hasPermission: (permission: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
-  session: null, profile: null, isLoading: true, isAdmin: false, signOut: async () => {},
+  session: null,
+  profile: null,
+  isLoading: true,
+  isAdmin: false,
+  signOut: async () => {},
+  hasPermission: () => false,
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -22,19 +28,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchProfile = useCallback(async (userId: string) => {
     try {
-      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
 
       if (data) {
         setProfile(data);
         return;
       }
 
-      // Tenta criar perfil admin automaticamente
+      // Tenta criar perfil automaticamente
       await supabase.from('profiles').insert({ id: userId, role: 'admin' });
       setProfile({ id: userId, role: 'admin' });
     } catch (err) {
-      // Fallback: libera acesso mesmo se insert falhar (RLS)
       console.error('Erro ao buscar/criar perfil:', err);
+      // Fallback para não travar o admin
       setProfile({ id: userId, role: 'admin' });
     }
   }, []);
@@ -44,6 +54,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setSession(null);
     setProfile(null);
     setIsLoading(false);
+  };
+
+  const hasPermission = (permission: string) => {
+    // Por enquanto libera tudo para admin
+    if (profile?.role === 'admin') return true;
+    return false;
   };
 
   useEffect(() => {
@@ -69,7 +85,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [fetchProfile]);
 
   return (
-    <AuthContext.Provider value={{ session, profile, isLoading, isAdmin: profile?.role === 'admin', signOut }}>
+    <AuthContext.Provider
+      value={{
+        session,
+        profile,
+        isLoading,
+        isAdmin: profile?.role === 'admin',
+        signOut,
+        hasPermission,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
