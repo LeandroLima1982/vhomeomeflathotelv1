@@ -4,14 +4,40 @@ import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/lib/supabaseClient';
 import Logo from '@/components/hotel/Logo';
+import { initializeAdminUsers, checkIfScriptExecuted } from '@/utils/initAdminUsers';
+import { showSuccess } from '@/utils/toast';
 
 const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const initializeIfNeeded = async () => {
+      try {
+        const alreadyExecuted = await checkIfScriptExecuted();
+        
+        if (!alreadyExecuted) {
+          console.log('Executando script de inicialização de usuários...');
+          const success = await initializeAdminUsers();
+          
+          if (success) {
+            showSuccess('Usuários administradores inicializados com sucesso!');
+          }
+        }
+      } catch (error) {
+        console.error('Erro durante inicialização:', error);
+      }
+    };
+
+    initializeIfNeeded();
+  }, []);
+
+  useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        navigate('/admin');
+        // Verifica o nível de acesso do usuário
+        setTimeout(() => {
+          navigate('/admin');
+        }, 500);
       }
     });
 
@@ -74,6 +100,15 @@ const Login = () => {
             },
           }}
         />
+        
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <h3 className="font-medium text-blue-800 mb-2">Usuários de Teste:</h3>
+          <ul className="text-sm text-blue-700 space-y-1">
+            <li><strong>admin@vhomeflathotel.com</strong> (senha: admin123) - Acesso total</li>
+            <li><strong>editor@vhomeflathotel.com</strong> (senha: editor123) - Edição de conteúdo</li>
+            <li><strong>viewer@vhomeflathotel.com</strong> (senha: viewer123) - Apenas visualização</li>
+          </ul>
+        </div>
       </div>
     </div>
   );
