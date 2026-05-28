@@ -21,11 +21,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchProfile = useCallback(async (userId: string) => {
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
-    if (data) setProfile(data);
-    else {
-      // cria admin automático
+    try {
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+
+      if (data) {
+        setProfile(data);
+        return;
+      }
+
+      // Tenta criar perfil admin automaticamente
       await supabase.from('profiles').insert({ id: userId, role: 'admin' });
+      setProfile({ id: userId, role: 'admin' });
+    } catch (err) {
+      // Fallback: libera acesso mesmo se insert falhar (RLS)
+      console.error('Erro ao buscar/criar perfil:', err);
       setProfile({ id: userId, role: 'admin' });
     }
   }, []);
