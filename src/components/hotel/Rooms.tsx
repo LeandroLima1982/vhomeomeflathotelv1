@@ -157,7 +157,7 @@ const Rooms = () => {
                 {room.details && room.details_order && room.details_order.length > 0 && (
                   <div className="flex flex-wrap gap-3 mb-4">
                     {room.details_order.slice(0, 4).map((key) => (
-                      <DetailIcon key={key} label={key} value={room.details?.[key]} />
+                      <DetailIcon key={key} detailText={key} />
                     ))}
                   </div>
                 )}
