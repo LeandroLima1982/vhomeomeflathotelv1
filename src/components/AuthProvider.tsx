@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import { createContext, useState, useEffect, useContext, ReactNode, useCallback } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = useCallback(async (userId: string) => {
     const { data, error } = await supabase
       .from('profiles')
       .select('id, role, permissions')
@@ -68,13 +68,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setProfile(null);
     }
-  };
+  }, []);
 
   useEffect(() => {
     let mounted = true;
 
     const getInitialSession = async () => {
       try {
+        setIsLoading(true);
         const { data: { session } } = await supabase.auth.getSession();
         if (!mounted) return;
         setSession(session);
@@ -103,13 +104,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setSession(null);
           setProfile(null);
           setIsLoading(false);
-        } else {
+        } else if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
           setSession(session);
           if (session?.user) {
+            setIsLoading(true);
             await fetchProfile(session.user.id);
+            if (mounted) setIsLoading(false);
           } else {
             setProfile(null);
+            setIsLoading(false);
           }
+        } else if (event === 'USER_UPDATED') {
+          setSession(session);
+          if (session?.user) {
+            setIsLoading(true);
+            await fetchProfile(session.user.id);
+            if (mounted) setIsLoading(false);
+          }
+        } else {
+          setSession(session);
+          setIsLoading(false);
         }
       }
     );
@@ -118,7 +132,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [fetchProfile]);
 
   const hasPermission = (tab: keyof UserPermissions) => {
     if (profile?.role === 'admin') return true;
