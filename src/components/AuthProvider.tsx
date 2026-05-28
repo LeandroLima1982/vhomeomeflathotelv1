@@ -2,53 +2,76 @@ import { createContext, useState, useEffect, useContext, ReactNode } from 'react
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
 
-// Define a forma do nosso contexto de autenticação
+interface Profile {
+  id: string;
+  role: 'admin' | 'editor' | 'viewer';
+}
+
 interface AuthContextType {
   session: Session | null;
+  profile: Profile | null;
   isLoading: boolean;
+  isAdmin: boolean;
+  isEditor: boolean;
 }
 
-// Cria o contexto com um valor padrão
 const AuthContext = createContext<AuthContextType>({
   session: null,
+  profile: null,
   isLoading: true,
+  isAdmin: false,
+  isEditor: false,
 });
 
-// Cria o componente Provedor
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export const AuthProvider = ({ children }: AuthProviderProps) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const fetchProfile = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, role')
+      .eq('id', userId)
+      .single();
+    
+    if (!error && data) {
+      setProfile(data as Profile);
+    }
+  };
+
   useEffect(() => {
-    // Verifica a sessão inicial quando o app carrega
     const getInitialSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
+      if (session?.user) {
+        await fetchProfile(session.user.id);
+      }
       setIsLoading(false);
     };
 
     getInitialSession();
 
-    // Ouve por mudanças no estado de autenticação (login, logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
         setSession(session);
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        } else {
+          setProfile(null);
+        }
       }
     );
 
-    // Limpa a inscrição ao desmontar o componente
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   const value = {
     session,
+    profile,
     isLoading,
+    isAdmin: profile?.role === 'admin',
+    isEditor: profile?.role === 'admin' || profile?.role === 'editor',
   };
 
   return (
@@ -58,11 +81,4 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
 };
 
-// Cria um hook customizado para usar o contexto de autenticação
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);
