@@ -47,19 +47,16 @@ const BookingV2 = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const searchFormRef = useRef<HTMLDivElement>(null);
-  const resultsContainerRef = useRef<HTMLDivElement>(null); // Ref para o container de resultados
+  const resultsContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsMounted(true);
     const fetchInitialData = async () => {
-      if (!supabase) {
-        console.error('Supabase client not available in BookingV2 fetchInitialData');
-        return;
-      }
+      if (!supabase) return;
 
-      // Fetch Hero Image
       try {
-        const { data: orderFileData } = await supabase.storage.from('gallery').download('hero/_order.json');
+        const timestamp = new Date().getTime();
+        const { data: orderFileData } = await supabase.storage.from('gallery').download(`hero/_order.json?t=${timestamp}`);
         let imageName: string | null = null;
 
         if (orderFileData) {
@@ -69,19 +66,16 @@ const BookingV2 = () => {
         }
 
         if (!imageName) {
-          const { data: files } = await supabase.storage.from('gallery').list('hero', { limit: 1, sortBy: { column: 'created_at', order: 'desc' } });
+          const { data: files } = await supabase.storage.from('gallery').list('hero');
           const firstFile = files?.find(f => f.name !== '_order.json' && f.name !== '.emptyFolderPlaceholder');
           if (firstFile) imageName = firstFile.name;
         }
 
         if (imageName) {
           const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(`hero/${imageName}`);
-          setHeroImageUrl(publicUrl);
-        } else {
-          setHeroImageUrl("https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto-format&fit=crop&q=80");
+          setHeroImageUrl(`${publicUrl}?t=${timestamp}`);
         }
       } catch (e) {
-        console.warn("Could not fetch hero image, using fallback.", e);
         setHeroImageUrl("https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto-format&fit=crop&q=80");
       }
     };
@@ -90,16 +84,12 @@ const BookingV2 = () => {
   }, []);
 
   useEffect(() => {
-    if (!results) {
-      return;
-    }
+    if (!results) return;
     let sortedResults = [...results];
     if (sortOrder === 'price_asc') {
       sortedResults.sort((a, b) => a.valorTotal - b.valorTotal);
     } else if (sortOrder === 'price_desc') {
       sortedResults.sort((a, b) => b.valorTotal - a.valorTotal);
-    } else if (sortOrder === 'relevance') {
-      sortedResults = [...results];
     }
     setResults(sortedResults);
   }, [sortOrder]);
@@ -111,201 +101,88 @@ const BookingV2 = () => {
     setSearchParams(params);
 
     if (!supabase) {
-      const errorMessage = "Cliente Supabase não está disponível. Verifique a configuração.";
-      setError(errorMessage);
-      showError(errorMessage);
+      setError("Erro de conexão.");
       setIsLoading(false);
       return;
     }
 
     try {
-      const { data, error: functionError } = await supabase.functions.invoke('get-availability', {
+      const timestamp = new Date().getTime();
+      
+      // 1. Buscar disponibilidade da API
+      const { data: apiData, error: functionError } = await supabase.functions.invoke('get-availability', {
         body: params,
       });
 
-      if (functionError) {
-        const errorDetails = await functionError.context.json();
-        if (errorDetails && errorDetails.error) throw new Error(errorDetails.error);
-        throw new Error(functionError.message || "Erro na comunicação com a função.");
-      }
+      if (functionError || apiData.error) throw new Error("Erro ao consultar API externa.");
 
-      if (data.error) throw new Error(data.error);
-
-      // Buscar dados locais dos quartos ordenados por ID (mesmo padrão da home page)
-      // ADICIONADO: 'booking_url' para garantir que usamos o link configurado no banco
+      // 2. Buscar dados locais (com cache-buster para garantir descrições)
       const { data: localRoomsData, error: localError } = await supabase
         .from('rooms')
-        .select('id, name, special_name, details, details_order, api_category_id, booking_url')
+        .select('*')
         .order('id');
 
-      if (localError) {
-        console.warn("Erro ao buscar dados locais dos quartos:", localError);
-      }
+      if (localError) throw new Error("Erro ao carregar dados das acomodações.");
 
-      console.log('[BookingV2] Dados locais dos quartos (ordenados por ID):', localRoomsData);
-      console.log('[BookingV2] Dados da API externa:', data);
-
-      // Construir mapa de imagens de capa do storage baseado no ID da tabela rooms (mesmo padrão da home page)
+      // 3. Mapa de imagens com timestamp
+      const { data: coverFiles } = await supabase.storage.from('gallery').list('rooms');
       const coverImageMap = new Map<number, string>();
-      try {
-        const { data: coverFiles, error: coverError } = await supabase.storage.from('gallery').list('rooms');
-        if (coverError) {
-          console.warn("Erro ao buscar imagens de capa:", coverError);
-        } else if (coverFiles) {
-          for (const file of coverFiles) {
-            if (file.name !== '.emptyFolderPlaceholder') {
-              const roomIdMatch = file.name.match(/^(\d+)\./);
-              if (roomIdMatch) {
-                const roomId = parseInt(roomIdMatch[1], 10);
-                const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(`rooms/${file.name}`);
-                coverImageMap.set(roomId, `${publicUrl}?t=${new Date().getTime()}`);
-              }
-            }
-          }
+      coverFiles?.forEach(file => {
+        const match = file.name.match(/^(\d+)\./);
+        if (match) {
+          const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(`rooms/${file.name}`);
+          coverImageMap.set(parseInt(match[1]), `${publicUrl}?t=${timestamp}`);
         }
-      } catch (e) {
-        console.warn("Erro ao construir mapa de imagens de capa:", e);
-      }
+      });
 
-      console.log('[BookingV2] Mapa de imagens de capa:', Object.fromEntries(coverImageMap));
+      const getTokens = (str: string) => str?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(/\s+/).filter(t => t.length > 1) || [];
 
-      // Mesclar dados da API com dados locais
-      // Mesclar dados da API com dados locais
-      // Função auxiliar para normalizar e tokenizar strings para comparação inteligente
-      const getTokens = (str: string) => {
-        if (!str) return [];
-        return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[()]/g, "").split(/\s+/).filter(t => t.length > 0 && t !== "-" && t !== "c/");
-      };
-
-      console.log('[BookingV2] --- INÍCIO DO MAPEAMENTO DE PREÇOS ---');
-      console.log('[BookingV2] Dados brutos da API:', data);
-
-      // Mesclar os dados seguindo fielmente a Ordem do Banco (por ID, como na Home)
-      const mergedResults = localRoomsData ? localRoomsData.map((localRoom: any) => {
-        // Encontrar TODAS as opções da API que podem corresponder a este quarto local
-        // Combinamos busca por ID explícito E busca por Nome (tokens) para não perder promoções em outras categorias
-        const matchesById = data.filter((api: any) => api.idQuarto === localRoom.api_category_id);
-
+      const mergedResults = localRoomsData.map((localRoom: any) => {
         const localTokens = getTokens(localRoom.name);
-        const matchesByTokens = data.filter((api: any) => {
+        const apiRoom = apiData.find((api: any) => {
+          if (api.idQuarto === localRoom.api_category_id) return true;
           const apiTokens = getTokens(api.nomeQuarto);
           return localTokens.every(token => apiTokens.includes(token));
         });
 
-        // União das listas (removendo duplicatas por idQuarto da API)
-        const allPotentialMatches = [...matchesById];
-        matchesByTokens.forEach(t => {
-          if (!allPotentialMatches.some(m => m.idQuarto === t.idQuarto)) {
-            allPotentialMatches.push(t);
-          }
-        });
-
-        // Se houver múltiplas opções, pegamos a ABSOLUTAMENTE MAIS BARATA do que a API retornou
-        const sortedOptions = [...allPotentialMatches].sort((a, b) => a.valorTotal - b.valorTotal);
-        const apiRoom = sortedOptions[0];
-
-        if (allPotentialMatches.length > 0) {
-          console.log(`[BookingV2] Quarto "${localRoom.name}" (ID ${localRoom.id}) - Encontradas ${allPotentialMatches.length} opções:`);
-          allPotentialMatches.forEach(opt => console.log(`   - [ID ${opt.idQuarto}] ${opt.nomeQuarto} -> R$ ${opt.valorTotal}`));
-          console.log(`   => VENCEDOR: R$ ${apiRoom.valorTotal} (ID ${apiRoom.idQuarto})`);
-        }
-
-        // Se o quarto não estiver na resposta da API ou não tiver disponibilidade, ignoramos
-        if (!apiRoom) {
-          console.log(`[BookingV2] Quarto ID ${localRoom.id} (${localRoom.name}) sem disponibilidade.`);
-          return null;
-        }
-
-        // Extra logic to extract ID from booking_url if available
-        let extractedCategoryId = null;
-        if (localRoom.booking_url) {
-          try {
-            const match = localRoom.booking_url.match(/[?&]idquartoCategoria=(\d+)/);
-            if (match && match[1]) extractedCategoryId = parseInt(match[1], 10);
-          } catch (e) {
-            console.warn("Erro ao extrair ID da booking_url:", e);
-          }
-        }
-
-        // IMPORTANTE: Para o link de reserva, usamos o ID da API do quarto que encontramos como o mais barato
-        // Isso garante que o botão leve o usuário para o preço que ele viu no card.
-        const finalCategoryId = apiRoom.idQuarto;
+        if (!apiRoom) return null;
 
         return {
           ...apiRoom,
           idQuarto: localRoom.id,
           apiRoomId: apiRoom.idQuarto,
-          api_category_id: finalCategoryId,
           imageUrl: coverImageMap.get(localRoom.id) || null,
-          details: localRoom.details || null,
-          details_order: localRoom.details_order || null,
-          special_name: localRoom.special_name || null,
+          details: localRoom.details,
+          details_order: localRoom.details_order,
+          special_name: localRoom.special_name,
           nomeQuarto: localRoom.name,
           booking_url: localRoom.booking_url
         };
-      }).filter(Boolean) : [];
+      }).filter(Boolean);
 
-      // Log para identificar se sobraram quartos na API que não foram mapeados
-      data.forEach((apiRoom: any) => {
-        const isMapped = mergedResults.some((m: any) => m.apiRoomId === apiRoom.idQuarto);
-        if (!isMapped) {
-          console.warn(`[BookingV2] Quarto da API "${apiRoom.nomeQuarto}" (ID ${apiRoom.idQuarto}) não foi mapeado para nenhum card local.`);
-        }
-      });
-
-      console.log('[BookingV2] Resultados mesclados (mapeamento sequencial):', mergedResults);
-
-      // Filtrar apenas quartos com disponibilidade > 0 E valorTotal > 0
-      const availableResults = mergedResults.filter(room => room.disponibilidade > 0 && room.valorTotal > 0);
-
-      console.log('[BookingV2] Quartos disponíveis (disponibilidade > 0 E valorTotal > 0):', availableResults);
-      console.log('[BookingV2] Número de quartos disponíveis:', availableResults.length);
-
-      setResults(availableResults);
-
-      // Adiciona o scroll para a seção de resultados
-      if (availableResults.length > 0 && resultsContainerRef.current) {
-        resultsContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setResults(mergedResults);
+      
+      if (mergedResults.length > 0) {
+        setTimeout(() => resultsContainerRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
       }
 
     } catch (e: any) {
-      console.error("Erro ao buscar disponibilidade:", e);
-      const errorMessage = e.message || "Ocorreu um erro ao buscar a disponibilidade. Tente novamente.";
-      setError(errorMessage);
-      showError(errorMessage);
+      setError(e.message);
+      showError(e.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const scrollToSearchForm = () => {
-    searchFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
       <Header />
-      <main className="pb-20 flex-grow min-h-[600px]">
-        <section
-          className="relative bg-cover bg-center bg-gray-700 py-40"
-          style={{ backgroundImage: `url(${heroImageUrl || ''})` }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
+      <main className="pb-20 flex-grow">
+        <section className="relative bg-cover bg-center py-40" style={{ backgroundImage: `url(${heroImageUrl || ''})` }}>
+          <div className="absolute inset-0 bg-black/60" />
           <div className="relative container mx-auto px-4 text-center">
-            <div className="max-w-4xl mx-auto">
-              <h1 className={cn(
-                "text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg transition-all duration-700 ease-out",
-                isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-              )}>
-                Reserva de Acomodações
-              </h1>
-              <p className={cn(
-                "text-gray-200 text-lg drop-shadow-md transition-all duration-700 ease-out delay-200",
-                isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-              )}>
-                Verifique a disponibilidade e reserve sua estadia perfeita.
-              </p>
-            </div>
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Reserva de Acomodações</h1>
+            <p className="text-gray-200 text-lg">Verifique a disponibilidade e reserve sua estadia.</p>
           </div>
         </section>
 
@@ -313,41 +190,31 @@ const BookingV2 = () => {
           <AvailabilitySearchForm onSearch={handleSearch} isLoading={isLoading} />
         </div>
 
-        <div ref={resultsContainerRef} id="results-container" className="container mx-auto px-4 max-w-5xl pt-4 pb-16">
-          {isLoading && (
-            <div className="flex flex-col items-center justify-center text-center p-10 bg-white rounded-lg shadow-md">
-              <Loader2 className="h-12 w-12 animate-spin text-blue-600 mb-4" />
-              <p className="text-lg font-semibold text-gray-700">Buscando disponibilidade...</p>
-              <p className="text-gray-500">Por favor, aguarde um momento.</p>
+        <div ref={resultsContainerRef} className="container mx-auto px-4 max-w-5xl pt-4 pb-16">
+          {isLoading ? (
+            <div className="text-center p-10 bg-white rounded-lg shadow-md">
+              <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+              <p>Buscando disponibilidade...</p>
             </div>
-          )}
-          {error && (
-            <div className="flex flex-col items-center justify-center text-center p-10 bg-red-50 rounded-lg shadow-md border border-red-200">
-              <ServerCrash className="h-12 w-12 text-red-500 mb-4" />
-              <p className="text-lg font-semibold text-red-700">Ocorreu um Erro</p>
-              <p className="text-red-600 max-w-md">{error}</p>
+          ) : error ? (
+            <div className="text-center p-10 bg-red-50 rounded-lg border border-red-200">
+              <ServerCrash className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <p className="text-red-700">{error}</p>
             </div>
-          )}
-          {!isLoading && !error && !results && (
+          ) : !results ? (
             <InitialBookingState />
-          )}
-          {results && searchParams && (
+          ) : (
             <>
               <BookingStickyControls
-                searchParams={searchParams}
+                searchParams={searchParams!}
                 sortOrder={sortOrder}
                 onSortChange={setSortOrder}
-                scrollToSearchForm={scrollToSearchForm}
+                scrollToSearchForm={() => searchFormRef.current?.scrollIntoView({ behavior: 'smooth' })}
                 viewMode={viewMode}
                 onViewModeChange={setViewMode}
-                availableRoomsCount={results.filter(room => room.disponibilidade > 0).length}
+                availableRoomsCount={results.length}
               />
-
-              <AvailabilityResults
-                results={results}
-                searchParams={searchParams}
-                viewMode={viewMode}
-              />
+              <AvailabilityResults results={results} searchParams={searchParams!} viewMode={viewMode} />
             </>
           )}
         </div>
