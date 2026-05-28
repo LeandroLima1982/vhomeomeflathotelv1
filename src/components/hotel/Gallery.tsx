@@ -65,6 +65,25 @@ export function Gallery() {
     if (currentCategoryFolder) fetchImages(currentCategoryFolder);
   }, [activeCategory, fetchImages]);
 
+  // Re-fetch images when returning to tab (fixes images disappearing after navigation)
+  useEffect(() => {
+    const handleFocus = () => {
+      const currentCategoryFolder = categories.find(cat => cat.name === activeCategory)?.folder;
+      if (currentCategoryFolder) {
+        fetchImages(currentCategoryFolder);
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') handleFocus();
+    });
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [activeCategory, fetchImages]);
+
   return (
     <>
       <section id="galeria" className="pt-24 py-20 bg-gray-100">
