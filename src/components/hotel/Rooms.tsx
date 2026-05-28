@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { BedDouble, Star, MousePointerClick } from "lucide-react";
+import { BedDouble } from "lucide-react";
 import DetailIcon from "./DetailIcon";
 import RoomDetailsModal from "./RoomDetailsModal";
 
@@ -13,7 +13,6 @@ interface Room {
   imageUrl: string | null;
   details: Record<string, string | null> | null;
   details_order: string[] | null;
-  custom_description: string | null;
   description: string | null;
   base_price: number | null;
 }
@@ -52,37 +51,15 @@ const Rooms = () => {
         let imageUrl: string | null = null;
 
         try {
-          // Tenta capa em /rooms
-          const { data: coverFiles } = await supabase.storage
+          const { data: files } = await supabase.storage
             .from("gallery")
             .list("rooms", { search: `${room.id}.` });
 
-          if (coverFiles && coverFiles.length > 0) {
+          if (files && files.length > 0) {
             const { data: { publicUrl } } = supabase.storage
               .from("gallery")
-              .getPublicUrl(`rooms/${coverFiles[0].name}`);
+              .getPublicUrl(`rooms/${files[0].name}`);
             imageUrl = `${publicUrl}?t=${Date.now()}`;
-          }
-
-          // Se não tiver capa, busca na galeria do quarto
-          if (!imageUrl) {
-            const { data: galleryFiles } = await supabase.storage
-              .from("gallery")
-              .list(`rooms/${room.id}/gallery`, { limit: 100 });
-
-            if (galleryFiles && galleryFiles.length > 0) {
-              const validFiles = galleryFiles.filter(
-                (f) => f.name !== ".emptyFolderPlaceholder" && f.name !== "_order.json"
-              );
-
-              if (validFiles.length > 0) {
-                const first = validFiles[0];
-                const { data: { publicUrl } } = supabase.storage
-                  .from("gallery")
-                  .getPublicUrl(`rooms/${room.id}/gallery/${first.name}`);
-                imageUrl = `${publicUrl}?t=${Date.now()}`;
-              }
-            }
           }
         } catch (e) {
           imageUrl = null;
@@ -100,7 +77,7 @@ const Rooms = () => {
     fetchRooms();
   }, [fetchRooms]);
 
-  // Recarrega imagens ao voltar para a aba (evita sumiço)
+  // Recarrega imagens ao voltar para a aba (fix do sumiço)
   useEffect(() => {
     const refetch = () => fetchRooms();
     window.addEventListener("focus", refetch);
@@ -124,7 +101,9 @@ const Rooms = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {rooms.map((room) => (
-            <div key={room.id} className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all">
+            <div key={room.id} className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 flex flex-col">
+              
+              {/* Imagem */}
               <div className="relative h-56 bg-gray-200">
                 {room.imageUrl ? (
                   <img src={room.imageUrl} alt={room.name} className="w-full h-full object-cover" />
@@ -135,39 +114,53 @@ const Rooms = () => {
                 )}
               </div>
 
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 className="font-bold text-xl text-gray-800">{room.name}</h3>
-                    {room.special_name && <p className="text-sm text-blue-600">{room.special_name}</p>}
-                  </div>
-                  {room.base_price && (
-                    <div className="text-right">
-                      <span className="text-xs text-gray-500">a partir de</span>
-                      <p className="font-bold text-lg text-gray-800">R$ {room.base_price}</p>
-                    </div>
+              <div className="p-6 flex flex-col flex-1">
+                
+                {/* Nome + Special Name */}
+                <div className="mb-3">
+                  {room.special_name && (
+                    <span className="inline-block bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full mb-2">
+                      {room.special_name}
+                    </span>
                   )}
+                  <h3 className="font-bold text-xl text-gray-800 leading-tight">{room.name}</h3>
                 </div>
 
+                {/* Descrição */}
                 {room.description && (
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">{room.description}</p>
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-1">
+                    {room.description}
+                  </p>
                 )}
 
-                {/* Ícones de comodidades */}
+                {/* Ícones */}
                 {room.details && room.details_order && room.details_order.length > 0 && (
-                  <div className="flex flex-wrap gap-3 mb-4">
-                    {room.details_order.slice(0, 4).map((key) => (
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mb-5">
+                    {room.details_order.slice(0, 6).map((key) => (
                       <DetailIcon key={key} detailText={key} />
                     ))}
                   </div>
                 )}
 
-                <button
-                  onClick={() => setSelectedRoom(room)}
-                  className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium flex items-center justify-center gap-2"
-                >
-                  Ver detalhes <MousePointerClick className="w-4 h-4" />
-                </button>
+                {/* Preço + Botão */}
+                <div className="mt-auto pt-4 border-t">
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <span className="text-xs text-gray-500">A PARTIR DE</span>
+                      <p className="text-2xl font-bold text-gray-800">
+                        R$ {room.base_price?.toFixed(2).replace(".", ",")}
+                      </p>
+                      <span className="text-xs text-gray-500">/ diária</span>
+                    </div>
+
+                    <button
+                      onClick={() => setSelectedRoom(room)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition-colors"
+                    >
+                      Ver detalhes →
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           ))}
