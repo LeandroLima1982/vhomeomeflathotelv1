@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { BedDouble, Star, MousePointerClick, Tag } from "lucide-react";
-import DetailIcon from './DetailIcon';
-import RoomDetailsModal from './RoomDetailsModal';
+import { BedDouble, Star, MousePointerClick } from "lucide-react";
+import DetailIcon from "./DetailIcon";
+import RoomDetailsModal from "./RoomDetailsModal";
 
 interface Room {
   id: number;
@@ -25,10 +25,11 @@ const Rooms = () => {
 
   const fetchRooms = useCallback(async () => {
     setLoading(true);
+
     const { data: roomData, error } = await supabase
-      .from('rooms')
-      .select('*')
-      .order('id');
+      .from("rooms")
+      .select("*")
+      .order("id");
 
     if (error) {
       console.error("Error fetching rooms:", error);
@@ -42,70 +43,55 @@ const Rooms = () => {
       return;
     }
 
-    const filteredRoomData = roomData.filter(room => !(room.id === 3 && room.name === "Quarto Duplo 1 Cama Queen ( Standard)"));
+    const filtered = roomData.filter(
+      (room) => !(room.id === 3 && room.name === "Quarto Duplo 1 Cama Queen ( Standard)")
+    );
 
     const roomsWithImages = await Promise.all(
-      filteredRoomData.map(async (room) => {
+      filtered.map(async (room) => {
         let imageUrl: string | null = null;
+
         try {
+          // Tenta capa em /rooms
           const { data: coverFiles } = await supabase.storage
-            .from('gallery')
-            .list('rooms', { search: `${room.id}.` });
+            .from("gallery")
+            .list("rooms", { search: `${room.id}.` });
 
           if (coverFiles && coverFiles.length > 0) {
-            const coverFile = coverFiles[0];
             const { data: { publicUrl } } = supabase.storage
-              .from('gallery')
-              .getPublicUrl(`rooms/${coverFile.name}`);
-            imageUrl = `${publicUrl}?t=${new Date().getTime()}`;
+              .from("gallery")
+              .getPublicUrl(`rooms/${coverFiles[0].name}`);
+            imageUrl = `${publicUrl}?t=${Date.now()}`;
           }
 
+          // Se não tiver capa, busca na galeria do quarto
           if (!imageUrl) {
             const { data: galleryFiles } = await supabase.storage
-              .from('gallery')
-              .list(`rooms/${room.id}/gallery`, { 
-                limit: 100,
-                sortBy: { column: 'created_at', order: 'desc' }
-              });
+              .from("gallery")
+              .list(`rooms/${room.id}/gallery`, { limit: 100 });
 
             if (galleryFiles && galleryFiles.length > 0) {
               const validFiles = galleryFiles.filter(
-                file => file.name !== '.emptyFolderPlaceholder' && file.name !== '_order.json'
+                (f) => f.name !== ".emptyFolderPlaceholder" && f.name !== "_order.json"
               );
 
               if (validFiles.length > 0) {
-                let firstImageName: string | null = null;
-                const { data: orderFileData } = await supabase.storage
-                  .from('gallery')
-                  .download(`rooms/${room.id}/gallery/_order.json`);
-
-                if (orderFileData) {
-                  try {
-                    const orderJson = await orderFileData.text();
-                    const orderedNames = JSON.parse(orderJson) as string[];
-                    const validOrderedName = orderedNames.find(name => 
-                      validFiles.some(file => file.name === name)
-                    );
-                    if (validOrderedName) firstImageName = validOrderedName;
-                  } catch (e) {}
-                }
-
-                if (!firstImageName) firstImageName = validFiles[0].name;
-                
+                const first = validFiles[0];
                 const { data: { publicUrl } } = supabase.storage
-                  .from('gallery')
-                  .getPublicUrl(`rooms/${room.id}/gallery/${firstImageName}`);
-                
-                imageUrl = `${publicUrl}?t=${new Date().getTime()}`;
+                  .from("gallery")
+                  .getPublicUrl(`rooms/${room.id}/gallery/${first.name}`);
+                imageUrl = `${publicUrl}?t=${Date.now()}`;
               }
             }
           }
-          return { ...room, imageUrl };
-        } catch (error) {
-          return { ...room, imageUrl: null };
+        } catch (e) {
+          imageUrl = null;
         }
+
+        return { ...room, imageUrl };
       })
     );
+
     setRooms(roomsWithImages);
     setLoading(false);
   }, []);
@@ -114,23 +100,18 @@ const Rooms = () => {
     fetchRooms();
   }, [fetchRooms]);
 
-  // Re-fetch quando voltar para a aba (resolve sumiço após navegação/tempo)
+  // Recarrega imagens ao voltar para a aba (evita sumiço)
   useEffect(() => {
-    const handleRefetch = () => fetchRooms();
-
-    window.addEventListener('focus', handleRefetch);
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') handleRefetch();
+    const refetch = () => fetchRooms();
+    window.addEventListener("focus", refetch);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") refetch();
     });
-
-    return () => {
-      window.removeEventListener('focus', handleRefetch);
-    };
+    return () => window.removeEventListener("focus", refetch);
   }, [fetchRooms]);
 
-  // resto do componente (não mudei)
   if (loading) {
-    return <div className="flex justify-center items-center py-20">Carregando quartos...</div>;
+    return <div className="flex justify-center py-20">Carregando acomodações...</div>;
   }
 
   return (
@@ -143,38 +124,47 @@ const Rooms = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {rooms.map((room) => (
-            <div key={room.id} className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow">
+            <div key={room.id} className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all">
               <div className="relative h-56 bg-gray-200">
                 {room.imageUrl ? (
-                  <img 
-                    src={room.imageUrl} 
-                    alt={room.name}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={room.imageUrl} alt={room.name} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-100">
                     <BedDouble className="w-12 h-12 text-gray-400" />
                   </div>
                 )}
               </div>
-              
+
               <div className="p-6">
-                <div className="flex items-start justify-between mb-3">
+                <div className="flex justify-between items-start mb-3">
                   <div>
                     <h3 className="font-bold text-xl text-gray-800">{room.name}</h3>
-                    {room.special_name && (
-                      <p className="text-sm text-blue-600 font-medium">{room.special_name}</p>
-                    )}
+                    {room.special_name && <p className="text-sm text-blue-600">{room.special_name}</p>}
                   </div>
+                  {room.base_price && (
+                    <div className="text-right">
+                      <span className="text-xs text-gray-500">a partir de</span>
+                      <p className="font-bold text-lg text-gray-800">R$ {room.base_price}</p>
+                    </div>
+                  )}
                 </div>
 
                 {room.description && (
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">{room.description}</p>
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">{room.description}</p>
                 )}
 
-                <button 
+                {/* Ícones de comodidades */}
+                {room.details && room.details_order && room.details_order.length > 0 && (
+                  <div className="flex flex-wrap gap-3 mb-4">
+                    {room.details_order.slice(0, 4).map((key) => (
+                      <DetailIcon key={key} label={key} value={room.details?.[key]} />
+                    ))}
+                  </div>
+                )}
+
+                <button
                   onClick={() => setSelectedRoom(room)}
-                  className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
+                  className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium flex items-center justify-center gap-2"
                 >
                   Ver detalhes <MousePointerClick className="w-4 h-4" />
                 </button>
@@ -185,10 +175,7 @@ const Rooms = () => {
       </div>
 
       {selectedRoom && (
-        <RoomDetailsModal 
-          room={selectedRoom} 
-          onClose={() => setSelectedRoom(null)} 
-        />
+        <RoomDetailsModal room={selectedRoom} onClose={() => setSelectedRoom(null)} />
       )}
     </section>
   );
