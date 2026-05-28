@@ -8,9 +8,9 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { session, isLoading } = useAuth();
+  const { session, profile, isLoading } = useAuth();
 
-  if (isLoading) {
+  if (isLoading || (session && !profile)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -21,7 +21,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  if (!session) {
+  if (!session || !profile) {
     return <Navigate to="/login" replace />;
   }
 

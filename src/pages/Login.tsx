@@ -38,9 +38,10 @@ const Login = () => {
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
+        // Delay maior para dar tempo do AuthProvider carregar o perfil
         setTimeout(() => {
           navigate('/admin');
-        }, 800);
+        }, 1500);
       }
     });
 
