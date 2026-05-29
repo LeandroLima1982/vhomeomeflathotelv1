@@ -83,38 +83,46 @@ const Rooms = () => {
               className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 flex flex-col group"
             >
               {/* === IMAGEM COM EFEITOS === */}
-              <div className="relative h-56 bg-gray-200 overflow-hidden">
-                {room.imageUrl ? (
-                  <img 
-                    src={room.imageUrl} 
-                    alt={room.name} 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                    <BedDouble className="w-12 h-12 text-gray-400" />
-                  </div>
-                )}
+<div className="relative h-56 bg-gray-200 overflow-hidden cursor-pointer"
+     onClick={() => setSelectedRoom(room)}>
 
-                {/* Estrelas no canto superior esquerdo */}
-                <div className="absolute top-3 left-3 flex gap-0.5 z-10">
-                  {[...Array(4)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400 drop-shadow" />
-                  ))}
-                </div>
+  {room.imageUrl ? (
+    <img 
+      src={room.imageUrl} 
+      alt={room.name} 
+      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+    />
+  ) : (
+    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+      <BedDouble className="w-12 h-12 text-gray-400" />
+    </div>
+  )}
 
-                {/* Botão "Ver detalhes" com efeito vidro (canto inferior direito) */}
-                <div className="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-white/25 backdrop-blur-md border border-white/40 text-white text-xs font-medium shadow z-10">
-                  Ver detalhes
-                </div>
+  {/* Estrelas */}
+  <div className="absolute top-3 left-3 flex gap-0.5 z-10">
+    {[...Array(4)].map((_, i) => (
+      <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400 drop-shadow" />
+    ))}
+  </div>
 
-                {/* Círculo com seta no centro (aparece no hover) */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10">
-                  <div className="w-11 h-11 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center border border-white/50 shadow">
-                    <ArrowRight className="w-5 h-5 text-white" />
-                  </div>
-                </div>
-              </div>
+  {/* "Ver detalhes" com vidro fosco (canto inferior direito) */}
+  <div 
+    onClick={(e) => { e.stopPropagation(); setSelectedRoom(room); }}
+    className="absolute bottom-3 right-3 px-3.5 py-1.5 rounded-full bg-white/25 backdrop-blur-md border border-white/40 text-white text-xs font-medium shadow z-10 cursor-pointer hover:bg-white/35 transition-colors"
+  >
+    Ver detalhes
+  </div>
+
+  {/* Ícone circular com vidro fosco (aparece no hover) */}
+  <div 
+    onClick={(e) => { e.stopPropagation(); setSelectedRoom(room); }}
+    className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 cursor-pointer"
+  >
+    <div className="w-11 h-11 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center border border-white/50 shadow hover:bg-white/40 transition-colors">
+      <ArrowRight className="w-5 h-5 text-white" />
+    </div>
+  </div>
+</div>
 
               {/* Conteúdo do card */}
               <div className="p-6 flex flex-col flex-1">
