@@ -18,11 +18,11 @@ const Hotel = () => {
         <Hero />
         <BookingForm />
         <About className="pt-[63px] md:pt-[60px]" />
-        <Rooms className="pt-18" />
-        <Amenities className="pt-18" />
-        <Gallery className="pt-18" />
-        <Nearby className="pt-18" />
-        <Contact className="pt-18" />
+        <Rooms className="pt-10" />
+        <Amenities className="pt-10" />
+        <Gallery className="pt-10" />
+        <Nearby className="pt-10" />
+        <Contact className="pt-10" />
       </main>
       <Footer />
       <ScrollToTop />
