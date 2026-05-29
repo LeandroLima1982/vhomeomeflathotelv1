@@ -136,9 +136,11 @@ const Rooms = () => {
                 {/* Ícones */}
                 {room.details && room.details_order && room.details_order.length > 0 && (
                   <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mb-5">
-                    {room.details_order.slice(0, 6).map((key) => (
-                      <DetailIcon key={key} detailText={key} />
-                    ))}
+                   {room.details_order?.slice(0, 6).map((key) => {
+  const value = room.details?.[key];
+  if (!value) return null;
+  return <DetailIcon key={key} detailText={value} />;
+})}
                   </div>
                 )}
 
