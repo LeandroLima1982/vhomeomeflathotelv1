@@ -156,3 +156,6 @@
     animation: click-animation 1.5s ease-in-out infinite;
   }
 }
+html {
+  scroll-behavior: smooth;
+}
