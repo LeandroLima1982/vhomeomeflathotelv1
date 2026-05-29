@@ -2,19 +2,8 @@
 
 import React from 'react';
 import {
-  Wifi,
-  Wind,
-  Tv,
-  Car,
-  Coffee,
-  Waves,
-  UtensilsCrossed,
-  CheckCircle,
-  BedDouble,
-  Users,
-  ShowerHead,
-  Sun,
-  Building2,
+  Wifi, Wind, Tv, Users, UtensilsCrossed, 
+  Waves, Sun, Building2, CheckCircle, BedDouble
 } from 'lucide-react';
 
 interface DetailIconProps {
@@ -22,35 +11,31 @@ interface DetailIconProps {
 }
 
 const iconMap: Record<string, React.ElementType> = {
-  'tv': Tv,
-  'mar': Waves,
-  'cidade': Building2,
-  'wi-fi': Wifi,
   'wifi': Wifi,
-  'internet': Wifi,
+  'wi-fi': Wifi,
   'ar-condicionado': Wind,
   'ar condicionado': Wind,
-  'estacionamento': Car,
-  'garagem': Car,
-  'café da manhã': Coffee,
-  'cafe da manha': Coffee,
-  'piscina': Waves,
-  'cozinha': UtensilsCrossed,
-  'cama': BedDouble,
-  'hóspedes': Users,
-  'hospedes': Users,
+  'tv': Tv,
+  'televisão': Tv,
+  'pessoa': Users,
   'pessoas': Users,
-  'banheiro': ShowerHead,
+  'hóspede': Users,
+  'hospede': Users,
+  'cozinha': UtensilsCrossed,
+  'mar': Waves,
+  'vista': Waves,
   'varanda': Sun,
+  'cidade': Building2,
+  'cama': BedDouble,
 };
 
 const DetailIcon: React.FC<DetailIconProps> = ({ detailText }) => {
-  const lowerDetailText = detailText.toLowerCase();
+  const lower = detailText.toLowerCase();
   let IconComponent: React.ElementType = CheckCircle;
 
-  for (const key in iconMap) {
-    if (lowerDetailText.includes(key)) {
-      IconComponent = iconMap[key];
+  for (const keyword in iconMap) {
+    if (lower.includes(keyword)) {
+      IconComponent = iconMap[keyword];
       break;
     }
   }
