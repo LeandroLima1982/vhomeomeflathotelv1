@@ -52,11 +52,21 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t border-blue-800 mt-8 pt-8 text-center text-gray-300">
-          <p>&copy; 2025 V-Home Flat Hotel. Todos os direitos reservados.</p>
-          <p className="mt-2 text-sm">
-            Um empreendimento <Link to="/institucional" className="underline hover:text-white">VERY</Link>.
-          </p>
-        </div>
+<p>© 2025 V-Home Flat Hotel. Todos os direitos reservados.</p>
+
+<p className="mt-2 text-sm">
+  Um empreendimento <Link to="/institucional" className="underline hover:text-white">VERY</Link>.
+</p>
+
+{/* Link discreto para o painel admin */}
+<p className="mt-3 text-xs text-gray-400">
+  <a 
+    href="/admin" 
+    className="hover:text-gray-200 transition-colors"
+  >
+    Acesso Administrativo
+  </a>
+</p>        </div>
       </div>
     </footer>
   );
