@@ -11,7 +11,7 @@ import {
   UtensilsCrossed,
   CheckCircle,
   BedDouble,
-  Users, // Importando o ícone Users
+  Users,
   ShowerHead,
   Sun,
   Building2,
@@ -37,9 +37,9 @@ const iconMap: Record<string, React.ElementType> = {
   'piscina': Waves,
   'cozinha': UtensilsCrossed,
   'cama': BedDouble,
-  'hóspedes': Users, // Mapeando para Users
-  'hospedes': Users, // Mapeando para Users
-  'pessoas': Users, // Mapeando para Users
+  'hóspedes': Users,
+  'hospedes': Users,
+  'pessoas': Users,
   'banheiro': ShowerHead,
   'varanda': Sun,
 };
@@ -55,7 +55,12 @@ const DetailIcon: React.FC<DetailIconProps> = ({ detailText }) => {
     }
   }
 
-  return <IconComponent className="h-5 w-5 text-blue-700 flex-shrink-0" />;
+  return (
+    <div className="flex items-center gap-2 text-sm text-gray-700">
+      <IconComponent className="h-4 w-4 text-blue-600 flex-shrink-0" />
+      <span>{detailText}</span>
+    </div>
+  );
 };
 
 export default DetailIcon;
