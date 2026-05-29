@@ -159,3 +159,16 @@
 html {
   scroll-behavior: smooth;
 }
+/* ============================================
+   MELHOR ESPAÇAMENTO AO ROLAR PARA SEÇÕES
+   (Header fixo) - Boa prática de UX/UI
+============================================ */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px; /* Aumente ou diminua conforme necessário */
+}
+
+/* Alternativa mais precisa (funciona bem também) */
+section[id] {
+  scroll-margin-top: 95px;
+}
