@@ -53,7 +53,7 @@ const MobileNav = () => {
               </li>
               <li role="menuitem">
                 <SheetClose asChild>
-                  <a href="#rooms" className="flex items-center gap-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 py-2 px-3 rounded-lg">
+                  <a href="#acomodacoes" className="flex items-center gap-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 py-2 px-3 rounded-lg">
                     <Bed className="w-5 h-5 text-blue-600" />
                     <span className="font-medium">Acomodações</span>
                   </a>
