@@ -6,7 +6,6 @@ import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/lib/supabaseClient';
 import Logo from '@/components/hotel/Logo';
-import { showError } from '@/utils/toast';
 import { ArrowLeft } from 'lucide-react';
 
 const Login = () => {
@@ -16,7 +15,6 @@ const Login = () => {
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        // Reduzido delay - AuthProvider agora cria perfil automaticamente
         setTimeout(() => {
           navigate('/admin');
         }, 800);
@@ -30,7 +28,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 relative">
-      {/* Botão Voltar ao Site */}
       <div className="absolute top-8 left-8">
         <Link 
           to="/" 
@@ -62,6 +59,7 @@ const Login = () => {
           appearance={{ theme: ThemeSupa }}
           providers={[]}
           theme="light"
+          showLinks={false}
           localization={{
             variables: {
               sign_in: {
@@ -71,26 +69,7 @@ const Login = () => {
                 password_input_placeholder: 'Sua senha',
                 button_label: 'Entrar',
                 loading_button_label: 'Entrando...',
-                social_provider_text: 'Entrar com {{provider}}',
-                link_text: 'Já tem uma conta? Entre',
-              },
-              sign_up: {
-                email_label: 'Endereço de e-mail',
-                password_label: 'Crie uma senha',
-                email_input_placeholder: 'seu@email.com',
-                password_input_placeholder: 'Crie uma senha segura',
-                button_label: 'Registrar',
-                loading_button_label: 'Registrando...',
-                social_provider_text: 'Registrar com {{provider}}',
-                link_text: 'Não tem uma conta? Registre-se',
-              },
-              forgotten_password: {
-                email_label: 'Endereço de e-mail',
-                email_input_placeholder: 'seu@email.com',
-                button_label: 'Enviar instruções',
-                loading_button_label: 'Enviando...',
-                link_text: 'Esqueceu sua senha?',
-              },
+              }
             },
           }}
           onAuthError={(error) => {
