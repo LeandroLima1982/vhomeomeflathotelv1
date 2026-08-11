@@ -143,7 +143,7 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
         </CardContent>
         <CardFooter className="bg-gray-50 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex flex-col items-start">
-            <span className="text-sm text-gray-600">Total para o período</span>
+            <span className="text-sm text-gray-600">Valor de referência para o período*</span>
             <p className="text-2xl font-bold text-blue-800 flex items-center">
               <Tag className="h-5 w-5 mr-2 opacity-70" />
               {formattedPrice}
@@ -153,6 +153,9 @@ export function RoomResultCard({ room, searchParams }: RoomResultCardProps) {
                 ({numberOfNights} diária{numberOfNights > 1 ? 's' : ''})
               </span>
             )}
+            <span className="text-xs text-gray-500 mt-1 italic">
+              Valor de referência, sujeito a confirmação.
+            </span>
           </div>
           <Button onClick={handleSelectRoom} className="w-full sm:w-auto bg-blue-700 hover:bg-blue-800">
             Reservar via WhatsApp

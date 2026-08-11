@@ -95,11 +95,12 @@ export function RoomResultGridCard({ room, searchParams }: RoomResultGridCardPro
       </div>
       <div className="p-4 bg-gray-50 flex items-center justify-between">
         <div>
-          <p className="text-sm text-gray-500">Total</p>
+          <p className="text-sm text-gray-500">Valor de referência*</p>
           <p className="text-xl font-bold text-blue-800 flex items-center">
             <Tag className="h-4 w-4 mr-1.5 opacity-70" />
             {formattedPrice}
           </p>
+          <p className="text-xs text-gray-500 mt-0.5 italic">sujeito a confirmação</p>
         </div>
         <Button onClick={handleSelectRoom} className="bg-blue-700 hover:bg-blue-800">
           Reservar

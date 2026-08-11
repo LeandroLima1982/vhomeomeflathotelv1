@@ -63,6 +63,10 @@ export function AvailabilityResults({ results, searchParams, viewMode }: Availab
           ))}
         </div>
       )}
+      <div className="mt-6 text-xs text-gray-600 bg-amber-50 border border-amber-200 rounded-lg p-3">
+        * Valor de referência. O site é apenas consultivo: o valor final e a disponibilidade dependem
+        de consulta prévia para confirmação (via WhatsApp).
+      </div>
     </div>
   );
 }
