@@ -154,11 +154,11 @@ const Rooms = () => {
                 <div className="mt-auto pt-4 border-t">
                   <div className="flex items-end justify-between">
                     <div>
-                      <span className="text-xs text-gray-500">A PARTIR DE</span>
+                      <span className="text-xs text-gray-500">A PARTIR DE*</span>
                       <p className="text-2xl font-bold text-gray-800">
                         R$ {room.base_price?.toFixed(2).replace(".", ",")}
                       </p>
-                      <span className="text-xs text-gray-500">/ diária</span>
+                      <span className="text-xs text-gray-500">/ diária, sujeito a confirmação</span>
                     </div>
 
                     <button
@@ -172,6 +172,11 @@ const Rooms = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="mt-8 text-xs text-gray-600 bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
+          * Valor de referência. O site é apenas consultivo: o valor final e a disponibilidade dependem
+          de consulta prévia para confirmação (via WhatsApp).
         </div>
       </div>
 

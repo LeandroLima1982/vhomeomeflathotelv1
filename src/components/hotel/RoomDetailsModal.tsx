@@ -298,10 +298,13 @@ const RoomDetailsModal = ({ room, onClose }: RoomDetailsModalProps) => {
                 <Separator className="my-4" />
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="text-center sm:text-left">
-                    <span className="text-sm text-gray-600">Total para {numberOfNights} diária{numberOfNights > 1 ? 's' : ''}</span>
+                    <span className="text-sm text-gray-600">Valor de referência para {numberOfNights} diária{numberOfNights > 1 ? 's' : ''}*</span>
                     <p className="text-3xl font-bold text-blue-800 flex items-center gap-2 mt-1">
                       <Tag className="h-6 w-6 opacity-70" />
                       {formattedPrice}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1 italic">
+                      Valor de referência, sujeito a confirmação.
                     </p>
                   </div>
                   <Button
