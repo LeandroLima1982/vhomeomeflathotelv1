@@ -12,7 +12,7 @@ interface SearchParams {
  * Gera um link do WhatsApp com uma mensagem pré-definida.
  */
 export function generateWhatsAppLink(roomName?: string, searchParams?: SearchParams): string {
-  let message = "Olá! Gostaria de solicitar uma reserva no V-Home Flat Hotel.";
+  let message = "Olá! Gostaria de consultar valor e disponibilidade no V-Home Flat Hotel.";
   
   if (roomName) {
     message += `\n\nAcomodação: ${roomName}`;
